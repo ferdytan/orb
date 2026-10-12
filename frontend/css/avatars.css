@@ -1,0 +1,121 @@
+/* ==========================================================================
+   ORB - PLUSH AVATAR ANIMATIONS & ACCESSORIES
+   ========================================================================== */
+
+/* Gentle Idle Breathing & Floating */
+@keyframes plush-breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.02);
+  }
+}
+
+@keyframes plush-typing {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-2px) rotate(1deg);
+  }
+  75% {
+    transform: translateY(-1px) rotate(-1deg);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.avatar-actor-card:nth-child(odd) .avatar-figure-frame {
+  animation: plush-breathe 4s ease-in-out infinite;
+}
+
+.avatar-actor-card:nth-child(even) .avatar-figure-frame {
+  animation: plush-breathe 4.5s ease-in-out infinite 0.5s;
+}
+
+.avatar-status-pill.status-active::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+  animation: pulse-ring 2s infinite;
+}
+
+.avatar-status-pill.status-listening::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #A5B4FC;
+}
+
+.avatar-status-pill.status-routing::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #FCD34D;
+}
+
+/* Avatar Selected Highlight */
+.avatar-actor-card.is-selected {
+  transform: translateY(-4px);
+}
+
+.avatar-actor-card.is-selected .avatar-figure-frame {
+  filter: drop-shadow(0 10px 16px rgba(59, 130, 246, 0.35));
+}
+
+.avatar-actor-card.is-selected .avatar-title-row {
+  color: var(--accent-primary);
+}
+
+/* Domain Badges */
+.domain-badge-pill {
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.domain-finance { background: #DCFCE7; color: #15803D; }
+.domain-travel { background: #FEF3C7; color: #B45309; }
+.domain-communication { background: #E0E7FF; color: #4338CA; }
+.domain-analytics { background: #F3E8FF; color: #7E22CE; }
+.domain-marketing { background: #FFEDD5; color: #C2410C; }
+.domain-strategy { background: #CCFBF1; color: #0F766E; }
+.domain-design { background: #FEF9C3; color: #A16207; }
+.domain-media { background: #E0F2FE; color: #0369A1; }
+.domain-creative { background: #FCE7F3; color: #BE185D; }
+.domain-operations { background: #F1F5F9; color: #475569; }
+
+[data-theme="dark"] .domain-finance { background: #064E3B; color: #6EE7B7; }
+[data-theme="dark"] .domain-travel { background: #78350F; color: #FCD34D; }
+[data-theme="dark"] .domain-communication { background: #312E81; color: #C7D2FE; }
+[data-theme="dark"] .domain-analytics { background: #581C87; color: #E9D5FF; }
+[data-theme="dark"] .domain-marketing { background: #7C2D12; color: #FDBA74; }
+[data-theme="dark"] .domain-strategy { background: #134E4A; color: #5EEAD4; }
+[data-theme="dark"] .domain-design { background: #713F12; color: #FDE047; }
+[data-theme="dark"] .domain-media { background: #0C4A6E; color: #7DD3FC; }
+[data-theme="dark"] .domain-creative { background: #831843; color: #F472B6; }
+[data-theme="dark"] .domain-operations { background: #1E293B; color: #94A3B8; }

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Orb - Virtual Office AI Agent Dashboard</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/avatars.css">
+</head>
+<body>
+
+  <!-- Top Global Navigation Bar -->
+  <header class="global-control-bar">
+    <div class="brand-capsule">
+      <div class="brand-badge">O</div>
+      <span>Orb</span>
+    </div>
+
+    <!-- Controls for dynamic lighting, mode & frame -->
+    <div class="controls-group">
+      <!-- Lighting Selector -->
+      <div class="lighting-pill-group">
+        <button class="lighting-btn active" data-lighting="morning" title="Morning Warm Lighting">🌅 Morning</button>
+        <button class="lighting-btn" data-lighting="noon" title="Noon Bright Daylight">☀️ Noon</button>
+        <button class="lighting-btn" data-lighting="evening" title="Evening Golden Hour">🌇 Evening</button>
+        <button class="lighting-btn" data-lighting="night" title="Night Deep Blue">🌙 Night</button>
+        <button class="lighting-btn" data-lighting="auto" title="Auto Sync with Real Clock">⏱️ Auto</button>
+      </div>
+
+      <!-- Theme Mode Switcher -->
+      <button class="theme-toggle-btn" id="globalThemeToggleBtn" title="Toggle Light / Dark Mode">
+        <span>☀️</span> Light
+      </button>
+
+      <!-- Frame Size Switcher -->
+      <button class="view-toggle-btn" id="globalViewToggleBtn" title="Toggle Handheld Frame / Fullscreen">
+        <span>📱</span> Frame
+      </button>
+    </div>
+  </header>
+
+  <!-- Handheld Device Frame Container -->
+  <main class="device-viewport">
+    <div class="handheld-shell">
+      
+      <!-- Top Device Notch / Dynamic Island -->
+      <div class="device-notch-bar">
+        <div class="device-clock" id="deviceClockText">09:41</div>
+        <div class="device-island"></div>
+        <div class="device-icons">
+          <span>5G</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <!-- App Scrollable Container -->
+      <div class="app-screen-container">
+
+        <!-- 1. Header: Office Scene with Dynamic Lighting & Plush Avatars -->
+        <section class="office-header-scene lighting-morning">
+          <!-- Blurred Office Backdrop -->
+          <div class="scene-backdrop-layer" id="officeBackdropLayer"></div>
+          <!-- Shaders & Lighting Overlays -->
+          <div class="scene-lighting-overlay"></div>
+          <div class="scene-sunbeam-layer"></div>
+          <div class="scene-bottom-gradient"></div>
+
+          <!-- Plush Avatars Carousel Track -->
+          <div class="avatars-stage-wrapper">
+            <div class="avatars-carousel-track" id="avatarsCarouselTrack">
+              <!-- Rendered dynamically by avatars.js -->
+            </div>
+
+            <!-- Carousel Navigation & View Mode Controls -->
+            <div class="carousel-nav-row">
+              <div class="carousel-dots-indicator" id="carouselDotsIndicator">
+                <!-- Rendered dynamically -->
+              </div>
+              <button class="avatar-view-toggle-pill" id="avatarViewToggleBtn" title="Toggle All 10 Avatars">
+                <span>▦</span> All 10
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Bento Widgets Section (Solid Tone Background) -->
+        <section class="bento-section-container">
+          
+          <!-- Widget 1: Goal -->
+          <div class="bento-card" id="bentoGoalCard">
+            <div>
+              <div class="bento-card-header">
+                <span class="bento-card-title">Goal</span>
+              </div>
+              <div class="widget-goal-content">
+                <div class="goal-hero-text" id="goalHeroTitle">Turn one outside sale...</div>
+                <div class="goal-milestone-pill">
+                  <div class="goal-checkbox" id="goalCheckboxBtn" title="Toggle Milestone Complete"></div>
+                  <div class="goal-milestone-label" id="goalMilestoneText">Milestone: Turn a read reply into a real ask</div>
+                </div>
+              </div>
+            </div>
+            <div class="goal-progress-bar-container">
+              <div class="goal-progress-fill" id="goalProgressFill" style="width: 65%;"></div>
+            </div>
+          </div>
+
+          <!-- Widget 2: Wallet -->
+          <div class="bento-card" id="bentoWalletCard">
+            <div class="bento-card-header">
+              <span class="bento-card-title">Wallet</span>
+            </div>
+            <div class="widget-wallet-body">
+              <div class="wallet-art-frame">
+                <img src="/assets/widget_wallet.png" alt="Wallet" class="wallet-plush-img" />
+              </div>
+              <div class="wallet-digits" id="walletBalanceDigits">1,400</div>
+            </div>
+            <div class="wallet-subtext-pill">
+              <span id="walletNoteText">Synced with Fin</span>
+              <span>USD ▾</span>
+            </div>
+          </div>
+
+          <!-- Widget 3: Talent -->
+          <div class="bento-card" id="bentoTalentCard">
+            <div class="bento-card-header">
+              <span class="bento-card-title">Talent</span>
+            </div>
+            <div class="widget-talent-body">
+              <div class="talent-cards-fan">
+                <!-- Social Card -->
+                <div class="talent-card-item card-social">
+                  <span>Social</span>
+                  <span style="font-size: 0.8rem;">👥</span>
+                </div>
+                <!-- Collab Card -->
+                <div class="talent-card-item card-collab">
+                  <span>Collab</span>
+                  <span style="font-size: 0.8rem;">🤝</span>
+                </div>
+                <!-- Creativity Card -->
+                <div class="talent-card-item card-creativity">
+                  <span>Creativity</span>
+                  <span style="font-size: 0.8rem;">💡</span>
+                </div>
+                <!-- Profile Badge -->
+                <div class="talent-badge-profile">
+                  <span>👤+</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Widget 4: Collections -->
+          <div class="bento-card" id="bentoCollectionsCard">
+            <div class="bento-card-header">
+              <span class="bento-card-title">Collections</span>
+            </div>
+            <div class="widget-collections-body">
+              <div class="collections-badges-frame">
+                <img src="/assets/widget_badges.png" alt="Badges" class="collections-plush-img" />
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- 3. Bottom Persistent Chat Interface Capsule -->
+      <footer class="floating-chat-bar-container">
+        <div class="chat-input-capsule">
+          <!-- Active Agent Mini-Avatar Capsule -->
+          <div class="chat-active-agent-badge" id="chatActiveAgentBadge" title="Open Agent Dashboard">
+            <img src="/assets/avatar_fin.png" alt="Fin" class="chat-avatar-thumb" id="chatActiveAgentThumb" />
+            <div class="chat-agent-name-tag" id="chatActiveAgentNameTag">Fin</div>
+          </div>
+
+          <!-- Text Input Field -->
+          <input 
+            type="text" 
+            class="chat-text-input" 
+            id="chatBarInput" 
+            placeholder="What can I do for you?" 
+            autocomplete="off"
+          />
+
+          <!-- Voice Microphone Button -->
+          <button class="mic-toggle-btn" id="chatMicBtn" title="Speech to Text Microphone">
+            🎤
+          </button>
+
+          <!-- Send Message Button -->
+          <button class="chat-send-btn" id="chatSendBtn" title="Send message to agent">
+            ➤
+          </button>
+        </div>
+      </footer>
+
+      <!-- 4. Expanded Agent Dashboard Sheet Overlay -->
+      <div class="agent-expanded-overlay" id="agentExpandedOverlay">
+        <div class="agent-expanded-sheet">
+          <div class="sheet-handle-bar"></div>
+          
+          <div class="sheet-header-row">
+            <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-secondary);">Agent Dashboard</span>
+            <button class="sheet-close-btn" id="sheetCloseBtn">✕</button>
+          </div>
+
+          <div class="sheet-scroll-body">
+            
+            <!-- Hero Agent Profile Card -->
+            <div class="sheet-hero-agent">
+              <img src="/assets/avatar_fin.png" alt="Agent" class="sheet-avatar-large" id="sheetAgentAvatarImg" />
+              <div class="sheet-agent-info">
+                <h2 id="sheetAgentName">Fin</h2>
+                <div class="sheet-agent-role" id="sheetAgentRole">Finance & Budgeting</div>
+                <div class="sheet-agent-status-tag" id="sheetAgentStatusTag">active</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;" id="sheetAgentDesc">
+                  Energetic, cheerful accountant plush.
+                </div>
+              </div>
+            </div>
+
+            <!-- Domain Specific Widgets Grid -->
+            <div>
+              <h3 style="font-size: 0.85rem; font-weight: 800; margin-bottom: 8px;">Domain Control</h3>
+              <div class="domain-widgets-grid" id="sheetDomainWidgetsContainer">
+                <!-- Populated dynamically per agent domain -->
+              </div>
+            </div>
+
+            <!-- CrewAI Memory Inspector -->
+            <div class="sheet-memory-panel">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 style="font-size: 0.85rem; font-weight: 800;">CrewAI Memory</h3>
+                <button id="sheetAddMemoryBtn" style="border: none; background: #3B82F6; color: white; padding: 3px 8px; border-radius: 99px; font-size: 0.68rem; font-weight: 700; cursor: pointer;">
+                  + Add Memory
+                </button>
+              </div>
+
+              <!-- Memory Type Tabs -->
+              <div class="memory-header-tabs">
+                <button class="memory-tab-btn active" id="tabPerAgentMemory">Per-Agent Memory</button>
+                <button class="memory-tab-btn" id="tabSharedMemory">Shared Crew Memory</button>
+              </div>
+
+              <!-- Memory List -->
+              <div class="memory-list-items" id="sheetMemoryList">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Agent Chat Transcript & Mini-Console -->
+            <div>
+              <h3 style="font-size: 0.85rem; font-weight: 800; margin-bottom: 8px;">Agent Interaction</h3>
+              <div class="sheet-chat-log" id="sheetChatLog">
+                <!-- Chat bubbles -->
+              </div>
+              
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <input 
+                  type="text" 
+                  id="sheetChatInput" 
+                  placeholder="Send direct instruction..." 
+                  style="flex: 1; padding: 10px 14px; border-radius: 99px; border: 1px solid var(--border-light); background: var(--bg-widget); color: var(--text-main); font-size: 0.82rem; outline: none;" 
+                />
+                <button 
+                  id="sheetChatSendBtn" 
+                  style="background: #10B981; color: white; border: none; padding: 0 16px; border-radius: 99px; font-weight: 700; cursor: pointer;"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Generic Popup Modal (Goals, Wallet, Talents, Collections) -->
+      <div class="generic-modal" id="genericOrbModal">
+        <div class="modal-content-box">
+          <button class="modal-close-btn" id="genericModalCloseBtn">✕</button>
+          <div class="modal-title" id="genericModalTitle">Detail</div>
+          <div id="genericModalBody"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="/js/api.js"></script>
+  <script src="/js/avatars.js"></script>
+  <script src="/js/bento.js"></script>
+  <script src="/js/agent_modal.js"></script>
+  <script src="/js/chat.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
