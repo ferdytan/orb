@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🌐 Orb - Virtual Office AI Agent System
 
 **Orb** is a portable, handheld-first virtual office dashboard powered by **FastAPI** and **CrewAI**. It blends plush, playful 3D aesthetics (inspired by Dots and Muse) with an autonomous multi-agent orchestration architecture and a persistent memory framework.
@@ -126,3 +127,17 @@ Navigate to **[http://127.0.0.1:8000](http://127.0.0.1:8000)** in your browser:
 - Click **"▦ All 10"** to view all avatars simultaneously, or swipe through the carousel.
 - Click on any agent (e.g. **Fin**, **Muse**, **Chat**) to expand their dedicated dashboard and inspect their domain metrics and CrewAI memory.
 - Use the bottom input capsule or click the **🎤 Microphone** button to speak or send commands!
+=======
+# Orb – Virtual Office AI Agent Dashboard
+
+Orb adalah handheld dashboard multi‑agent berbasis **FastAPI + CrewAI**, dengan gaya visual terinspirasi Dots/Muse.  
+Tujuannya: menghadirkan pengalaman portable, playful, tapi tetap profesional.
+
+## ✨ Fitur Utama
+- 🎨 **Design Language**: avatar plush‑like warna‑warni dengan aksesoris unik.  
+- 🏢 **Office Scene**: blur penuh dengan pencahayaan dinamis (pagi, siang, sore, malam).  
+- 🍱 **Bento Widgets**: flat layout, solid background satu tone, ikon colorful.  
+- 👥 **Multi‑Agent View**: homescreen menampilkan 3 agent default, swipe untuk cek hingga 10 agent.  
+- 🧠 **Memory System**: CrewAI role memory + shared memory.  
+- 🌗 **Dynamic Mode**: mendukung light/dark mode otomatis.  
+>>>>>>> 9c2d40eaf258410392babcfd76fce2499277a04b
