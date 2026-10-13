@@ -1,16 +1,17 @@
-const CACHE_NAME = 'orb-pwa-v1';
+const CACHE_NAME = 'orb-pwa-v3';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './css/styles.css',
-  './css/avatars.css',
-  './js/api.js',
-  './js/avatars.js',
-  './js/bento.js',
-  './js/agent_modal.js',
-  './js/chat.js',
-  './js/app.js',
+  './css/styles.css?v=1.3.0',
+  './css/avatars.css?v=1.3.0',
+  './js/api.js?v=1.3.0',
+  './js/avatars.js?v=1.3.0',
+  './js/bento.js?v=1.3.0',
+  './js/agent_modal.js?v=1.3.0',
+  './js/chat.js?v=1.3.0',
+  './js/app.js?v=1.3.0',
+  './assets/office_morning.jpg',
   './assets/office_night.jpg',
   './assets/avatar_fin.png',
   './assets/avatar_muse.png',
@@ -51,7 +52,7 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Only cache GET requests
+  // Only handle GET requests
   if (e.request.method !== 'GET') return;
   
   // Do not intercept cross-origin requests, API endpoints, or WebSockets
@@ -59,20 +60,18 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== self.location.origin) return;
   if (url.pathname.includes('/api/') || url.pathname.includes('/ws')) return;
 
+  // Network-First strategy: always fetch fresh assets when online, fall back to cache when offline
   e.respondWith(
-    caches.match(e.request).then((cached) => {
-      return (
-        cached ||
-        fetch(e.request).then((response) => {
-          if (response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(e.request, clone);
-            });
-          }
-          return response;
-        }).catch(() => cached)
-      );
-    })
+    fetch(e.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, clone);
+          });
+        }
+        return networkResponse;
+      })
+      .catch(() => caches.match(e.request))
   );
 });

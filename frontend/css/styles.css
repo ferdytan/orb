@@ -75,27 +75,27 @@
 
 /* Time of Day Lighting Transitions */
 .lighting-morning {
-  --lighting-overlay: rgba(255, 210, 150, 0.2);
+  --lighting-overlay: rgba(255, 210, 150, 0.18);
   --lighting-sunbeam: radial-gradient(circle at 20% 20%, rgba(255, 235, 190, 0.45) 0%, transparent 60%);
-  --lighting-filter: brightness(1.12) saturate(1.1);
+  --lighting-filter: brightness(1.1) saturate(1.12);
 }
 
 .lighting-noon {
-  --lighting-overlay: rgba(255, 255, 255, 0.16);
+  --lighting-overlay: rgba(255, 255, 255, 0.12);
   --lighting-sunbeam: radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.4) 0%, transparent 65%);
   --lighting-filter: brightness(1.18) saturate(1.15);
 }
 
 .lighting-evening {
-  --lighting-overlay: rgba(245, 130, 60, 0.28);
+  --lighting-overlay: rgba(245, 130, 60, 0.22);
   --lighting-sunbeam: radial-gradient(circle at 80% 30%, rgba(251, 146, 60, 0.45) 0%, transparent 65%);
   --lighting-filter: brightness(1.02) saturate(1.25) contrast(1.05);
 }
 
 .lighting-night {
-  --lighting-overlay: rgba(8, 12, 28, 0.58);
-  --lighting-sunbeam: radial-gradient(circle at 75% 70%, rgba(255, 190, 90, 0.4) 0%, transparent 50%);
-  --lighting-filter: brightness(0.85) saturate(1.05);
+  --lighting-overlay: rgba(15, 23, 42, 0.38);
+  --lighting-sunbeam: radial-gradient(circle at 75% 70%, rgba(255, 200, 100, 0.45) 0%, transparent 55%);
+  --lighting-filter: brightness(0.78) saturate(0.95);
 }
 
 /* Global Reset */
@@ -241,13 +241,13 @@ body.app-pwa-body {
 
 /* Page Views Switcher */
 .app-page-view {
-  display: none;
+  display: none !important;
   width: 100%;
   animation: viewFadeIn 0.22s ease-out forwards;
 }
 
 .app-page-view.active {
-  display: block;
+  display: block !important;
 }
 
 @keyframes viewFadeIn {
@@ -309,10 +309,10 @@ body.app-pwa-body {
 .scene-backdrop-layer {
   position: absolute;
   inset: 0;
-  background-image: url('../assets/office_night.jpg');
+  background-image: url('../assets/office_morning.jpg');
   background-size: cover;
   background-position: center bottom;
-  filter: blur(var(--lighting-blur)) var(--lighting-filter);
+  filter: blur(var(--lighting-blur, 2.5px)) var(--lighting-filter, brightness(1));
   transform: scale(1.1);
   transition: filter 0.6s ease;
 }
@@ -339,8 +339,8 @@ body.app-pwa-body {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 95px;
-  background: var(--lighting-gradient);
+  height: 55px;
+  background: linear-gradient(180deg, transparent 0%, rgba(13, 14, 18, 0.88) 100%);
   pointer-events: none;
 }
 

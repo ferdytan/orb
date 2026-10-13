@@ -15,8 +15,14 @@
   <link rel="apple-touch-icon" href="./assets/avatar_fin.png">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css">
-  <link rel="stylesheet" href="./css/avatars.css">
+  <link rel="stylesheet" href="./css/styles.css?v=1.3.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=1.3.0">
+
+  <!-- Critical View Isolation CSS: strictly guarantees inactive tabs are never shown -->
+  <style>
+    .app-page-view:not(.active) { display: none !important; }
+    .app-page-view.active { display: block !important; }
+  </style>
 </head>
 <body class="app-pwa-body">
 
@@ -48,7 +54,7 @@
         <!-- 1. Office Scene with Dynamic Lighting & Plush Avatars -->
         <section class="office-header-scene lighting-night" id="officeHeaderScene">
           <!-- 1 Consistent Cozy Blurred Office Backdrop -->
-          <div class="scene-backdrop-layer" id="officeBackdropLayer"></div>
+          <div class="scene-backdrop-layer" id="officeBackdropLayer" style="background-image: url('./assets/office_morning.jpg');"></div>
           
           <!-- Dynamic Shaders & Lighting Overlays (Real-time Clock Driven) -->
           <div class="scene-lighting-overlay" id="sceneLightingOverlay"></div>
@@ -182,7 +188,7 @@
       </div>
 
       <!-- ================= PAGE 2: AGENTS ROSTER VIEW ================= -->
-      <div class="app-page-view" id="viewAgentsRoster">
+      <div class="app-page-view" id="viewAgentsRoster" style="display: none;">
         <div class="page-view-inner">
           <div class="page-title-row">
             <div>
@@ -199,7 +205,7 @@
       </div>
 
       <!-- ================= PAGE 3: GOALS & ACTIVITY VIEW ================= -->
-      <div class="app-page-view" id="viewGoalsActivity">
+      <div class="app-page-view" id="viewGoalsActivity" style="display: none;">
         <div class="page-view-inner">
           <div class="page-title-row">
             <div>
@@ -215,7 +221,7 @@
       </div>
 
       <!-- ================= PAGE 4: SETTINGS VIEW ================= -->
-      <div class="app-page-view" id="viewSettings">
+      <div class="app-page-view" id="viewSettings" style="display: none;">
         <div class="page-view-inner">
           <div class="page-title-row">
             <div>
@@ -390,19 +396,23 @@
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="./js/api.js"></script>
-  <script src="./js/avatars.js"></script>
-  <script src="./js/bento.js"></script>
-  <script src="./js/agent_modal.js"></script>
-  <script src="./js/chat.js"></script>
-  <script src="./js/app.js"></script>
+  <!-- Scripts with cache-busting version parameter -->
+  <script src="./js/api.js?v=1.3.0"></script>
+  <script src="./js/avatars.js?v=1.3.0"></script>
+  <script src="./js/bento.js?v=1.3.0"></script>
+  <script src="./js/agent_modal.js?v=1.3.0"></script>
+  <script src="./js/chat.js?v=1.3.0"></script>
+  <script src="./js/app.js?v=1.3.0"></script>
 
-  <!-- PWA Service Worker Registration -->
+  <!-- PWA Service Worker Registration with forced update -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
+        navigator.serviceWorker.register('./sw.js?v=1.3.0')
+          .then((registration) => {
+            registration.update();
+          })
+          .catch(() => {});
       });
     }
   </script>

@@ -12,6 +12,7 @@ const OrbApp = {
     console.log("🚀 Initializing Orb Virtual Office PWA...");
 
     this.setupTabs();
+    this.switchTab("office");
     this.setupClock();
     this.setupSettingsView();
     this.setupModals();
@@ -104,11 +105,13 @@ const OrbApp = {
 
     document.querySelectorAll(".app-page-view").forEach(view => {
       view.classList.remove("active");
+      view.style.display = "none";
     });
 
     const targetView = document.getElementById(pageMap[tabName]);
     if (targetView) {
       targetView.classList.add("active");
+      targetView.style.display = "block";
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   },
@@ -154,10 +157,17 @@ const OrbApp = {
     this.currentLighting = mode;
     const scene = document.getElementById("officeHeaderScene");
     const statusText = document.getElementById("headerLightingStatusText");
+    const backdrop = document.getElementById("officeBackdropLayer");
 
     if (scene) {
       scene.classList.remove("lighting-morning", "lighting-noon", "lighting-evening", "lighting-night");
       scene.classList.add(`lighting-${mode}`);
+    }
+
+    if (backdrop) {
+      backdrop.style.backgroundImage = "url('./assets/office_morning.jpg')";
+      backdrop.style.backgroundSize = "cover";
+      backdrop.style.backgroundPosition = "center bottom";
     }
 
     const labels = {

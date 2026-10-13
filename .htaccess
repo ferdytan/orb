@@ -1,5 +1,22 @@
 # ==============================================================================
-# ORB - Apache .htaccess configuration for cPanel / Web Hosting
+# [LEGACY CONFIGURATION]
+# ORB - Apache .htaccess configuration for Legacy Subpath Deployment (/orb/)
+# ==============================================================================
+# PERHATIAN:
+# Konfigurasi di bawah ini hanya digunakan jika aplikasi diakses melalui URL path
+# lama (misalnya: https://krftworks.my.id/orb/).
+#
+# Untuk deployment produksi subdomain (https://orb.krftworks.my.id):
+# - Document root subdomain langsung menunjuk ke folder `frontend/`.
+# - File `frontend/.htaccess` sudah mengisolasi konfigurasi dengan mematikan
+#   mod_rewrite (`RewriteEngine Off`) dan Phusion Passenger agar rule di bawah ini
+#   tidak membajak request aset statis pada subdomain.
+#
+# REKOMENDASI:
+# Pertahankan file ini untuk sementara jika URL lama (krftworks.my.id/orb/) masih
+# diakses oleh pengguna. Jika semua trafik sudah dialihkan atau domain sepenuhnya
+# menggunakan subdomain `orb.krftworks.my.id`, file root .htaccess ini dapat
+# dihapus dengan aman pada iterasi/rilis berikutnya.
 # ==============================================================================
 
 DirectoryIndex frontend/index.html index.html
