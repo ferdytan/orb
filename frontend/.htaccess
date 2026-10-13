@@ -1,0 +1,28 @@
+# ==============================================================================
+# ORB FRONTEND - Apache .htaccess configuration for orb.krftworks.my.id
+# Document Root: /home/CPANEL_USER/krftworks/orb/frontend (or public_html/orb/frontend)
+# ==============================================================================
+# Pada subdomain ini, document root menunjuk langsung ke direktori `frontend/`.
+# Semua asset (css/, js/, assets/) berada di root URL (`/css/...`, `/js/...`).
+#
+# PENTING:
+# 1. Jangan gunakan RewriteBase /orb/ di sini.
+# 2. Matikan rewrite engine agar rule dari direktori induk tidak membajak request
+#    aset statis menjadi HTML atau path yang salah.
+# 3. Nonaktifkan Phusion Passenger pada folder frontend ini agar file statis
+#    dilayani langsung oleh Apache tanpa diteruskan ke Python WSGI.
+# 4. Jangan membuat fallback 404 yang mengembalikan index.html untuk aset yang
+#    tidak ada karena browser akan menolak CSS/JS akibat MIME type text/html.
+# ==============================================================================
+
+DirectoryIndex index.html
+
+# Disable mod_rewrite to prevent parent folder rewrite rules from interfering
+<IfModule mod_rewrite.c>
+    RewriteEngine Off
+</IfModule>
+
+# Disable Passenger for this static frontend document root
+<IfModule mod_passenger.c>
+    PassengerEnabled off
+</IfModule>

@@ -1,0 +1,25 @@
+# Python bytecode & compiled artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment files & secrets
+.env
+.env.*
+!.env.example
+
+# Backup & migration artifacts
+*.before-fix
+*.before-static-fix
+*.bak
+*.tmp
+*.swp
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# OS specific files
+.DS_Store
+Thumbs.db

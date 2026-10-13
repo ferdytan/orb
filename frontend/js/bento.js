@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ORB - BENTO WIDGETS MANAGER
+   ORB - BENTO WIDGETS MANAGER (INTERACTIVE & AGENT-LINKED)
    ========================================================================== */
 
 const BentoManager = {
@@ -10,19 +10,20 @@ const BentoManager = {
   currentCurrency: "USD",
 
   init(initialData = {}) {
-    if (initialData.goals) this.goals = initialData.goals;
+    if (initialData.goals && initialData.goals.length > 0) this.goals = initialData.goals;
     if (initialData.wallet) this.wallet = initialData.wallet;
-    if (initialData.talents) this.talents = initialData.talents;
-    if (initialData.collections) this.collections = initialData.collections;
+    if (initialData.talents && initialData.talents.length > 0) this.talents = initialData.talents;
+    if (initialData.collections && initialData.collections.length > 0) this.collections = initialData.collections;
 
     this.renderGoalWidget();
     this.renderWalletWidget();
+    this.renderGoalsTab();
     this.setupListeners();
   },
 
   renderGoalWidget() {
     if (!this.goals || this.goals.length === 0) return;
-    const activeGoal = this.goals[0]; // Primary highlighted goal
+    const activeGoal = this.goals[0];
 
     const heroEl = document.getElementById("goalHeroTitle");
     const milestoneEl = document.getElementById("goalMilestoneText");
@@ -48,7 +49,6 @@ const BentoManager = {
     if (this.currentCurrency === "USD") {
       digitsEl.textContent = Number(this.wallet.balance).toLocaleString("en-US");
     } else {
-      // IDR conversion rate approx 1 USD = Rp 16.000
       const idr = this.wallet.balance * 16000;
       digitsEl.textContent = `Rp ${Number(idr).toLocaleString("id-ID")}`;
     }
@@ -56,6 +56,33 @@ const BentoManager = {
     if (noteEl) {
       noteEl.textContent = this.wallet.last_transaction || "Synced with Fin";
     }
+  },
+
+  renderGoalsTab() {
+    const container = document.getElementById("fullGoalsListContainer");
+    if (!container) return;
+
+    let html = `<div style="display: flex; flex-direction: column; gap: 12px;">`;
+    this.goals.forEach((goal) => {
+      html += `
+        <div style="background: var(--bg-widget); padding: 16px; border-radius: 20px; border: 1px solid var(--border-widget); box-shadow: var(--shadow-widget);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+            <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">${goal.title}</div>
+            <span style="font-size: 0.72rem; font-weight: 700; background: var(--bg-pill); padding: 3px 10px; border-radius: 99px; color: #10B981;">${goal.progress_pct}%</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px;">Milestone: ${goal.milestone}</div>
+          <div style="background: var(--bg-pill); height: 7px; border-radius: 99px; overflow: hidden;">
+            <div style="background: linear-gradient(90deg, #3B82F6, #10B981); height: 100%; width: ${goal.progress_pct}%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); margin-top: 8px;">
+            <span>Assigned: <strong>${(goal.assigned_agent_id || 'Fin').toUpperCase()}</strong></span>
+            <span>Target: ${goal.target_value || '100%'}</span>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
   },
 
   async toggleMilestone(goalId) {
@@ -68,16 +95,14 @@ const BentoManager = {
     goal.completed = newCompleted;
     goal.progress_pct = newProgress;
     this.renderGoalWidget();
+    this.renderGoalsTab();
 
-    // Call API
     try {
       await window.API?.updateGoal(goal.id, {
         progress_pct: newProgress,
         completed: newCompleted
       });
-    } catch (e) {
-      console.error("Failed to update goal:", e);
-    }
+    } catch (_) {}
   },
 
   toggleCurrency() {
@@ -86,7 +111,7 @@ const BentoManager = {
   },
 
   setupListeners() {
-    // Goal checkbox
+    // Checkbox inside goal
     const checkboxEl = document.getElementById("goalCheckboxBtn");
     if (checkboxEl) {
       checkboxEl.addEventListener("click", (e) => {
@@ -95,28 +120,53 @@ const BentoManager = {
       });
     }
 
-    // Goal widget card click -> open Goal modal
+    // Goal Widget Click -> Opens Nova (Analytics/Goal agent) or Goal modal
     const goalCard = document.getElementById("bentoGoalCard");
     if (goalCard) {
-      goalCard.addEventListener("click", () => this.openGoalModal());
+      goalCard.addEventListener("click", () => {
+        // Open Nova agent dashboard directly as requested!
+        if (window.AgentModalManager) {
+          window.AgentModalManager.open("nova");
+        } else {
+          this.openGoalModal();
+        }
+      });
     }
 
-    // Wallet widget card click -> open Wallet modal
+    // Wallet Widget Click -> Opens Fin (Finance agent)
     const walletCard = document.getElementById("bentoWalletCard");
     if (walletCard) {
-      walletCard.addEventListener("click", () => this.openWalletModal());
+      walletCard.addEventListener("click", () => {
+        if (window.AgentModalManager) {
+          window.AgentModalManager.open("fin");
+        } else {
+          this.openWalletModal();
+        }
+      });
     }
 
-    // Talent widget card click -> open Talent modal
+    // Talent Widget Click -> Opens Atlas (Ops & Talent agent)
     const talentCard = document.getElementById("bentoTalentCard");
     if (talentCard) {
-      talentCard.addEventListener("click", () => this.openTalentModal());
+      talentCard.addEventListener("click", () => {
+        if (window.AgentModalManager) {
+          window.AgentModalManager.open("atlas");
+        } else {
+          this.openTalentModal();
+        }
+      });
     }
 
-    // Collections widget card click -> open Collections modal
+    // Collections Widget Click -> Opens Muse / Badges modal
     const collectionsCard = document.getElementById("bentoCollectionsCard");
     if (collectionsCard) {
-      collectionsCard.addEventListener("click", () => this.openCollectionsModal());
+      collectionsCard.addEventListener("click", () => {
+        if (window.AgentModalManager) {
+          window.AgentModalManager.open("muse");
+        } else {
+          this.openCollectionsModal();
+        }
+      });
     }
   },
 
@@ -126,42 +176,32 @@ const BentoManager = {
     const body = document.getElementById("genericModalBody");
 
     if (!modal || !body) return;
-    title.textContent = "Crew Goals & Milestones";
+    title.textContent = "Crew Goals (Managed by Nova)";
 
-    let html = `<div style="display: flex; flex-direction: column; gap: 14px;">`;
+    let html = `<div style="display: flex; flex-direction: column; gap: 12px;">`;
     this.goals.forEach(goal => {
       html += `
-        <div style="background: var(--bg-widget); padding: 14px; border-radius: 18px; border: 1px solid var(--border-light);">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-            <div style="font-weight: 800; font-size: 0.95rem;">${goal.title}</div>
-            <span style="font-size: 0.7rem; font-weight: 700; background: var(--bg-pill); padding: 3px 8px; border-radius: 99px;">${goal.progress_pct}%</span>
+        <div style="background: var(--bg-widget); padding: 12px; border-radius: 16px; border: 1px solid var(--border-light);">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="font-weight: 800;">${goal.title}</span>
+            <span style="color: #10B981; font-weight: 700;">${goal.progress_pct}%</span>
           </div>
-          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">Milestone: ${goal.milestone}</div>
-          <div style="margin-top: 8px; background: var(--bg-pill); height: 6px; border-radius: 99px; overflow: hidden;">
-            <div style="background: #10B981; height: 100%; width: ${goal.progress_pct}%;"></div>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); margin-top: 6px;">
-            <span>Assigned: ${goal.assigned_agent_id ? goal.assigned_agent_id.toUpperCase() : 'SHARED'}</span>
-            <span>${goal.current_value || ''} / ${goal.target_value || ''}</span>
-          </div>
+          <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px;">Milestone: ${goal.milestone}</div>
         </div>
       `;
     });
     html += `
-      <button id="addSavingsProgressBtn" style="background: #10B981; color: white; border: none; padding: 10px; border-radius: 16px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
-        + Simulate Rp 100k Savings Deposit (Fin)
+      <button id="talkToNovaBtn" style="background: #8B5CF6; color: white; border: none; padding: 10px; border-radius: 14px; font-weight: 700; cursor: pointer;">
+        💬 Chat with Nova about Goals
       </button>
     </div>`;
 
     body.innerHTML = html;
     modal.classList.add("active");
 
-    document.getElementById("addSavingsProgressBtn")?.addEventListener("click", async () => {
-      await window.API?.sendChat("fin", "Please log Rp 100.000 towards the Save Rp 1 juta savings goal.");
-      const updatedGoals = await window.API?.getGoals();
-      this.goals = updatedGoals;
-      this.renderGoalWidget();
-      this.openGoalModal(); // re-render modal
+    document.getElementById("talkToNovaBtn")?.addEventListener("click", () => {
+      modal.classList.remove("active");
+      window.AgentModalManager?.open("nova");
     });
   },
 
@@ -169,35 +209,28 @@ const BentoManager = {
     const modal = document.getElementById("genericOrbModal");
     const title = document.getElementById("genericModalTitle");
     const body = document.getElementById("genericModalBody");
-    if (!modal || !body) return;
 
-    title.textContent = "Orb Virtual Wallet";
+    if (!modal || !body) return;
+    title.textContent = "Orb Wallet (Managed by Fin)";
+
     body.innerHTML = `
-      <div style="display: flex; flex-direction: column; gap: 14px; text-align: center;">
-        <div style="background: var(--bg-widget); padding: 20px; border-radius: 20px;">
-          <div style="font-size: 0.8rem; color: var(--text-secondary);">Available Balance</div>
-          <div style="font-size: 2rem; font-weight: 800; margin: 6px 0;">
-            ${this.currentCurrency === 'USD' ? '$' + Number(this.wallet.balance).toLocaleString('en-US') : 'Rp ' + Number(this.wallet.balance * 16000).toLocaleString('id-ID')}
-          </div>
-          <button id="modalCurrencyToggleBtn" style="background: var(--bg-pill); border: none; padding: 6px 14px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: var(--text-main);">
-            Switch to ${this.currentCurrency === 'USD' ? 'IDR (Rp)' : 'USD ($)'}
-          </button>
+      <div style="display: flex; flex-direction: column; gap: 12px; text-align: center;">
+        <div style="font-size: 2.2rem; font-weight: 800; color: #10B981;">
+          $${Number(this.wallet.balance).toLocaleString()}
         </div>
-        <div style="text-align: left; background: var(--bg-widget); padding: 14px; border-radius: 18px;">
-          <div style="font-weight: 700; font-size: 0.82rem; margin-bottom: 6px;">Recent Ledger Events</div>
-          <div style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.5;">
-            • ${this.wallet.last_transaction || 'Vault initialized'}<br>
-            • Reserve allocation: Rp 1 juta target active<br>
-            • Managed by Fin (Finance Plush Specialist)
-          </div>
+        <div style="font-size: 0.75rem; color: var(--text-secondary);">
+          ${this.wallet.last_transaction || "Active cashflow synchronized with Fin"}
         </div>
+        <button id="talkToFinBtn" style="background: #10B981; color: white; border: none; padding: 10px; border-radius: 14px; font-weight: 700; cursor: pointer; margin-top: 8px;">
+          💬 Chat with Fin about Expenses
+        </button>
       </div>
     `;
-
     modal.classList.add("active");
-    document.getElementById("modalCurrencyToggleBtn")?.addEventListener("click", () => {
-      this.toggleCurrency();
-      this.openWalletModal();
+
+    document.getElementById("talkToFinBtn")?.addEventListener("click", () => {
+      modal.classList.remove("active");
+      window.AgentModalManager?.open("fin");
     });
   },
 
@@ -205,66 +238,70 @@ const BentoManager = {
     const modal = document.getElementById("genericOrbModal");
     const title = document.getElementById("genericModalTitle");
     const body = document.getElementById("genericModalBody");
-    if (!modal || !body) return;
 
-    title.textContent = "Talent & Agent Synergy";
-    body.innerHTML = `
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <div style="background: linear-gradient(135deg, #EF4444, #F87171); color: white; padding: 14px; border-radius: 18px;">
-          <div style="display: flex; justify-content: space-between; font-weight: 800;">
-            <span>Social</span><span>Level 8 (85 pts)</span>
+    if (!modal || !body) return;
+    title.textContent = "Crew Talents & Synergy";
+
+    let html = `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+    this.talents.forEach(t => {
+      html += `
+        <div style="background: var(--bg-widget); padding: 12px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 800;">${t.category}</div>
+            <div style="font-size: 0.7rem; color: var(--text-secondary);">${t.badge_name}</div>
           </div>
-          <div style="font-size: 0.72rem; opacity: 0.9; margin-top: 4px;">Assigned to Chat & Echo • Community Catalyst</div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: #3B82F6;">Lv. ${t.level}</div>
         </div>
-        <div style="background: linear-gradient(135deg, #EA580C, #FB923C); color: white; padding: 14px; border-radius: 18px;">
-          <div style="display: flex; justify-content: space-between; font-weight: 800;">
-            <span>Collab</span><span>Level 9 (92 pts)</span>
-          </div>
-          <div style="font-size: 0.72rem; opacity: 0.9; margin-top: 4px;">Assigned to Muse, Sage & Atlas • Synergy Master</div>
-        </div>
-        <div style="background: linear-gradient(135deg, #F59E0B, #FBBF24); color: white; padding: 14px; border-radius: 18px;">
-          <div style="display: flex; justify-content: space-between; font-weight: 800;">
-            <span>Creativity</span><span>Level 10 (98 pts)</span>
-          </div>
-          <div style="font-size: 0.72rem; opacity: 0.9; margin-top: 4px;">Assigned to Spark & Pixel • Orb Visionary</div>
-        </div>
-      </div>
-    `;
+      `;
+    });
+    html += `
+      <button id="talkToAtlasBtn" style="background: #3B82F6; color: white; border: none; padding: 10px; border-radius: 14px; font-weight: 700; cursor: pointer;">
+        💬 Chat with Atlas about Talents
+      </button>
+    </div>`;
+
+    body.innerHTML = html;
     modal.classList.add("active");
+
+    document.getElementById("talkToAtlasBtn")?.addEventListener("click", () => {
+      modal.classList.remove("active");
+      window.AgentModalManager?.open("atlas");
+    });
   },
 
   openCollectionsModal() {
     const modal = document.getElementById("genericOrbModal");
     const title = document.getElementById("genericModalTitle");
     const body = document.getElementById("genericModalBody");
-    if (!modal || !body) return;
 
+    if (!modal || !body) return;
     title.textContent = "Collections & Badges";
-    body.innerHTML = `
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div style="background: var(--bg-widget); padding: 14px; border-radius: 18px; text-align: center; border: 1px solid var(--border-light);">
-          <div style="font-size: 1.8rem;">🌟</div>
-          <div style="font-weight: 800; font-size: 0.85rem; margin-top: 4px;">Achiever Star</div>
-          <div style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 2px;">Completed 5 daily milestones</div>
+
+    let html = `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+    this.collections.forEach(b => {
+      html += `
+        <div style="background: var(--bg-widget); padding: 12px; border-radius: 14px; display: flex; gap: 10px; align-items: center;">
+          <div style="font-size: 1.6rem;">${b.unlocked ? '🏅' : '🔒'}</div>
+          <div>
+            <div style="font-weight: 800; font-size: 0.9rem;">${b.title}</div>
+            <div style="font-size: 0.7rem; color: var(--text-secondary);">${b.description}</div>
+          </div>
         </div>
-        <div style="background: var(--bg-widget); padding: 14px; border-radius: 18px; text-align: center; border: 1px solid var(--border-light);">
-          <div style="font-size: 1.8rem;">✨</div>
-          <div style="font-weight: 800; font-size: 0.85rem; margin-top: 4px;">Celestial Spark</div>
-          <div style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 2px;">Unlocked 3 domain synergies</div>
-        </div>
-        <div style="background: var(--bg-widget); padding: 14px; border-radius: 18px; text-align: center; border: 1px solid var(--border-light);">
-          <div style="font-size: 1.8rem;">🛡️</div>
-          <div style="font-weight: 800; font-size: 0.85rem; margin-top: 4px;">Vault Keeper</div>
-          <div style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 2px;">Savings milestone badge</div>
-        </div>
-        <div style="background: var(--bg-widget); padding: 14px; border-radius: 18px; text-align: center; border: 1px solid var(--border-light); opacity: 0.6;">
-          <div style="font-size: 1.8rem;">⚡</div>
-          <div style="font-weight: 800; font-size: 0.85rem; margin-top: 4px;">Speed Demon</div>
-          <div style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 2px;">Sub-100ms routing speed</div>
-        </div>
-      </div>
-    `;
+      `;
+    });
+    html += `
+      <button id="talkToMuseBtn" style="background: #F59E0B; color: white; border: none; padding: 10px; border-radius: 14px; font-weight: 700; cursor: pointer;">
+        💬 Chat with Muse about Collections
+      </button>
+    </div>`;
+
+    body.innerHTML = html;
     modal.classList.add("active");
+
+    document.getElementById("talkToMuseBtn")?.addEventListener("click", () => {
+      modal.classList.remove("active");
+      window.AgentModalManager?.open("muse");
+    });
   }
 };
 

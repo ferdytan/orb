@@ -9,13 +9,15 @@ const AvatarsManager = {
   currentIndex: 0,
 
   init(agentsData) {
-    this.agents = agentsData;
+    this.agents = Array.isArray(agentsData) && agentsData.length > 0 ? agentsData : (window.DEFAULT_AGENTS || []);
     this.render();
     this.setupListeners();
   },
 
   updateAgents(agentsData) {
-    this.agents = agentsData;
+    if (Array.isArray(agentsData) && agentsData.length > 0) {
+      this.agents = agentsData;
+    }
     this.render();
   },
 
@@ -28,7 +30,6 @@ const AvatarsManager = {
       if (descText) agent.description_text = descText;
       this.render();
       
-      // Also update bottom floating chat if selected
       if (this.selectedAgentId === agentId) {
         window.ChatManager?.updateActiveAgent(agent);
       }
@@ -41,16 +42,21 @@ const AvatarsManager = {
     const toggleBtn = document.getElementById("avatarViewToggleBtn");
     
     if (this.isCompactMode) {
-      track.classList.add("compact-grid-mode");
-      if (toggleBtn) toggleBtn.innerHTML = `<span>◫</span> View Carousel`;
+      track?.classList.add("compact-grid-mode");
+      if (toggleBtn) toggleBtn.innerHTML = `<span>◫</span> Carousel`;
     } else {
-      track.classList.remove("compact-grid-mode");
+      track?.classList.remove("compact-grid-mode");
       if (toggleBtn) toggleBtn.innerHTML = `<span>▦</span> All 10`;
     }
     this.updatePagination();
   },
 
   render() {
+    this.renderDeskCarousel();
+    this.renderFullRosterGrid();
+  },
+
+  renderDeskCarousel() {
     const track = document.getElementById("avatarsCarouselTrack");
     if (!track) return;
 
@@ -62,16 +68,13 @@ const AvatarsManager = {
       card.dataset.agentId = agent.id;
       card.dataset.index = index;
 
-      // Status pill color class
       let statusClass = `status-${agent.status}`;
       if (!['active', 'listening', 'routing', 'idle'].includes(agent.status)) {
         statusClass = 'status-active';
       }
 
-      const base = window.API?.basePath || '';
-      const avatarSrc = agent.avatar_image.startsWith('/') 
-        ? `${base}${agent.avatar_image}` 
-        : `${base}/${agent.avatar_image}`;
+      // Ensure relative asset path
+      const avatarSrc = window.resolveOrbAsset ? window.resolveOrbAsset(agent.avatar_image) : (agent.avatar_image || './assets/avatar_fin.png');
 
       card.innerHTML = `
         <div class="avatar-status-pill ${statusClass}" style="background-color: ${agent.tag_color || ''};">
@@ -85,8 +88,8 @@ const AvatarsManager = {
             ${agent.name}
           </div>
           <div class="avatar-activity-desc">
-            <span>${agent.description_icon}</span>
-            <span>${agent.description_text}</span>
+            <span>${agent.description_icon || '✨'}</span>
+            <span>${agent.description_text || agent.role}</span>
           </div>
         </div>
       `;
@@ -100,6 +103,36 @@ const AvatarsManager = {
     });
 
     this.updatePagination();
+  },
+
+  renderFullRosterGrid() {
+    const grid = document.getElementById("agentsFullRosterGrid");
+    if (!grid) return;
+
+    grid.innerHTML = "";
+
+    this.agents.forEach((agent) => {
+      const card = document.createElement("div");
+      card.className = "roster-agent-card";
+
+      const avatarSrc = window.resolveOrbAsset ? window.resolveOrbAsset(agent.avatar_image) : (agent.avatar_image || './assets/avatar_fin.png');
+
+      card.innerHTML = `
+        <img src="${avatarSrc}" alt="${agent.name}" class="roster-agent-thumb" loading="lazy" />
+        <div class="roster-agent-name">${agent.name}</div>
+        <div class="roster-agent-role">${agent.role}</div>
+        <div class="roster-agent-status-pill" style="background-color: ${agent.tag_color || '#10B981'};">
+          ${agent.tag_text || agent.status}
+        </div>
+      `;
+
+      card.addEventListener("click", () => {
+        this.selectAgent(agent.id);
+        window.AgentModalManager?.open(agent.id);
+      });
+
+      grid.appendChild(card);
+    });
   },
 
   selectAgent(agentId) {
@@ -124,7 +157,14 @@ const AvatarsManager = {
 
     const toggleBtn = document.getElementById("avatarViewToggleBtn");
     if (toggleBtn) {
-      toggleBtn.addEventListener("click", () => this.toggleCompactMode());
+      toggleBtn.addEventListener("click", () => {
+        // Toggle compact view or switch to Agents tab
+        if (window.OrbApp) {
+          window.OrbApp.switchTab("agents");
+        } else {
+          this.toggleCompactMode();
+        }
+      });
     }
   },
 
@@ -132,7 +172,7 @@ const AvatarsManager = {
     if (this.isCompactMode) return;
     const track = document.getElementById("avatarsCarouselTrack");
     if (!track) return;
-    const cardWidth = track.firstElementChild ? track.firstElementChild.offsetWidth + 8 : 120;
+    const cardWidth = track.firstElementChild ? track.firstElementChild.offsetWidth + 10 : 110;
     const scrollPos = track.scrollLeft;
     const page = Math.round(scrollPos / (cardWidth * 3));
     this.setPaginationIndex(page);
@@ -155,7 +195,6 @@ const AvatarsManager = {
       return;
     }
 
-    // Usually 10 agents / 3 per page = ~4 pagination pages
     const numPages = Math.ceil(this.agents.length / 3);
     container.innerHTML = "";
 
@@ -165,7 +204,7 @@ const AvatarsManager = {
       dot.addEventListener("click", () => {
         const track = document.getElementById("avatarsCarouselTrack");
         if (track && track.firstElementChild) {
-          const cardWidth = track.firstElementChild.offsetWidth + 8;
+          const cardWidth = track.firstElementChild.offsetWidth + 10;
           track.scrollTo({ left: i * cardWidth * 3, behavior: "smooth" });
         }
       });

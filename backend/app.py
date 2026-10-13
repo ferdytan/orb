@@ -19,7 +19,11 @@ app = FastAPI(title="Orb - Virtual Office AI Agent System", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://orb.krftworks.my.id",
+        "https://krftworks.my.id",
+    ],
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -314,3 +318,12 @@ app.mount("/js", StaticFiles(directory=os.path.join(frontend_dir, "js")), name="
 @app.get("/")
 def serve_index():
     return FileResponse(os.path.join(frontend_dir, "index.html"))
+
+@app.get("/manifest.json")
+def serve_manifest():
+    return FileResponse(os.path.join(frontend_dir, "manifest.json"), media_type="application/manifest+json")
+
+@app.get("/sw.js")
+def serve_sw():
+    return FileResponse(os.path.join(frontend_dir, "sw.js"), media_type="application/javascript")
+

@@ -9,21 +9,21 @@ const ChatManager = {
 
   init(initialAgent) {
     this.activeAgent = initialAgent;
-    this.updateActiveAgent(initialAgent);
+    if (initialAgent) {
+      this.updateActiveAgent(initialAgent);
+    }
     this.setupSpeechRecognition();
     this.setupListeners();
   },
 
   updateActiveAgent(agent) {
+    if (!agent) return;
     this.activeAgent = agent;
     const thumbImg = document.getElementById("chatActiveAgentThumb");
     const nameTag = document.getElementById("chatActiveAgentNameTag");
     const inputEl = document.getElementById("chatBarInput");
 
-    const base = window.API?.basePath || '';
-    const avatarSrc = agent.avatar_image.startsWith('/') 
-      ? `${base}${agent.avatar_image}` 
-      : `${base}/${agent.avatar_image}`;
+    const avatarSrc = window.resolveOrbAsset ? window.resolveOrbAsset(agent.avatar_image) : (agent.avatar_image || './assets/avatar_fin.png');
 
     if (thumbImg) thumbImg.src = avatarSrc;
     if (nameTag) nameTag.textContent = agent.name;
@@ -69,12 +69,11 @@ const ChatManager = {
 
   toggleRecording() {
     if (!this.recognition) {
-      // Fallback voice simulation
       const samplePrompts = [
-        "Please check flight routes for our upcoming trip",
+        "Please check our flight route for the upcoming trip",
         "Save Rp 1 juta this month to the reserve vault",
         "How is our wallet balance and outside sales conversion?",
-        "Monitor customer support channels for urgent tickets"
+        "Review marketing funnels and daily tasks"
       ];
       const randomPrompt = samplePrompts[Math.floor(Math.random() * samplePrompts.length)];
       const inputEl = document.getElementById("chatBarInput");
@@ -123,10 +122,8 @@ const ChatManager = {
       const response = await window.API?.sendChat(this.activeAgent.id, text);
       inputEl.placeholder = `What can ${this.activeAgent.name} do for you?`;
 
-      // Show brief notification or feedback toast
       this.showToast(this.activeAgent.name, response.text);
 
-      // If action returned, refresh goals or wallet
       if (response.action) {
         const goals = await window.API?.getGoals();
         const wallet = await window.API?.getWallet();
@@ -144,32 +141,35 @@ const ChatManager = {
       toast = document.createElement("div");
       toast.id = "orbFloatingToast";
       toast.style.cssText = `
-        position: absolute;
-        top: 50px;
-        left: 20px;
-        right: 20px;
+        position: fixed;
+        top: 70px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-20px);
+        width: 90%;
+        max-width: 480px;
         background: rgba(24, 25, 31, 0.95);
         color: white;
-        padding: 12px 16px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        z-index: 55;
+        padding: 12px 18px;
+        border-radius: 18px;
+        font-size: 0.82rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        z-index: 95;
         transition: transform 0.3s ease, opacity 0.3s ease;
-        transform: translateY(-20px);
         opacity: 0;
         pointer-events: none;
         backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       `;
-      document.querySelector(".handheld-shell")?.appendChild(toast);
+      document.body.appendChild(toast);
     }
 
     toast.innerHTML = `<strong style="color: #10B981;">${sender}:</strong> ${message}`;
-    toast.style.transform = "translateY(0)";
+    toast.style.transform = "translateX(-50%) translateY(0)";
     toast.style.opacity = "1";
 
     setTimeout(() => {
-      toast.style.transform = "translateY(-20px)";
+      toast.style.transform = "translateX(-50%) translateY(-20px)";
       toast.style.opacity = "0";
     }, 4500);
   },
@@ -187,8 +187,8 @@ const ChatManager = {
     });
 
     badgeEl?.addEventListener("click", () => {
-      if (this.activeAgent) {
-        window.AgentModalManager?.open(this.activeAgent.id);
+      if (this.activeAgent && window.AgentModalManager) {
+        window.AgentModalManager.open(this.activeAgent.id);
       }
     });
   }
