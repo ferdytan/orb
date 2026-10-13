@@ -44,7 +44,12 @@ const AgentModalManager = {
     const statusTag = document.getElementById("sheetAgentStatusTag");
     const descEl = document.getElementById("sheetAgentDesc");
 
-    if (heroImg) heroImg.src = this.currentAgent.avatar_image;
+    const base = window.API?.basePath || '';
+    const avatarSrc = this.currentAgent.avatar_image.startsWith('/') 
+      ? `${base}${this.currentAgent.avatar_image}` 
+      : `${base}/${this.currentAgent.avatar_image}`;
+
+    if (heroImg) heroImg.src = avatarSrc;
     if (nameEl) nameEl.textContent = this.currentAgent.name;
     if (roleEl) roleEl.textContent = this.currentAgent.role;
     if (statusTag) {

@@ -139,11 +139,12 @@ const OrbApp = {
     scene.classList.add(`lighting-${mode}`);
 
     // Map image assets
+    const base = window.API?.basePath || '';
     const images = {
-      morning: "/assets/office_morning.jpg",
-      noon: "/assets/office_noon.jpg",
-      evening: "/assets/office_evening.jpg",
-      night: "/assets/office_night.jpg"
+      morning: `${base}/assets/office_morning.jpg`,
+      noon: `${base}/assets/office_noon.jpg`,
+      evening: `${base}/assets/office_evening.jpg`,
+      night: `${base}/assets/office_night.jpg`
     };
 
     backdrop.style.backgroundImage = `url('${images[mode] || images.morning}')`;

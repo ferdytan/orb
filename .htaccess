@@ -1,0 +1,21 @@
+# ==============================================================================
+# ORB - Apache .htaccess configuration for cPanel / Web Hosting
+# ==============================================================================
+
+DirectoryIndex frontend/index.html index.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /orb/
+
+    # 1. If accessing root folder /orb/ without filename, serve frontend/index.html
+    RewriteRule ^$ frontend/index.html [L]
+
+    # 2. If file or folder exists physically in frontend, serve it
+    RewriteCond %{DOCUMENT_ROOT}/orb/frontend/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/orb/frontend/$1 -d
+    RewriteRule ^(.*)$ frontend/$1 [L]
+
+    # 3. If accessing /css, /js, or /assets, route to frontend/
+    RewriteRule ^(css|js|assets)/(.*)$ frontend/$1/$2 [L]
+</IfModule>

@@ -20,7 +20,12 @@ const ChatManager = {
     const nameTag = document.getElementById("chatActiveAgentNameTag");
     const inputEl = document.getElementById("chatBarInput");
 
-    if (thumbImg) thumbImg.src = agent.avatar_image;
+    const base = window.API?.basePath || '';
+    const avatarSrc = agent.avatar_image.startsWith('/') 
+      ? `${base}${agent.avatar_image}` 
+      : `${base}/${agent.avatar_image}`;
+
+    if (thumbImg) thumbImg.src = avatarSrc;
     if (nameTag) nameTag.textContent = agent.name;
     if (inputEl) inputEl.placeholder = `What can ${agent.name} do for you?`;
   },

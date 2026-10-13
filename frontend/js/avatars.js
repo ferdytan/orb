@@ -68,12 +68,17 @@ const AvatarsManager = {
         statusClass = 'status-active';
       }
 
+      const base = window.API?.basePath || '';
+      const avatarSrc = agent.avatar_image.startsWith('/') 
+        ? `${base}${agent.avatar_image}` 
+        : `${base}/${agent.avatar_image}`;
+
       card.innerHTML = `
         <div class="avatar-status-pill ${statusClass}" style="background-color: ${agent.tag_color || ''};">
           ${agent.tag_text || agent.status}
         </div>
         <div class="avatar-figure-frame">
-          <img src="${agent.avatar_image}" alt="${agent.name}" class="avatar-img-plush" loading="lazy" />
+          <img src="${avatarSrc}" alt="${agent.name}" class="avatar-img-plush" loading="lazy" />
         </div>
         <div class="avatar-meta-capsule">
           <div class="avatar-title-row">

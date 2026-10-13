@@ -5,3 +5,4 @@ crewai>=0.28.0
 pillow>=10.0.0
 websockets>=12.0
 python-multipart>=0.0.9
+a2wsgi>=1.10.0

@@ -2,15 +2,20 @@
    ORB - API & WEBSOCKET CLIENT
    ========================================================================== */
 
+const getBasePath = () => {
+  return window.location.pathname.replace(/\/index\.html$/, '').replace(/\/$/, '');
+};
+
 const API = {
-  baseUrl: window.location.origin,
+  basePath: getBasePath(),
+  baseUrl: window.location.origin + getBasePath(),
   ws: null,
   wsListeners: [],
 
   // WebSocket Management
   initWebSocket(onMessageCallback) {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const wsUrl = `${protocol}//${window.location.host}${this.basePath}/ws`;
 
     try {
       this.ws = new WebSocket(wsUrl);
