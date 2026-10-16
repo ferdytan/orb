@@ -104,7 +104,102 @@ def init_db():
         unlocked INTEGER NOT NULL DEFAULT 1
     )
     """)
-    
+
+    # Ensure is_active column on agents table exists
+    cursor.execute("PRAGMA table_info(agents)")
+    agent_cols = [col[1] for col in cursor.fetchall()]
+    if "is_active" not in agent_cols:
+        cursor.execute("ALTER TABLE agents ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1")
+
+    # Fin Personal Finance Tables
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fin_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        account_type TEXT NOT NULL DEFAULT 'cash',
+        balance INTEGER NOT NULL DEFAULT 0,
+        initial_balance INTEGER NOT NULL DEFAULT 0,
+        currency TEXT NOT NULL DEFAULT 'IDR',
+        icon TEXT DEFAULT '👛',
+        color TEXT DEFAULT '#10B981',
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fin_categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL, -- 'expense' or 'income'
+        icon TEXT DEFAULT '🏷️',
+        color TEXT DEFAULT '#3B82F6',
+        sort_order INTEGER DEFAULT 0
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fin_transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL, -- 'expense', 'income', 'transfer'
+        account_id INTEGER NOT NULL,
+        destination_account_id INTEGER,
+        category_id INTEGER,
+        amount INTEGER NOT NULL,
+        description TEXT NOT NULL,
+        date TEXT NOT NULL, -- YYYY-MM-DD
+        time TEXT DEFAULT '',
+        tags TEXT DEFAULT '',
+        is_cleared INTEGER DEFAULT 1,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (account_id) REFERENCES fin_accounts(id),
+        FOREIGN KEY (destination_account_id) REFERENCES fin_accounts(id),
+        FOREIGN KEY (category_id) REFERENCES fin_categories(id)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fin_budgets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category_id INTEGER NOT NULL,
+        period TEXT NOT NULL, -- YYYY-MM
+        limit_amount INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        UNIQUE(category_id, period),
+        FOREIGN KEY (category_id) REFERENCES fin_categories(id)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fin_reminders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        amount INTEGER NOT NULL,
+        due_date TEXT NOT NULL, -- YYYY-MM-DD
+        frequency TEXT DEFAULT 'monthly',
+        is_paid INTEGER DEFAULT 0,
+        category_id INTEGER,
+        account_id INTEGER,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (category_id) REFERENCES fin_categories(id),
+        FOREIGN KEY (account_id) REFERENCES fin_accounts(id)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fin_goals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        target_amount INTEGER NOT NULL,
+        current_amount INTEGER NOT NULL DEFAULT 0,
+        target_date TEXT NOT NULL,
+        is_completed INTEGER DEFAULT 0,
+        icon TEXT DEFAULT '🎯',
+        created_at TEXT NOT NULL
+    )
+    """)
+
     conn.commit()
     seed_data(conn)
     conn.close()
@@ -407,5 +502,64 @@ def seed_data(conn):
         INSERT INTO collections (badge_id, title, description, badge_type, unlocked)
         VALUES (?, ?, ?, ?, ?)
         """, badges)
+
+    # -------------------------------------------------------------
+    # Fin-First: Deactivate legacy agents, keep ONLY Fin active
+    # -------------------------------------------------------------
+    cursor.execute("UPDATE agents SET is_active = 0 WHERE id != 'fin'")
+    cursor.execute("""
+    UPDATE agents 
+    SET is_active = 1,
+        name = 'Fin',
+        role = 'Personal Finance Specialist',
+        domain = 'finance',
+        status = 'active',
+        tag_text = 'active',
+        tag_color = '#10B981',
+        description_icon = '💰',
+        description_text = 'Workspace Keuangan Pribadi',
+        avatar_image = './assets/avatar_fin.png',
+        personality = 'Plush akuntan yang ceria dan teliti. Membantu mencatat transaksi, mengawal budget, dan mengoptimalkan arus kas harian.',
+        sort_order = 1
+    WHERE id = 'fin'
+    """)
+
+    # Seed Default Fin Categories if empty
+    cursor.execute("SELECT COUNT(*) FROM fin_categories")
+    if cursor.fetchone()[0] == 0:
+        default_categories = [
+            # Expense
+            ("Makanan & Minuman", "expense", "🍔", "#EF4444", 1),
+            ("Transportasi", "expense", "🚗", "#F59E0B", 2),
+            ("Tagihan & Utilitas", "expense", "⚡", "#8B5CF6", 3),
+            ("Belanja Kebutuhan", "expense", "🛒", "#3B82F6", 4),
+            ("Hiburan & Santai", "expense", "🎮", "#EC4899", 5),
+            ("Kesehatan", "expense", "💊", "#10B981", 6),
+            ("Pendidikan & Kerja", "expense", "📚", "#6366F1", 7),
+            ("Lain-lain", "expense", "📦", "#6B7280", 8),
+            # Income
+            ("Gaji Pokok", "income", "💼", "#10B981", 1),
+            ("Freelance & Bisnis", "income", "💻", "#06B6D4", 2),
+            ("Investasi & Pasif", "income", "📈", "#84CC16", 3),
+            ("Hadiah & Bonus", "income", "🎁", "#F59E0B", 4),
+        ]
+        cursor.executemany("""
+        INSERT INTO fin_categories (name, type, icon, color, sort_order)
+        VALUES (?, ?, ?, ?, ?)
+        """, default_categories)
+
+    # Seed Default Primary Accounts if empty
+    cursor.execute("SELECT COUNT(*) FROM fin_accounts")
+    if cursor.fetchone()[0] == 0:
+        now = datetime.now().isoformat()
+        default_accounts = [
+            ("Dompet Tunai", "cash", 0, 0, "IDR", "👛", "#10B981", 1, now, now),
+            ("Rekening Bank Utama", "bank", 0, 0, "IDR", "🏦", "#3B82F6", 1, now, now),
+            ("E-Wallet", "ewallet", 0, 0, "IDR", "📱", "#8B5CF6", 1, now, now),
+        ]
+        cursor.executemany("""
+        INSERT INTO fin_accounts (name, account_type, balance, initial_balance, currency, icon, color, is_active, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, default_accounts)
         
     conn.commit()

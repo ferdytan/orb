@@ -1,220 +1,32 @@
 /* ==========================================================================
-   ORB - API & WEBSOCKET CLIENT (WITH OFFLINE/RESILIENT FALLBACKS)
+   ORB - API & CLIENT DATA LAYER (FIN-FIRST RESILIENT ARCHITECTURE)
    ========================================================================== */
 
 const getBasePath = () => {
   return window.location.pathname.replace(/\/index\.html$/, '').replace(/\/$/, '');
 };
 
-// Fallback seed data so the UI NEVER breaks even when backend is restarting or offline
+// Canonical single active agent contract: Fin
 const DEFAULT_AGENTS = [
   {
     id: "fin",
     name: "Fin",
-    role: "Finance & Budgeting",
+    role: "Personal Finance Specialist",
     domain: "finance",
     status: "active",
     tag_text: "active",
     tag_color: "#10B981",
     description_icon: "💰",
-    description_text: "Tracking budget & wallet",
+    description_text: "Personal Finance Workspace",
     avatar_image: "./assets/avatar_fin.png",
-    personality: "Energetic, cheerful accountant plush. Loves spreadsheets, tracking savings goals, and calculating runway.",
+    personality: "Plush akuntan yang ceria dan teliti. Membantu mencatat transaksi, mengawal budget, dan mengoptimalkan arus kas harian.",
     color_theme: "#DCFCE7",
     sort_order: 1
-  },
-  {
-    id: "nova",
-    name: "Nova",
-    role: "Analytics & Intelligence",
-    domain: "analytics",
-    status: "active",
-    tag_text: "active",
-    tag_color: "#8B5CF6",
-    description_icon: "📊",
-    description_text: "Crunching metrics & goals",
-    avatar_image: "./assets/avatar_nova.png",
-    personality: "Cozy intellectual wearing retro glasses. Loves graphs, conversion rates, and coffee.",
-    color_theme: "#F3E8FF",
-    sort_order: 2
-  },
-  {
-    id: "muse",
-    name: "Muse",
-    role: "Executive Travel & Concierge",
-    domain: "travel",
-    status: "active",
-    tag_text: "active",
-    tag_color: "#3B82F6",
-    description_icon: "✈️",
-    description_text: "Flight tracking Bali -> JKT",
-    avatar_image: "./assets/avatar_muse.png",
-    personality: "Gentle, worldly bear with aviator scarf. Manages boarding passes, flight perks, and hotel itineraries.",
-    color_theme: "#DBEAFE",
-    sort_order: 3
-  },
-  {
-    id: "chat",
-    name: "Chat",
-    role: "Communication & Concierge",
-    domain: "communication",
-    status: "active",
-    tag_text: "active",
-    tag_color: "#EC4899",
-    description_icon: "💬",
-    description_text: "Monitoring team inbox",
-    avatar_image: "./assets/avatar_chat.png",
-    personality: "Bubbly, warm rabbit with golden antenna. Routes correspondence, drafts meeting notes, and welcomes guests.",
-    color_theme: "#FCE7F3",
-    sort_order: 4
-  },
-  {
-    id: "blaze",
-    name: "Blaze",
-    role: "Growth & Marketing",
-    domain: "marketing",
-    status: "active",
-    tag_text: "active",
-    tag_color: "#F97316",
-    description_icon: "🚀",
-    description_text: "Drafting campaigns",
-    avatar_image: "./assets/avatar_blaze.png",
-    personality: "High-octane fox wearing cyber visor. Drives social outreach, viral campaigns, and funnels.",
-    color_theme: "#FFEDD5",
-    sort_order: 5
-  },
-  {
-    id: "sage",
-    name: "Sage",
-    role: "Strategy & Sprint Planning",
-    domain: "strategy",
-    status: "idle",
-    tag_text: "idle",
-    tag_color: "#6B7280",
-    description_icon: "🌱",
-    description_text: "Planning sprint",
-    avatar_image: "./assets/avatar_sage.png",
-    personality: "Wise mint sprout with journal. Balances priorities, roadmap deadlines, and team energy.",
-    color_theme: "#E6FFFA",
-    sort_order: 6
-  },
-  {
-    id: "spark",
-    name: "Spark",
-    role: "UI & Experience Design",
-    domain: "design",
-    status: "listening",
-    tag_text: "listening",
-    tag_color: "#F59E0B",
-    description_icon: "✨",
-    description_text: "Designing wireframes",
-    avatar_image: "./assets/avatar_spark.png",
-    personality: "Playful chick with digital antenna stylus. Crafts bento layouts, micro-animations, design tokens.",
-    color_theme: "#FEF3C7",
-    sort_order: 7
-  },
-  {
-    id: "echo",
-    name: "Echo",
-    role: "Audio & Podcasting",
-    domain: "media",
-    status: "routing",
-    tag_text: "routing",
-    tag_color: "#0EA5E9",
-    description_icon: "🎙️",
-    description_text: "Syncing team audio",
-    avatar_image: "./assets/avatar_echo.png",
-    personality: "Sky-blue sound bubble. Transcribes audio, records meeting recaps, broadcasts updates.",
-    color_theme: "#E0F2FE",
-    sort_order: 8
-  },
-  {
-    id: "pixel",
-    name: "Pixel",
-    role: "3D & Visual Assets",
-    domain: "creative",
-    status: "active",
-    tag_text: "active",
-    tag_color: "#EC4899",
-    description_icon: "🎨",
-    description_text: "Rendering 3D bento",
-    avatar_image: "./assets/avatar_pixel.png",
-    personality: "Pink VR bunny. Renders plush textures, generates icons, builds visual interfaces.",
-    color_theme: "#FCE7F3",
-    sort_order: 9
-  },
-  {
-    id: "atlas",
-    name: "Atlas",
-    role: "Global Compliance & Ops",
-    domain: "operations",
-    status: "idle",
-    tag_text: "idle",
-    tag_color: "#64748B",
-    description_icon: "🌐",
-    description_text: "Global sync standby",
-    avatar_image: "./assets/avatar_atlas.png",
-    personality: "Scholarly owl with monocle. Monitors international regulations, timezones, enterprise logistics.",
-    color_theme: "#F1F5F9",
-    sort_order: 10
   }
 ];
 
-const DEFAULT_GOALS = [
-  {
-    id: 1,
-    title: "Turn one outside sale...",
-    milestone: "Turn a read reply into a real ask",
-    progress_pct: 65,
-    completed: 0,
-    assigned_agent_id: "fin",
-    category: "Sales & Revenue",
-    target_value: "1 Outside Sale",
-    current_value: "0.65 Progress"
-  },
-  {
-    id: 2,
-    title: "Save Rp 1 juta this month",
-    milestone: "Automate weekly transfer of Rp 250k into reserve vault",
-    progress_pct: 85,
-    completed: 0,
-    assigned_agent_id: "fin",
-    category: "Personal Savings",
-    target_value: "Rp 1.000.000",
-    current_value: "Rp 850.000"
-  },
-  {
-    id: 3,
-    title: "Ship Orb Handheld Dashboard v1.0",
-    milestone: "Finalize plush avatars and dynamic lighting shaders",
-    progress_pct: 90,
-    completed: 0,
-    assigned_agent_id: "spark",
-    category: "Product Engineering",
-    target_value: "Version 1.0",
-    current_value: "Release Candidate"
-  }
-];
-
-const DEFAULT_WALLET = {
-  id: 1,
-  balance: 1400.0,
-  currency: "USD",
-  last_transaction: "Synced with Fin"
-};
-
-const DEFAULT_TALENTS = [
-  { id: 1, category: "Social", level: 8, score: 85, badge_name: "Community Catalyst" },
-  { id: 2, category: "Collab", level: 9, score: 92, badge_name: "Synergy Master" },
-  { id: 3, category: "Creativity", level: 10, score: 98, badge_name: "Orb Visionary" }
-];
-
-const DEFAULT_COLLECTIONS = [
-  { id: 1, badge_id: "achiever_star", title: "Achiever Star", description: "Awarded for completing 5 daily milestones in sequence", badge_type: "ribbon_star", unlocked: 1 },
-  { id: 2, badge_id: "celestial_spark", title: "Celestial Spark", description: "Awarded for unlocking shared crew synergy across 3 domains", badge_type: "medal_spark", unlocked: 1 },
-  { id: 3, badge_id: "vault_keeper", title: "Vault Keeper", description: "Awarded for hitting monthly savings milestone", badge_type: "vault", unlocked: 1 },
-  { id: 4, badge_id: "speed_demon", title: "Speed Demon", description: "Zero latency response time for routing requests", badge_type: "speed", unlocked: 0 }
-];
+window.DEFAULT_AGENTS = DEFAULT_AGENTS;
+window.ORB_FIN_AVATAR = "./assets/avatar_fin.png";
 
 // Helper to consistently resolve asset URLs across root subdomain deployments
 window.resolveOrbAsset = function(path) {
@@ -226,12 +38,6 @@ window.resolveOrbAsset = function(path) {
   return './' + clean;
 };
 
-window.DEFAULT_AGENTS = DEFAULT_AGENTS;
-window.DEFAULT_GOALS = DEFAULT_GOALS;
-window.DEFAULT_WALLET = DEFAULT_WALLET;
-window.DEFAULT_TALENTS = DEFAULT_TALENTS;
-window.DEFAULT_COLLECTIONS = DEFAULT_COLLECTIONS;
-
 const getApiBaseUrl = () => {
   // 1. Prioritas tertinggi: Override manual via window.ORB_API_URL jika di-set
   if (typeof window !== "undefined" && window.ORB_API_URL && typeof window.ORB_API_URL === "string") {
@@ -240,14 +46,11 @@ const getApiBaseUrl = () => {
   }
 
   // 2. Lingkungan produksi:
-  // Ketika frontend dibuka dari subdomain https://orb.krftworks.my.id,
-  // target API production adalah root Python App di https://krftworks.my.id
   if (typeof window !== "undefined" && window.location && window.location.hostname === "orb.krftworks.my.id") {
     return "https://krftworks.my.id";
   }
 
   // 3. Lingkungan local development (localhost, 127.0.0.1):
-  // Menggunakan origin dan basePath lokal yang sama (tidak memaksa ke API production)
   return window.location.origin + getBasePath();
 };
 
@@ -257,12 +60,10 @@ const API = {
   ws: null,
   wsListeners: [],
 
-  // Helper pembentuk URL aman yang mencegah duplikasi /api/api/...
   buildUrl(endpoint) {
     const base = (this.baseUrl || '').replace(/\/+$/, '');
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 
-    // Cegah duplikasi jika base URL berakhiran /api dan endpoint diawali /api/
     if (base.endsWith('/api') && (cleanEndpoint === '/api' || cleanEndpoint.startsWith('/api/'))) {
       return `${base.slice(0, -4)}${cleanEndpoint}`;
     }
@@ -304,12 +105,10 @@ const API = {
       };
 
       this.ws.onclose = () => {
-        setTimeout(() => this.initWebSocket(onMessageCallback), 5000);
+        setTimeout(() => this.initWebSocket(onMessageCallback), 8000);
       };
 
-      this.ws.onerror = () => {
-        // Silent recovery
-      };
+      this.ws.onerror = () => {};
     } catch (e) {
       console.warn("WebSocket unavailable, running in resilient client mode:", e);
     }
@@ -325,7 +124,9 @@ const API = {
     }
   },
 
-  // REST API Methods with Safe Fallbacks
+  // -------------------------------------------------------------
+  // AGENTS (STRICTLY 1 ACTIVE AGENT: FIN)
+  // -------------------------------------------------------------
   async getAgents() {
     try {
       const res = await fetch(this.buildUrl('/api/agents'));
@@ -337,101 +138,272 @@ const API = {
     return DEFAULT_AGENTS;
   },
 
-  async getAgentDetail(agentId) {
+  async getAgentDetail(agentId = "fin") {
     try {
       const res = await fetch(this.buildUrl(`/api/agents/${agentId}`));
       if (res.ok) return await res.json();
     } catch (_) {}
 
-    const agent = DEFAULT_AGENTS.find(a => a.id === agentId) || DEFAULT_AGENTS[0];
     return {
-      agent,
+      agent: DEFAULT_AGENTS[0],
       memories: [
-        { id: 1, memory_type: "per_agent", category: "goal", content: `Active task for ${agent.name}: Maintain 100% operational velocity.` },
-        { id: 2, memory_type: "shared", category: "preference", content: "Crew Guideline: Warm and proactive plush assistance." }
+        { id: 1, memory_type: "per_agent", category: "goal", content: "Fin Goal: Catat transaksi dengan disiplin dan optimalkan alokasi tabungan." }
       ],
       chat_history: [
-        { sender: "agent", text: `Hello! I'm ${agent.name}, your ${agent.role} agent. What can we accomplish together?` }
+        { sender: "agent", text: "Halo! Saya Fin, spesialis keuangan pribadi Anda. Mari kita kelola anggaran dan target Anda." }
       ]
     };
   },
 
-  async updateAgentStatus(agentId, statusData) {
+  // -------------------------------------------------------------
+  // FIN EXECUTIVE BRIEF (OFFICE SCREEN - ZERO RUPIAH STRICTLY)
+  // -------------------------------------------------------------
+  async getFinExecutiveBrief() {
     try {
-      const res = await fetch(this.buildUrl(`/api/agents/${agentId}/status`), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(statusData)
-      });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: true };
-  },
-
-  async getGoals() {
-    try {
-      const res = await fetch(this.buildUrl('/api/goals'));
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) return data;
-      }
-    } catch (_) {}
-    return DEFAULT_GOALS;
-  },
-
-  async updateGoal(goalId, updateData) {
-    try {
-      const res = await fetch(this.buildUrl(`/api/goals/${goalId}`), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updateData)
-      });
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return { success: true };
-  },
-
-  async getWallet() {
-    try {
-      const res = await fetch(this.buildUrl('/api/wallet'));
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return DEFAULT_WALLET;
-  },
-
-  async getTalents() {
-    try {
-      const res = await fetch(this.buildUrl('/api/talents'));
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return DEFAULT_TALENTS;
-  },
-
-  async getCollections() {
-    try {
-      const res = await fetch(this.buildUrl('/api/collections'));
-      if (res.ok) return await res.json();
-    } catch (_) {}
-    return DEFAULT_COLLECTIONS;
-  },
-
-  async sendChat(agentId, message) {
-    try {
-      const res = await fetch(this.buildUrl('/api/chat'), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ agent_id: agentId, message: message })
-      });
+      const res = await fetch(this.buildUrl('/api/agents/fin/brief'));
       if (res.ok) return await res.json();
     } catch (_) {}
 
-    const agent = DEFAULT_AGENTS.find(a => a.id === agentId) || DEFAULT_AGENTS[0];
+    // Resilient offline fallback with honest status
     return {
-      text: `Got it! ${agent.name} is working on: "${message}". Logged to memory!`,
-      action: null
+      has_data: false,
+      budget_utilization: {
+        id: "budget_utilization",
+        title: "Budget Bulanan",
+        percentage: null,
+        status_text: "Belum Ada Batas",
+        status_tone: "neutral",
+        indicator_note: "Belum ada anggaran bulanan aktif"
+      },
+      recording_coverage: {
+        id: "recording_coverage",
+        title: "Konsistensi Catat",
+        percentage: 0,
+        status_text: "Perlu Dicatat",
+        status_tone: "neutral",
+        indicator_note: "Mulai catat transaksi pertama Anda"
+      },
+      savings_allocation: {
+        id: "savings_allocation",
+        title: "Rasio Tabungan",
+        percentage: null,
+        status_text: "Nihil",
+        status_tone: "neutral",
+        indicator_note: "Belum ada catatan pemasukan"
+      },
+      upcoming_obligations: {
+        id: "upcoming_obligations",
+        title: "Kewajiban Tagihan",
+        percentage: 100,
+        status_text: "100% Bersih",
+        status_tone: "good",
+        indicator_note: "Tidak ada tagihan tertunda"
+      },
+      insights: [
+        "Fin siap mendampingi perencanaan keuangan pribadi Anda.",
+        "Klik Fin di bawah untuk membuka ruang kerja detail lengkap."
+      ],
+      quick_tips: "Klik Fin untuk membuka ruang kerja detail dengan kontrol privasi nominal.",
+      fin_status: "ready"
     };
   },
 
+  // -------------------------------------------------------------
+  // FIN WORKSPACE DOMAIN APIS
+  // -------------------------------------------------------------
+  async getFinSummary(period = null) {
+    try {
+      const url = period ? `/api/agents/fin/summary?period=${encodeURIComponent(period)}` : '/api/agents/fin/summary';
+      const res = await fetch(this.buildUrl(url));
+      if (res.ok) return await res.json();
+    } catch (_) {}
+
+    return {
+      current_period: new Date().toISOString().slice(0, 7),
+      total_net_worth: 0,
+      total_income: 0,
+      total_expense: 0,
+      net_savings: 0,
+      savings_rate_pct: 0,
+      total_budget_limit: 0,
+      total_budget_spent: 0,
+      overall_budget_utilization_pct: 0,
+      accounts_count: 1,
+      transactions_count: 0,
+      unpaid_reminders_count: 0,
+      category_breakdown: []
+    };
+  },
+
+  async getFinAccounts(activeOnly = true) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/fin/accounts?active_only=${activeOnly}`));
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [
+      { id: 1, name: "Dompet Tunai", account_type: "cash", balance: 0, currency: "IDR", icon: "👛", color: "#10B981", is_active: 1 }
+    ];
+  },
+
+  async createFinAccount(data) {
+    const res = await fetch(this.buildUrl('/api/agents/fin/accounts'), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Gagal membuat akun.");
+    }
+    return await res.json();
+  },
+
+  async getFinCategories(type = null) {
+    try {
+      const url = type ? `/api/agents/fin/categories?type=${encodeURIComponent(type)}` : '/api/agents/fin/categories';
+      const res = await fetch(this.buildUrl(url));
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [
+      { id: 1, name: "Makanan & Minuman", type: "expense", icon: "🍔", color: "#EF4444", sort_order: 1 },
+      { id: 2, name: "Transportasi", type: "expense", icon: "🚗", color: "#F59E0B", sort_order: 2 },
+      { id: 3, name: "Gaji Pokok", type: "income", icon: "💼", color: "#10B981", sort_order: 1 }
+    ];
+  },
+
+  async getFinTransactions(filters = {}) {
+    try {
+      const params = new URLSearchParams();
+      if (filters.period) params.append("period", filters.period);
+      if (filters.type) params.append("type", filters.type);
+      if (filters.account_id) params.append("account_id", filters.account_id);
+      if (filters.limit) params.append("limit", filters.limit);
+
+      const qs = params.toString() ? `?${params.toString()}` : "";
+      const res = await fetch(this.buildUrl(`/api/agents/fin/transactions${qs}`));
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async createFinTransaction(txData) {
+    const res = await fetch(this.buildUrl('/api/agents/fin/transactions'), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(txData)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Gagal menyimpan transaksi.");
+    }
+    return await res.json();
+  },
+
+  async deleteFinTransaction(txId) {
+    const res = await fetch(this.buildUrl(`/api/agents/fin/transactions/${txId}`), {
+      method: "DELETE"
+    });
+    if (!res.ok) throw new Error("Gagal menghapus transaksi.");
+    return await res.json();
+  },
+
+  async getFinBudgets(period = null) {
+    try {
+      const url = period ? `/api/agents/fin/budgets?period=${encodeURIComponent(period)}` : '/api/agents/fin/budgets';
+      const res = await fetch(this.buildUrl(url));
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async setFinBudget(data) {
+    const res = await fetch(this.buildUrl('/api/agents/fin/budgets'), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error("Gagal menyetel budget.");
+    return await res.json();
+  },
+
+  async getFinReminders() {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/fin/reminders'));
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async createFinReminder(data) {
+    const res = await fetch(this.buildUrl('/api/agents/fin/reminders'), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error("Gagal menambah pengingat.");
+    return await res.json();
+  },
+
+  async payFinReminder(remId, accountId = null) {
+    const url = accountId ? `/api/agents/fin/reminders/${remId}/pay?account_id=${accountId}` : `/api/agents/fin/reminders/${remId}/pay`;
+    const res = await fetch(this.buildUrl(url), { method: "POST" });
+    if (!res.ok) throw new Error("Gagal memproses pembayaran tagihan.");
+    return await res.json();
+  },
+
+  async getFinGoals() {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/fin/goals'));
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async createFinGoal(data) {
+    const res = await fetch(this.buildUrl('/api/agents/fin/goals'), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error("Gagal membuat target tabungan.");
+    return await res.json();
+  },
+
+  async depositFinGoal(goalId, data) {
+    const res = await fetch(this.buildUrl(`/api/agents/fin/goals/${goalId}/deposit`), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error("Gagal menyetor ke target tabungan.");
+    return await res.json();
+  },
+
+  async askFin(question) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/fin/ask'), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: question })
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+
+    return {
+      answer: "Fin siap mencatat pengeluaran dan pemasukan Anda. Sambungkan koneksi untuk analisis angka terperinci.",
+      intent: "offline",
+      suggestions: ["Berapa pengeluaran bulan ini?", "Bagaimana status budget?"]
+    };
+  },
+
+  getFinExportUrl(period = null) {
+    const qs = period ? `?period=${encodeURIComponent(period)}` : "";
+    return this.buildUrl(`/api/agents/fin/export${qs}`);
+  },
+
+  // -------------------------------------------------------------
+  // LIGHTING & THEME
+  // -------------------------------------------------------------
   async getLighting() {
     try {
       const res = await fetch(this.buildUrl('/api/lighting'));

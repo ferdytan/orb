@@ -14,8 +14,10 @@ from backend.models import (
 )
 from backend.memory import OrbMemoryManager
 from backend.crew import OrbCrewOrchestrator
+from backend.agents.fin.router import router as fin_router
 
 app = FastAPI(title="Orb - Virtual Office AI Agent System", version="1.0.0")
+app.include_router(fin_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -111,7 +113,7 @@ async def handle_chat_turn(agent_id: str, message: str, websocket: WebSocket):
 def get_agents():
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM agents ORDER BY sort_order ASC")
+    cursor.execute("SELECT * FROM agents WHERE is_active = 1 ORDER BY sort_order ASC")
     rows = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return rows

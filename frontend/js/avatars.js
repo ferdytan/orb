@@ -1,215 +1,88 @@
 /* ==========================================================================
-   ORB - AVATARS RENDERER & INTERACTION MANAGER
+   ORB - FIN HERO DESK STAGE (SINGLE ACTIVE AGENT ARCHITECTURE)
+   Zero dummy avatars. Instant first-screen shell rendering.
    ========================================================================== */
 
 const AvatarsManager = {
-  agents: [],
-  selectedAgentId: "fin", // Default active agent
-  isCompactMode: false,
-  currentIndex: 0,
+  finData: null,
 
-  init(agentsData) {
-    this.agents = Array.isArray(agentsData) && agentsData.length > 0 ? agentsData : (window.DEFAULT_AGENTS || []);
+  init(agentsData = null) {
+    console.log("🛋️ Initializing Fin Hero Desk Stage...");
+    if (Array.isArray(agentsData) && agentsData.length > 0) {
+      this.finData = agentsData.find(a => a.id === "fin") || agentsData[0];
+    } else {
+      this.finData = window.DEFAULT_AGENTS[0];
+    }
+
     this.render();
     this.setupListeners();
   },
 
-  updateAgents(agentsData) {
-    if (Array.isArray(agentsData) && agentsData.length > 0) {
-      this.agents = agentsData;
-    }
+  updateAgentStatus(status, tagText, tagColor, descText) {
+    if (!this.finData) this.finData = window.DEFAULT_AGENTS[0];
+    if (status) this.finData.status = status;
+    if (tagText) this.finData.tag_text = tagText;
+    if (tagColor) this.finData.tag_color = tagColor;
+    if (descText) this.finData.description_text = descText;
     this.render();
   },
 
-  updateSingleAgent(agentId, status, tagText, tagColor, descText) {
-    const agent = this.agents.find(a => a.id === agentId);
-    if (agent) {
-      agent.status = status;
-      if (tagText) agent.tag_text = tagText;
-      if (tagColor) agent.tag_color = tagColor;
-      if (descText) agent.description_text = descText;
-      this.render();
-      
-      if (this.selectedAgentId === agentId) {
-        window.ChatManager?.updateActiveAgent(agent);
-      }
-    }
-  },
-
-  toggleCompactMode() {
-    this.isCompactMode = !this.isCompactMode;
-    const track = document.getElementById("avatarsCarouselTrack");
-    const toggleBtn = document.getElementById("avatarViewToggleBtn");
-    
-    if (this.isCompactMode) {
-      track?.classList.add("compact-grid-mode");
-      if (toggleBtn) toggleBtn.innerHTML = `<span>◫</span> Carousel`;
-    } else {
-      track?.classList.remove("compact-grid-mode");
-      if (toggleBtn) toggleBtn.innerHTML = `<span>▦</span> All 10`;
-    }
-    this.updatePagination();
-  },
-
   render() {
-    this.renderDeskCarousel();
-    this.renderFullRosterGrid();
-  },
+    const fin = this.finData || window.DEFAULT_AGENTS[0];
+    const deskContainer = document.getElementById("finDeskHeroContainer");
+    if (!deskContainer) return;
 
-  renderDeskCarousel() {
-    const track = document.getElementById("avatarsCarouselTrack");
-    if (!track) return;
+    const avatarSrc = "./assets/avatar_fin_360.png";
 
-    track.innerHTML = "";
-
-    this.agents.forEach((agent, index) => {
-      const card = document.createElement("div");
-      card.className = `avatar-actor-card ${agent.id === this.selectedAgentId ? 'is-selected' : ''}`;
-      card.dataset.agentId = agent.id;
-      card.dataset.index = index;
-
-      let statusClass = `status-${agent.status}`;
-      if (!['active', 'listening', 'routing', 'idle'].includes(agent.status)) {
-        statusClass = 'status-active';
-      }
-
-      // Ensure relative asset path
-      const avatarSrc = window.resolveOrbAsset ? window.resolveOrbAsset(agent.avatar_image) : (agent.avatar_image || './assets/avatar_fin.png');
-
-      card.innerHTML = `
-        <div class="avatar-status-pill ${statusClass}" style="background-color: ${agent.tag_color || ''};">
-          ${agent.tag_text || agent.status}
-        </div>
-        <div class="avatar-figure-frame">
-          <img src="${avatarSrc}" alt="${agent.name}" class="avatar-img-plush" loading="lazy" />
-        </div>
-        <div class="avatar-meta-capsule">
-          <div class="avatar-title-row">
-            ${agent.name}
+    deskContainer.innerHTML = `
+      <div class="fin-hero-desk-card" id="finHeroDeskCard" title="Klik untuk membuka Fin Finance Workspace">
+        <!-- Status Pill -->
+        <div class="fin-hero-status-bar">
+          <div class="fin-status-capsule status-${fin.status || 'active'}">
+            <span class="fin-status-dot"></span>
+            <span>${fin.tag_text || 'Online • Aktif'}</span>
           </div>
-          <div class="avatar-activity-desc">
-            <span>${agent.description_icon || '✨'}</span>
-            <span>${agent.description_text || agent.role}</span>
+          <div class="fin-workspace-chip">
+            <span>Buka Workspace</span>
+            <span class="fin-chip-arrow">↗</span>
           </div>
         </div>
-      `;
 
-      card.addEventListener("click", () => {
-        this.selectAgent(agent.id);
-        window.AgentModalManager?.open(agent.id);
-      });
-
-      track.appendChild(card);
-    });
-
-    this.updatePagination();
-  },
-
-  renderFullRosterGrid() {
-    const grid = document.getElementById("agentsFullRosterGrid");
-    if (!grid) return;
-
-    grid.innerHTML = "";
-
-    this.agents.forEach((agent) => {
-      const card = document.createElement("div");
-      card.className = "roster-agent-card";
-
-      const avatarSrc = window.resolveOrbAsset ? window.resolveOrbAsset(agent.avatar_image) : (agent.avatar_image || './assets/avatar_fin.png');
-
-      card.innerHTML = `
-        <img src="${avatarSrc}" alt="${agent.name}" class="roster-agent-thumb" loading="lazy" />
-        <div class="roster-agent-name">${agent.name}</div>
-        <div class="roster-agent-role">${agent.role}</div>
-        <div class="roster-agent-status-pill" style="background-color: ${agent.tag_color || '#10B981'};">
-          ${agent.tag_text || agent.status}
+        <!-- 3D Character Stage & Shadow -->
+        <div class="fin-character-stage">
+          <img 
+            src="${avatarSrc}" 
+            alt="Fin Personal Finance" 
+            class="fin-hero-plush-img" 
+            fetchpriority="high"
+            decoding="async"
+          />
+          <div class="fin-contact-shadow"></div>
         </div>
-      `;
 
-      card.addEventListener("click", () => {
-        this.selectAgent(agent.id);
-        window.AgentModalManager?.open(agent.id);
-      });
+        <!-- Meta Capsule & Activity Note -->
+        <div class="fin-hero-meta-row">
+          <div class="fin-hero-name-col">
+            <span class="fin-hero-name">Fin</span>
+            <span class="fin-hero-role">Personal Finance Specialist</span>
+          </div>
+          <div class="fin-hero-note-bubble">
+            <span class="fin-bubble-icon">💰</span>
+            <span class="fin-bubble-text" id="finDeskActivityText">
+              ${fin.description_text || 'Menganalisis arus kas & mendampingi anggaran'}
+            </span>
+          </div>
+        </div>
+      </div>
+    `;
 
-      grid.appendChild(card);
+    document.getElementById("finHeroDeskCard")?.addEventListener("click", () => {
+      window.location.hash = "#fin";
     });
-  },
-
-  selectAgent(agentId) {
-    this.selectedAgentId = agentId;
-    document.querySelectorAll(".avatar-actor-card").forEach(el => {
-      el.classList.toggle("is-selected", el.dataset.agentId === agentId);
-    });
-
-    const agent = this.agents.find(a => a.id === agentId);
-    if (agent && window.ChatManager) {
-      window.ChatManager.updateActiveAgent(agent);
-    }
   },
 
   setupListeners() {
-    const track = document.getElementById("avatarsCarouselTrack");
-    if (track) {
-      track.addEventListener("scroll", () => {
-        this.handleScroll();
-      }, { passive: true });
-    }
-
-    const toggleBtn = document.getElementById("avatarViewToggleBtn");
-    if (toggleBtn) {
-      toggleBtn.addEventListener("click", () => {
-        // Toggle compact view or switch to Agents tab
-        if (window.OrbApp) {
-          window.OrbApp.switchTab("agents");
-        } else {
-          this.toggleCompactMode();
-        }
-      });
-    }
-  },
-
-  handleScroll() {
-    if (this.isCompactMode) return;
-    const track = document.getElementById("avatarsCarouselTrack");
-    if (!track) return;
-    const cardWidth = track.firstElementChild ? track.firstElementChild.offsetWidth + 10 : 110;
-    const scrollPos = track.scrollLeft;
-    const page = Math.round(scrollPos / (cardWidth * 3));
-    this.setPaginationIndex(page);
-  },
-
-  setPaginationIndex(index) {
-    this.currentIndex = index;
-    const dots = document.querySelectorAll(".carousel-dot");
-    dots.forEach((dot, i) => {
-      dot.classList.toggle("active", i === index);
-    });
-  },
-
-  updatePagination() {
-    const container = document.getElementById("carouselDotsIndicator");
-    if (!container) return;
-
-    if (this.isCompactMode) {
-      container.innerHTML = "";
-      return;
-    }
-
-    const numPages = Math.ceil(this.agents.length / 3);
-    container.innerHTML = "";
-
-    for (let i = 0; i < numPages; i++) {
-      const dot = document.createElement("div");
-      dot.className = `carousel-dot ${i === this.currentIndex ? 'active' : ''}`;
-      dot.addEventListener("click", () => {
-        const track = document.getElementById("avatarsCarouselTrack");
-        if (track && track.firstElementChild) {
-          const cardWidth = track.firstElementChild.offsetWidth + 10;
-          track.scrollTo({ left: i * cardWidth * 3, behavior: "smooth" });
-        }
-      });
-      container.appendChild(dot);
-    }
+    // Stage listeners if needed
   }
 };
 
