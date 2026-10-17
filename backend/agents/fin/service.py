@@ -6,6 +6,7 @@ import io
 from datetime import datetime, date
 from typing import Dict, Any, List, Optional
 from backend.database import get_connection
+from backend.agents.fin.reporting import FinSnapshotService
 
 
 class FinService:
@@ -153,6 +154,7 @@ class FinService:
             cursor.execute("UPDATE fin_accounts SET balance = balance + ?, updated_at = ? WHERE id = ?", (amount, now, destination_account_id))
 
         conn.commit()
+        FinSnapshotService.mark_snapshots_stale()
 
         # Fetch newly created transaction with joins
         cursor.execute("""
@@ -197,6 +199,7 @@ class FinService:
         cursor.execute("DELETE FROM fin_transactions WHERE id = ?", (tx_id,))
         conn.commit()
         conn.close()
+        FinSnapshotService.mark_snapshots_stale()
         return True
 
     # =========================================================================

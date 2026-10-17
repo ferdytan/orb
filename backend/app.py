@@ -14,10 +14,16 @@ from backend.models import (
 )
 from backend.memory import OrbMemoryManager
 from backend.crew import OrbCrewOrchestrator
+from backend.auth import router as auth_router
 from backend.agents.fin.router import router as fin_router
+from backend.agents.welly.router import router as welly_router
+from backend.collaboration.router import router as collaboration_router
 
 app = FastAPI(title="Orb - Virtual Office AI Agent System", version="1.0.0")
+app.include_router(auth_router)
 app.include_router(fin_router)
+app.include_router(welly_router)
+app.include_router(collaboration_router)
 
 app.add_middleware(
     CORSMiddleware,

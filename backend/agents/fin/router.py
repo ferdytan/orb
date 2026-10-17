@@ -13,6 +13,7 @@ from backend.agents.fin.models import (
     AskFinRequest, AskFinResponse
 )
 from backend.agents.fin.service import FinService
+from backend.agents.fin.reporting import FinSnapshotService
 
 router = APIRouter(prefix="/api/agents/fin", tags=["Fin Agent"])
 
@@ -31,6 +32,23 @@ def get_fin_executive_brief():
 def get_fin_summary(period: Optional[str] = Query(None, pattern=r"^\d{4}-\d{2}$")):
     """Returns comprehensive financial totals and category breakdown for Fin Workspace."""
     return FinService.get_financial_summary(period)
+
+
+@router.get("/snapshot")
+def get_fin_snapshot(
+    period: Optional[str] = Query(None, pattern=r"^\d{4}-\d{2}$"),
+    refresh: bool = False
+):
+    """Returns structured snapshot conforming to fin.snapshot.v1."""
+    if refresh:
+        return FinSnapshotService.generate_snapshot(period=period)
+    return FinSnapshotService.get_latest_snapshot(period=period)
+
+
+@router.post("/snapshot/generate")
+def generate_fin_snapshot(period: Optional[str] = Query(None, pattern=r"^\d{4}-\d{2}$")):
+    """Forces generation of a new structured financial snapshot."""
+    return FinSnapshotService.generate_snapshot(period=period)
 
 
 # ==========================================

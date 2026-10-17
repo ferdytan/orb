@@ -187,6 +187,7 @@ def init_db():
     )
     """)
 
+    # Fin Goals Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS fin_goals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -197,6 +198,115 @@ def init_db():
         is_completed INTEGER DEFAULT 0,
         icon TEXT DEFAULT '🎯',
         created_at TEXT NOT NULL
+    )
+    """)
+
+    # Users / Credential Check Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        email TEXT,
+        pin TEXT NOT NULL DEFAULT '1607',
+        google_id TEXT,
+        created_at TEXT NOT NULL
+    )
+    """)
+
+    # User Sessions Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS user_sessions (
+        token TEXT PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+    """)
+
+    # Fin Structured Financial Snapshots for Welly
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fin_snapshots (
+        report_id TEXT PRIMARY KEY,
+        user_id INTEGER NOT NULL DEFAULT 1,
+        period TEXT NOT NULL,
+        snapshot_json TEXT NOT NULL,
+        generated_at TEXT NOT NULL,
+        last_ledger_updated_at TEXT NOT NULL,
+        is_stale INTEGER NOT NULL DEFAULT 0
+    )
+    """)
+
+    # Collaboration Permissions
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS collaboration_permissions (
+        user_id INTEGER PRIMARY KEY,
+        welly_read_fin_summary INTEGER NOT NULL DEFAULT 1,
+        allowed_scope TEXT NOT NULL DEFAULT 'aggregated_summary',
+        allow_external_llm INTEGER NOT NULL DEFAULT 0,
+        granted_at TEXT NOT NULL,
+        revoked_at TEXT
+    )
+    """)
+
+    # Collaboration Access Logs (Audit Trail)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS collaboration_access_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        report_id TEXT,
+        action TEXT NOT NULL,
+        accessed_at TEXT NOT NULL
+    )
+    """)
+
+    # Joint Reviews (Fin + Welly Shared Reviews)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS joint_reviews (
+        review_id TEXT PRIMARY KEY,
+        report_id TEXT NOT NULL,
+        user_id INTEGER NOT NULL DEFAULT 1,
+        period TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'completed',
+        summary_insights TEXT NOT NULL,
+        liquidity_assessment TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        reviewed_at TEXT
+    )
+    """)
+
+    # Joint Recommendations (Draft -> Approved -> Applied)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS joint_recommendations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        review_id TEXT NOT NULL,
+        author TEXT NOT NULL DEFAULT 'Welly',
+        action_type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        rationale TEXT NOT NULL,
+        assumptions TEXT NOT NULL,
+        projected_impact TEXT NOT NULL,
+        proposed_payload TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'draft',
+        created_at TEXT NOT NULL,
+        applied_at TEXT,
+        FOREIGN KEY (review_id) REFERENCES joint_reviews(review_id)
+    )
+    """)
+
+    # Welly Wealth Plans & Allocations
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS welly_wealth_plans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL DEFAULT 1,
+        title TEXT NOT NULL,
+        target_amount INTEGER NOT NULL,
+        current_amount INTEGER NOT NULL DEFAULT 0,
+        monthly_contribution_target INTEGER NOT NULL DEFAULT 0,
+        risk_profile TEXT NOT NULL DEFAULT 'moderate',
+        horizon_years INTEGER NOT NULL DEFAULT 5,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
     )
     """)
 
@@ -504,9 +614,11 @@ def seed_data(conn):
         """, badges)
 
     # -------------------------------------------------------------
-    # Fin-First: Deactivate legacy agents, keep ONLY Fin active
+    # Fin & Welly Collaboration: Active agents are strictly Fin & Welly
     # -------------------------------------------------------------
-    cursor.execute("UPDATE agents SET is_active = 0 WHERE id != 'fin'")
+    cursor.execute("UPDATE agents SET is_active = 0 WHERE id NOT IN ('fin', 'welly')")
+    
+    # 1. Fin Agent Setup
     cursor.execute("""
     UPDATE agents 
     SET is_active = 1,
@@ -518,13 +630,79 @@ def seed_data(conn):
         tag_color = '#10B981',
         description_icon = '💰',
         description_text = 'Workspace Keuangan Pribadi',
-        avatar_image = './assets/avatar_fin.png',
+        avatar_image = './assets/avatar_fin_360.png',
         personality = 'Plush akuntan yang ceria dan teliti. Membantu mencatat transaksi, mengawal budget, dan mengoptimalkan arus kas harian.',
         sort_order = 1
     WHERE id = 'fin'
     """)
 
-    # Seed Default Fin Categories if empty
+    # 2. Welly Agent Setup
+    cursor.execute("SELECT COUNT(*) FROM agents WHERE id = 'welly'")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("""
+        INSERT INTO agents (id, name, role, domain, status, tag_text, tag_color, description_icon, description_text, avatar_image, personality, color_theme, sort_order, is_active)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        """, (
+            "welly",
+            "Welly",
+            "Wealth & Planning Specialist",
+            "wealth",
+            "active",
+            "active",
+            "#3B82F6",
+            "📈",
+            "Perencanaan Kekayaan & Alokasi Tujuan",
+            "./assets/avatar_welly_360.png",
+            "Plush perencana kekayaan berjas rapi dan kacamata emas. Membantu memetakan alokasi investasi, mengevaluasi kapasitas kontribusi, dan mengawal pencapaian target finansial jangka panjang.",
+            "#DBEAFE",
+            2
+        ))
+    else:
+        cursor.execute("""
+        UPDATE agents 
+        SET is_active = 1,
+            name = 'Welly',
+            role = 'Wealth & Planning Specialist',
+            domain = 'wealth',
+            status = 'active',
+            tag_text = 'active',
+            tag_color = '#3B82F6',
+            description_icon = '📈',
+            description_text = 'Perencanaan Kekayaan & Alokasi Tujuan',
+            avatar_image = './assets/avatar_welly_360.png',
+            personality = 'Plush perencana kekayaan berjas rapi dan kacamata emas. Membantu memetakan alokasi investasi, mengevaluasi kapasitas kontribusi, dan mengawal pencapaian target finansial jangka panjang.',
+            sort_order = 2
+        WHERE id = 'welly'
+        """)
+
+    # 3. Seed Default User with Standard PIN 1607
+    cursor.execute("SELECT COUNT(*) FROM users")
+    if cursor.fetchone()[0] == 0:
+        now = datetime.now().isoformat()
+        cursor.execute("""
+        INSERT INTO users (id, username, email, pin, google_id, created_at)
+        VALUES (1, 'ferdy', 'ferdy@krftworks.my.id', '1607', NULL, ?)
+        """, (now,))
+
+    # 4. Seed Collaboration Permissions
+    cursor.execute("SELECT COUNT(*) FROM collaboration_permissions WHERE user_id = 1")
+    if cursor.fetchone()[0] == 0:
+        now = datetime.now().isoformat()
+        cursor.execute("""
+        INSERT INTO collaboration_permissions (user_id, welly_read_fin_summary, allowed_scope, allow_external_llm, granted_at, revoked_at)
+        VALUES (1, 1, 'aggregated_summary', 0, ?, NULL)
+        """, (now,))
+
+    # 5. Seed Default Welly Wealth Plan
+    cursor.execute("SELECT COUNT(*) FROM welly_wealth_plans WHERE user_id = 1")
+    if cursor.fetchone()[0] == 0:
+        now = datetime.now().isoformat()
+        cursor.execute("""
+        INSERT INTO welly_wealth_plans (user_id, title, target_amount, current_amount, monthly_contribution_target, risk_profile, horizon_years, created_at, updated_at)
+        VALUES (1, 'Target Portofolio Masa Depan', 50000000, 0, 1000000, 'moderate', 5, ?, ?)
+        """, (now, now))
+
+    # 6. Seed Default Fin Categories if empty
     cursor.execute("SELECT COUNT(*) FROM fin_categories")
     if cursor.fetchone()[0] == 0:
         default_categories = [
@@ -548,7 +726,7 @@ def seed_data(conn):
         VALUES (?, ?, ?, ?, ?)
         """, default_categories)
 
-    # Seed Default Primary Accounts if empty
+    # 7. Seed Default Primary Accounts if empty
     cursor.execute("SELECT COUNT(*) FROM fin_accounts")
     if cursor.fetchone()[0] == 0:
         now = datetime.now().isoformat()

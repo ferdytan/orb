@@ -18,15 +18,31 @@ const DEFAULT_AGENTS = [
     tag_color: "#10B981",
     description_icon: "💰",
     description_text: "Personal Finance Workspace",
-    avatar_image: "./assets/avatar_fin.png",
+    avatar_image: "./assets/avatar_fin_360.png",
     personality: "Plush akuntan yang ceria dan teliti. Membantu mencatat transaksi, mengawal budget, dan mengoptimalkan arus kas harian.",
     color_theme: "#DCFCE7",
     sort_order: 1
+  },
+  {
+    id: "welly",
+    name: "Welly",
+    role: "Wealth & Planning Specialist",
+    domain: "wealth",
+    status: "active",
+    tag_text: "active",
+    tag_color: "#3B82F6",
+    description_icon: "📈",
+    description_text: "Perencanaan Kekayaan & Alokasi Tujuan",
+    avatar_image: "./assets/avatar_welly_360.png",
+    personality: "Plush perencana kekayaan berjas rapi dan kacamata emas. Membantu memetakan alokasi investasi, mengevaluasi kapasitas kontribusi, dan mengawal pencapaian target finansial jangka panjang.",
+    color_theme: "#DBEAFE",
+    sort_order: 2
   }
 ];
 
 window.DEFAULT_AGENTS = DEFAULT_AGENTS;
-window.ORB_FIN_AVATAR = "./assets/avatar_fin.png";
+window.ORB_FIN_AVATAR = "./assets/avatar_fin_360.png";
+window.ORB_WELLY_AVATAR = "./assets/avatar_welly_360.png";
 
 // Helper to consistently resolve asset URLs across root subdomain deployments
 window.resolveOrbAsset = function(path) {
@@ -68,6 +84,15 @@ const API = {
       return `${base.slice(0, -4)}${cleanEndpoint}`;
     }
     return `${base}${cleanEndpoint}`;
+  },
+
+  getHeaders(extra = {}) {
+    const headers = { ...extra };
+    const token = localStorage.getItem("orb_session_token");
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    return headers;
   },
 
   // WebSocket Management
@@ -416,12 +441,207 @@ const API = {
     try {
       const res = await fetch(this.buildUrl('/api/lighting'), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify(lightingData)
       });
       if (res.ok) return await res.json();
     } catch (_) {}
     return lightingData;
+  },
+
+  // -------------------------------------------------------------
+  // FIN STRUCTURED SNAPSHOT (fin.snapshot.v1)
+  // -------------------------------------------------------------
+  async getFinSnapshot(period = null, refresh = false) {
+    const params = [];
+    if (period) params.push(`period=${encodeURIComponent(period)}`);
+    if (refresh) params.push(`refresh=true`);
+    const qs = params.length ? `?${params.join("&")}` : "";
+
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/fin/snapshot${qs}`), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async generateFinSnapshot(period = null) {
+    const qs = period ? `?period=${encodeURIComponent(period)}` : "";
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/fin/snapshot/generate${qs}`), {
+        method: "POST",
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  // -------------------------------------------------------------
+  // WELLY WEALTH & PLANNING AGENT
+  // -------------------------------------------------------------
+  async getWealthPlans() {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/welly/plans'), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async createWealthPlan(planData) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/welly/plans'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(planData)
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async updateWealthPlan(planId, planData) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/welly/plans/${planId}`), {
+        method: "PATCH",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(planData)
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async deleteWealthPlan(planId) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/welly/plans/${planId}`), {
+        method: "DELETE",
+        headers: this.getHeaders()
+      });
+      return res.ok;
+    } catch (_) {}
+    return false;
+  },
+
+  async getWellyCapacity(period = null) {
+    const qs = period ? `?period=${encodeURIComponent(period)}` : "";
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/welly/capacity${qs}`), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async askWelly(message) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/welly/ask'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ message })
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return {
+      text: "Welly siap menganalisis alokasi portofolio Anda berdasarkan arus kas aktual Fin.",
+      suggestions: ["Cek Kapasitas Kontribusi", "Lihat Target Masa Depan"]
+    };
+  },
+
+  // -------------------------------------------------------------
+  // FIN & WELLY COLLABORATION
+  // -------------------------------------------------------------
+  async getJointReview(period = null) {
+    const qs = period ? `?period=${encodeURIComponent(period)}` : "";
+    try {
+      const res = await fetch(this.buildUrl(`/api/collaboration/review${qs}`), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async generateJointReview(period = null) {
+    const qs = period ? `?period=${encodeURIComponent(period)}` : "";
+    try {
+      const res = await fetch(this.buildUrl(`/api/collaboration/review/generate${qs}`), {
+        method: "POST",
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async approveRecommendation(recId) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/collaboration/recommendations/${recId}/approve`), {
+        method: "POST",
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async applyRecommendation(recId) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/collaboration/recommendations/${recId}/apply`), {
+        method: "POST",
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async rejectRecommendation(recId) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/collaboration/recommendations/${recId}/reject`), {
+        method: "POST",
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async getCollaborationPermissions() {
+    try {
+      const res = await fetch(this.buildUrl('/api/collaboration/permissions'), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return { welly_read_fin_summary: true, allowed_scope: "aggregated_summary", allow_external_llm: false };
+  },
+
+  async updateCollaborationPermissions(perms) {
+    try {
+      const res = await fetch(this.buildUrl('/api/collaboration/permissions'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(perms)
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async getCollaborationAuditLogs(limit = 50) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/collaboration/audit-logs?limit=${limit}`), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
   }
 };
 

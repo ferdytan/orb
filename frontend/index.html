@@ -30,6 +30,56 @@
 </head>
 <body class="app-pwa-body">
 
+  <!-- ================= CREDENTIAL CHECK / LOGIN SCREEN ================= -->
+  <div class="auth-login-screen" id="viewAuthLogin" style="display: none;">
+    <div class="auth-box-container">
+      <img src="./assets/logo_orb.png" alt="Orb" class="auth-brand-logo" />
+      <h1 class="auth-brand-title">Orb</h1>
+      <p class="auth-brand-subtitle">Personal AI Workspace</p>
+
+      <div class="auth-pin-label">Masukkan PIN Keamanan</div>
+      <div class="auth-pin-dots" id="authPinDotsContainer">
+        <div class="auth-pin-dot" id="pinDot1"></div>
+        <div class="auth-pin-dot" id="pinDot2"></div>
+        <div class="auth-pin-dot" id="pinDot3"></div>
+        <div class="auth-pin-dot" id="pinDot4"></div>
+      </div>
+
+      <div class="auth-error-msg" id="authErrorMessage"></div>
+
+      <div class="auth-numeric-keypad" id="authNumericKeypad">
+        <button class="auth-key-btn" data-key="1">1</button>
+        <button class="auth-key-btn" data-key="2">2</button>
+        <button class="auth-key-btn" data-key="3">3</button>
+        <button class="auth-key-btn" data-key="4">4</button>
+        <button class="auth-key-btn" data-key="5">5</button>
+        <button class="auth-key-btn" data-key="6">6</button>
+        <button class="auth-key-btn" data-key="7">7</button>
+        <button class="auth-key-btn" data-key="8">8</button>
+        <button class="auth-key-btn" data-key="9">9</button>
+        <button class="auth-key-btn action-key" data-key="clear">C</button>
+        <button class="auth-key-btn" data-key="0">0</button>
+        <button class="auth-key-btn action-key" data-key="backspace">⌫</button>
+      </div>
+
+      <div class="auth-divider-row">
+        <div class="auth-divider-line"></div>
+        <span class="auth-divider-text">atau</span>
+        <div class="auth-divider-line"></div>
+      </div>
+
+      <button class="auth-google-btn" id="authGoogleBtn">
+        <svg class="google-icon-svg" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Masuk dengan Google</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Top Clean Mobile Header Bar -->
   <header class="app-top-header">
     <div class="brand-capsule" id="headerBrandBtn" title="Orb Virtual Office - Fin Finance">
@@ -263,7 +313,68 @@
         </div>
       </div>
 
-      <!-- ================= PAGE 3: SETTINGS VIEW ================= -->
+      <!-- ================= PAGE 3: WELLY WEALTH & PLANNING WORKSPACE VIEW ================= -->
+      <div class="app-page-view" id="viewWellyWorkspace" style="display: none;">
+        <div class="fin-workspace-container">
+          
+          <!-- Workspace Header -->
+          <div class="fin-workspace-topbar">
+            <div class="fin-topbar-left">
+              <img src="./assets/avatar_welly_360.png" alt="Welly" class="fin-topbar-avatar" />
+              <div>
+                <h1 class="fin-workspace-title">Welly Workspace</h1>
+                <p class="fin-workspace-subtitle">Perencanaan Kekayaan & Alokasi Masa Depan</p>
+              </div>
+            </div>
+            <div class="fin-topbar-actions">
+              <div class="fin-status-capsule status-active" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6;">
+                <span class="fin-status-dot" style="background: #3B82F6;"></span>
+                <span>Online 🟢</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subnav Pills Scroll -->
+          <nav class="fin-subnav-scroll" id="wellySubnavScroll">
+            <button class="fin-subtab-btn welly-subtab-btn active" data-subtab="snapshot">📊 Dari Fin</button>
+            <button class="fin-subtab-btn welly-subtab-btn" data-subtab="plans">🎯 Target & Alokasi</button>
+            <button class="fin-subtab-btn welly-subtab-btn" data-subtab="reviews">🤝 Review Bersama</button>
+            <button class="fin-subtab-btn welly-subtab-btn" data-subtab="chat">💬 Tanya Welly</button>
+            <button class="fin-subtab-btn welly-subtab-btn" data-subtab="privacy">🛡️ Izin & Privasi</button>
+          </nav>
+
+          <!-- Subtab Panes -->
+          <div class="fin-panes-body">
+            <!-- 1. Fin Snapshot Pane -->
+            <div class="fin-subtab-pane welly-subtab-pane active" id="wellySubtab_snapshot">
+              <div id="wellySnapshotContent"></div>
+            </div>
+
+            <!-- 2. Plans Pane -->
+            <div class="fin-subtab-pane welly-subtab-pane" id="wellySubtab_plans" style="display: none;">
+              <div id="wellyPlansContent"></div>
+            </div>
+
+            <!-- 3. Reviews Pane -->
+            <div class="fin-subtab-pane welly-subtab-pane" id="wellySubtab_reviews" style="display: none;">
+              <div id="wellyReviewsContent"></div>
+            </div>
+
+            <!-- 4. Chat Pane -->
+            <div class="fin-subtab-pane welly-subtab-pane" id="wellySubtab_chat" style="display: none;">
+              <div id="wellyChatContent"></div>
+            </div>
+
+            <!-- 5. Privacy Pane -->
+            <div class="fin-subtab-pane welly-subtab-pane" id="wellySubtab_privacy" style="display: none;">
+              <div id="wellyPrivacyContent"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= PAGE 4: SETTINGS VIEW ================= -->
       <div class="app-page-view" id="viewSettings" style="display: none;">
         <div class="page-view-inner">
           <div class="page-title-row">
@@ -323,14 +434,20 @@
             </div>
           </div>
 
-          <!-- Section C: System Information -->
+          <!-- Section C: System Information & Security -->
           <div class="settings-card-group">
             <h3 class="settings-group-title">ℹ️ Informasi Sistem</h3>
             <div class="settings-info-box">
-              <div><strong>Aplikasi:</strong> Orb Personal Finance Workspace</div>
-              <div><strong>Agent Aktif:</strong> Fin (Personal Finance Specialist)</div>
-              <div><strong>Arsitektur:</strong> Single-Agent Focused / Pure Integer IDR</div>
-              <div><strong>Status:</strong> Siap Produksi</div>
+              <div><strong>Aplikasi:</strong> Orb Personal Finance & Wealth Workspace</div>
+              <div><strong>Active Agents:</strong> Fin (Finance) & Welly (Wealth)</div>
+              <div><strong>Arsitektur:</strong> Pure Integer IDR & Structured Snapshot (fin.snapshot.v1)</div>
+              <div><strong>Status Autentikasi:</strong> Terproteksi PIN (1607) & Google</div>
+            </div>
+
+            <div style="margin-top: 14px;">
+              <button class="brief-action-btn" id="btnSettingsLogout" style="width: 100%; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #F87171; font-weight: 700; padding: 12px; border-radius: 12px; cursor: pointer;">
+                🔒 Kunci Sesi / Keluar
+              </button>
             </div>
           </div>
 
@@ -348,7 +465,11 @@
     </button>
     <button class="nav-tab-btn" data-tab="fin" id="tabNavFin">
       <span class="nav-icon">💰</span>
-      <span class="nav-label">Fin Workspace</span>
+      <span class="nav-label">Fin</span>
+    </button>
+    <button class="nav-tab-btn" data-tab="welly" id="tabNavWelly">
+      <span class="nav-icon">📈</span>
+      <span class="nav-label">Welly</span>
     </button>
     <button class="nav-tab-btn" data-tab="settings" id="tabNavSettings">
       <span class="nav-icon">⚙️</span>
@@ -367,9 +488,11 @@
 
   <!-- Scripts with cache-busting version parameter -->
   <script src="./js/api.js?v=2.0.0"></script>
+  <script src="./js/auth.js?v=2.0.0"></script>
   <script src="./js/avatars.js?v=2.0.0"></script>
   <script src="./js/bento.js?v=2.0.0"></script>
   <script src="./js/fin_workspace.js?v=2.0.0"></script>
+  <script src="./js/welly_workspace.js?v=2.0.0"></script>
   <script src="./js/app.js?v=2.0.0"></script>
 
   <!-- Modal close event handler -->

@@ -25,7 +25,14 @@ const OrbApp = {
       window.FinWorkspace.init();
     }
 
-    // 2. Setup Navigation, Router & Clock
+    if (window.WellyWorkspace) {
+      window.WellyWorkspace.init();
+    }
+
+    // 2. Setup Navigation, Router, Auth & Clock
+    if (window.Auth) {
+      window.Auth.init();
+    }
     this.setupRouter();
     this.setupTabs();
     this.setupClock();
@@ -56,6 +63,7 @@ const OrbApp = {
     try {
       await window.BentoManager?.refresh();
       await window.FinWorkspace?.loadInitialData();
+      await window.WellyWorkspace?.refresh();
     } catch (_) {}
   },
 
@@ -73,6 +81,12 @@ const OrbApp = {
   },
 
   handleRoute() {
+    // If not authenticated, ensure lock screen is presented
+    if (window.Auth && !window.Auth.isAuthenticated()) {
+      window.Auth.lockApp();
+      return;
+    }
+
     const rawHash = window.location.hash.replace(/^#/, '').trim();
     if (!rawHash) {
       this.switchTab("office", false);
@@ -89,6 +103,13 @@ const OrbApp = {
         window.FinWorkspace.switchSubtab(subRoute);
       } else if (window.FinWorkspace) {
         window.FinWorkspace.switchSubtab("overview");
+      }
+    } else if (primaryTab === "welly") {
+      this.switchTab("welly", false);
+      if (subRoute && window.WellyWorkspace) {
+        window.WellyWorkspace.switchSubtab(subRoute);
+      } else if (window.WellyWorkspace) {
+        window.WellyWorkspace.switchSubtab("snapshot");
       }
     } else if (primaryTab === "settings") {
       this.switchTab("settings", false);
@@ -133,6 +154,7 @@ const OrbApp = {
     const pageMap = {
       office: "viewOfficeHome",
       fin: "viewFinWorkspace",
+      welly: "viewWellyWorkspace",
       settings: "viewSettings"
     };
 
@@ -151,6 +173,8 @@ const OrbApp = {
 
     if (tabName === "fin" && window.FinWorkspace) {
       window.FinWorkspace.renderCurrentSubtab();
+    } else if (tabName === "welly" && window.WellyWorkspace) {
+      window.WellyWorkspace.refresh();
     } else if (tabName === "office" && window.BentoManager) {
       window.BentoManager.refresh();
     }
@@ -280,6 +304,14 @@ const OrbApp = {
     themeBtn?.addEventListener("click", () => {
       const newTheme = this.currentTheme === "dark" ? "light" : "dark";
       this.applyTheme(newTheme);
+    });
+
+    // Logout / Lock session
+    const logoutBtn = document.getElementById("btnSettingsLogout");
+    logoutBtn?.addEventListener("click", async () => {
+      if (confirm("Kunci sesi dan keluar dari Orb?")) {
+        await window.Auth?.logout();
+      }
     });
   },
 

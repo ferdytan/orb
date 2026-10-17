@@ -674,8 +674,23 @@ const FinWorkspace = {
             <tbody>${rowsHtml}</tbody>
           </table>
         </div>
+
+        <div class="fin-collab-cta-card" style="margin-top: 18px; padding: 14px 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 200px;">
+            <div style="font-weight: 700; font-size: 0.95rem; color: #60A5FA;">🤝 Kolaborasi dengan Welly</div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">Kirim ringkasan laporan aktual ini ke Welly untuk evaluasi kapasitas kontribusi dan rekomendasi portofolio masa depan.</div>
+          </div>
+          <button class="fin-primary-btn" id="btnGoToWellyCollab" style="white-space: nowrap; background: #3B82F6;">Review Bersama Welly ↗</button>
+        </div>
       </div>
     `;
+
+    document.getElementById("btnGoToWellyCollab")?.addEventListener("click", () => {
+      window.location.hash = "#welly";
+      if (window.WellyWorkspace) {
+        window.WellyWorkspace.switchSubtab("reviews");
+      }
+    });
   },
 
   // --------------------------------------------------------------------------

@@ -1,0 +1,1 @@
+"""Fin & Welly Collaboration Module."""

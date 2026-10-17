@@ -2507,3 +2507,888 @@ body.app-pwa-body {
   text-align: center;
   padding: 24px;
 }
+
+/* ==========================================================================
+   EXECUTIVE DESK DUAL HERO GRID (FIN & WELLY)
+   ========================================================================== */
+.hero-desk-dual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .hero-desk-dual-grid {
+    gap: 8px;
+  }
+  .hero-desk-dual-grid .fin-hero-desk-card {
+    padding: 12px 10px 14px;
+    border-radius: 20px;
+  }
+  .hero-desk-dual-grid .fin-hero-plush-img {
+    width: 130px;
+    height: 130px;
+  }
+  .hero-desk-dual-grid .fin-hero-name {
+    font-size: 1.05rem;
+  }
+}
+
+/* ==========================================================================
+   CREDENTIAL CHECK / LOGIN SCREEN (PIN & GOOGLE AUTH)
+   ========================================================================== */
+.auth-login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle at 50% 20%, #171923 0%, #0d0e12 85%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--text-main);
+  overflow-y: auto;
+}
+
+.auth-box-container {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.auth-brand-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
+}
+
+.auth-brand-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+}
+
+.auth-brand-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.auth-pin-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9CA3AF;
+  margin-bottom: 14px;
+}
+
+.auth-pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.auth-pin-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-pin-dot.filled {
+  background: var(--accent-primary, #3B82F6);
+  border-color: var(--accent-primary, #3B82F6);
+  transform: scale(1.15);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+}
+
+@keyframes shake-anim {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.shake-animation {
+  animation: shake-anim 0.4s ease-in-out;
+}
+
+.auth-error-msg {
+  color: #EF4444;
+  font-size: 0.78rem;
+  font-weight: 600;
+  min-height: 20px;
+  margin-bottom: 12px;
+  display: none;
+}
+
+.auth-numeric-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  width: 100%;
+  max-width: 280px;
+  margin-bottom: 24px;
+}
+
+.auth-key-btn {
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #FFFFFF;
+  font-size: 1.35rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.auth-key-btn:active {
+  background: rgba(255, 255, 255, 0.16);
+  transform: scale(0.92);
+}
+
+.auth-key-btn.action-key {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.auth-divider-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+
+.auth-divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.auth-divider-text {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.auth-google-btn {
+  width: 100%;
+  max-width: 280px;
+  height: 48px;
+  background: #FFFFFF;
+  color: #1F2937;
+  border: none;
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
+}
+
+.auth-google-btn:active {
+  transform: scale(0.97);
+}
+
+.google-icon-svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ==========================================================================
+   WELLY WEALTH WORKSPACE & COLLABORATION STYLES
+   ========================================================================== */
+.welly-status-banner {
+  padding: 12px 16px;
+  border-radius: 18px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.welly-status-banner.is-fresh {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.welly-status-banner.is-stale {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.welly-pill-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-main);
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.welly-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.welly-capacity-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(30, 58, 138, 0.15) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 24px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.capacity-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #93C5FD;
+  margin-bottom: 14px;
+}
+
+.capacity-badge {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  background: rgba(59, 130, 246, 0.2);
+  border-radius: 99px;
+  color: #BFDBFE;
+}
+
+.capacity-amount-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .capacity-amount-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.capacity-stat-box {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 12px 14px;
+  border-radius: 16px;
+}
+
+.capacity-stat-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.capacity-stat-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.capacity-stat-sub {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.welly-facts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.welly-fact-card {
+  background: var(--bg-widget);
+  border: 1px solid var(--border-widget);
+  border-radius: 18px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fact-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.fact-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.welly-notes-box {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 18px;
+  padding: 14px 16px;
+  font-size: 0.78rem;
+  color: #FCD34D;
+}
+
+.welly-notes-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.welly-notes-list {
+  padding-left: 18px;
+  margin: 0;
+}
+
+/* Welly Plans */
+.welly-plans-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.welly-section-heading {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0 0 2px 0;
+}
+
+.welly-section-sub {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.welly-plans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.welly-plan-card {
+  background: var(--bg-widget);
+  border: 1px solid var(--border-widget);
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.plan-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.plan-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.plan-badges {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.plan-risk-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.plan-risk-badge.risk-conservative {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+}
+
+.plan-risk-badge.risk-moderate {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3B82F6;
+}
+
+.plan-risk-badge.risk-aggressive {
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+}
+
+.plan-horizon-badge {
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: var(--text-secondary);
+}
+
+.plan-pct-badge {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--accent-primary);
+}
+
+.plan-progress-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.plan-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.plan-numbers-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.plan-lbl {
+  color: var(--text-secondary);
+}
+
+.plan-val {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Joint Review & Recommendations */
+.welly-review-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.review-period-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #60A5FA;
+  background: rgba(59, 130, 246, 0.12);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.joint-insights-card {
+  background: var(--bg-widget);
+  border: 1px solid var(--border-widget);
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.joint-insights-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  color: #93C5FD;
+}
+
+.joint-insights-body p {
+  margin: 0 0 8px 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-main);
+}
+
+.joint-liquidity-box {
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  color: #BFDBFE;
+  margin-top: 10px;
+}
+
+.joint-recs-header {
+  margin-bottom: 12px;
+}
+
+.joint-recs-header h4 {
+  margin: 0 0 2px 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.recs-sub {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.joint-recs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.joint-rec-card {
+  background: var(--bg-widget);
+  border: 1px solid var(--border-widget);
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.joint-rec-card.status-draft {
+  border-left: 4px solid #F59E0B;
+}
+
+.joint-rec-card.status-approved {
+  border-left: 4px solid #3B82F6;
+}
+
+.joint-rec-card.status-applied {
+  border-left: 4px solid #10B981;
+}
+
+.rec-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rec-author-pill {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.rec-author-pill.author-fin {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+}
+
+.rec-author-pill.author-welly {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3B82F6;
+}
+
+.rec-status-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.rec-status-pill.status-draft {
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+}
+
+.rec-status-pill.status-approved {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3B82F6;
+}
+
+.rec-status-pill.status-applied {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+}
+
+.rec-title {
+  font-weight: 800;
+  font-size: 0.92rem;
+  margin-bottom: 6px;
+  color: var(--text-main);
+}
+
+.rec-rationale, .rec-impact {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.rec-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.rec-preview-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rec-approve-btn {
+  background: #3B82F6;
+  border: none;
+  color: #FFFFFF;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rec-apply-btn {
+  background: #10B981;
+  border: none;
+  color: #FFFFFF;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rec-applied-label {
+  font-size: 0.75rem;
+  color: #10B981;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+/* Preview Modal */
+.preview-rec-modal-body {
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.preview-row {
+  margin-bottom: 6px;
+}
+
+.preview-payload-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 12px 0;
+}
+
+.payload-box-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.payload-pre {
+  margin: 0;
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: #93C5FD;
+  white-space: pre-wrap;
+}
+
+.preview-safety-note {
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  color: #A7F3D0;
+  margin-bottom: 14px;
+}
+
+.preview-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Welly Chat */
+.welly-chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.welly-chat-history {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.welly-chat-msg {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.welly-chat-msg.user-msg {
+  justify-content: flex-end;
+}
+
+.welly-chat-msg.agent-msg .chat-bubble {
+  background: var(--bg-widget);
+  border: 1px solid var(--border-widget);
+  border-radius: 16px 16px 16px 4px;
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  max-width: 85%;
+}
+
+.welly-chat-msg.user-msg .chat-bubble {
+  background: #3B82F6;
+  color: #FFFFFF;
+  border-radius: 16px 16px 4px 16px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  max-width: 80%;
+}
+
+.welly-chips-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.welly-chip-btn {
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #93C5FD;
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.welly-chat-input-bar {
+  display: flex;
+  gap: 8px;
+}
+
+.welly-chat-input-bar input {
+  flex: 1;
+  background: var(--bg-widget);
+  border: 1px solid var(--border-widget);
+  border-radius: 14px;
+  padding: 10px 14px;
+  color: var(--text-main);
+  font-size: 0.85rem;
+}
+
+.welly-chat-input-bar button {
+  background: #3B82F6;
+  border: none;
+  border-radius: 14px;
+  color: #FFFFFF;
+  padding: 0 16px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+/* Privacy & Audit */
+.welly-privacy-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.privacy-card, .audit-card {
+  background: var(--bg-widget);
+  border: 1px solid var(--border-widget);
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.privacy-row-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.privacy-item-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.privacy-item-desc {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.privacy-row-field {
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.privacy-select {
+  background: var(--bg-input, rgba(0, 0, 0, 0.3));
+  border: 1px solid var(--border-widget);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text-main);
+  font-size: 0.82rem;
+}
+
+.audit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.audit-log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  font-size: 0.75rem;
+}
+
+.audit-action {
+  font-weight: 600;
+  color: #93C5FD;
+}
+
+.audit-time {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orb-fin-v2.0.0';
+const CACHE_NAME = 'orb-fin-welly-v2.1.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -6,12 +6,15 @@ const STATIC_ASSETS = [
   './css/styles.css?v=2.0.0',
   './css/avatars.css?v=2.0.0',
   './js/api.js?v=2.0.0',
+  './js/auth.js?v=2.0.0',
   './js/avatars.js?v=2.0.0',
   './js/bento.js?v=2.0.0',
   './js/fin_workspace.js?v=2.0.0',
+  './js/welly_workspace.js?v=2.0.0',
   './js/app.js?v=2.0.0',
   './assets/logo_orb.png',
   './assets/avatar_fin_360.png',
+  './assets/avatar_welly_360.png',
   './assets/office_morning.jpg',
   './assets/office_night.jpg'
 ];

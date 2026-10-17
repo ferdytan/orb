@@ -1,7 +1,7 @@
 {
-  "name": "Orb - Fin Personal Finance Workspace",
+  "name": "Orb - Personal Finance & Wealth Workspace",
   "short_name": "Orb",
-  "description": "Personal Finance AI Workspace with Fin & Executive Brief",
+  "description": "Personal Finance & Wealth Planning AI Workspace with Fin & Welly",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
