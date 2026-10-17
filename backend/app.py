@@ -13,7 +13,6 @@ from backend.models import (
     MemoryCreate, ChatRequest, WalletUpdate, LightingConfig
 )
 from backend.memory import OrbMemoryManager
-from backend.crew import OrbCrewOrchestrator
 from backend.auth import router as auth_router
 from backend.agents.fin.router import router as fin_router
 from backend.agents.welly.router import router as welly_router
@@ -52,7 +51,14 @@ async def broadcast_ws(payload: Dict[str, Any]):
         if conn in active_connections:
             active_connections.remove(conn)
 
-orchestrator = OrbCrewOrchestrator(broadcast_fn=broadcast_ws)
+_orchestrator = None
+
+def get_orchestrator():
+    global _orchestrator
+    if _orchestrator is None:
+        from backend.crew import OrbCrewOrchestrator
+        _orchestrator = OrbCrewOrchestrator(broadcast_fn=broadcast_ws)
+    return _orchestrator
 
 # In-memory lighting state
 current_lighting = {
@@ -90,7 +96,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     # Run turn asynchronously and broadcast
                     asyncio.create_task(handle_chat_turn(agent_id, user_text, websocket))
                 elif msg_type == "status_change":
-                    await orchestrator.update_agent_status(
+                    await get_orchestrator().update_agent_status(
                         agent_id=msg.get("agent_id"),
                         status=msg.get("status", "active"),
                         tag_text=msg.get("tag_text", "active"),
@@ -104,7 +110,7 @@ async def websocket_endpoint(websocket: WebSocket):
             active_connections.remove(websocket)
 
 async def handle_chat_turn(agent_id: str, message: str, websocket: WebSocket):
-    result = await orchestrator.run_agent_turn(agent_id, message)
+    result = await get_orchestrator().run_agent_turn(agent_id, message)
     # Broadcast response
     await broadcast_ws({
         "type": "chat_response",
@@ -162,7 +168,7 @@ def get_agent_detail(agent_id: str):
 
 @app.post("/api/agents/{agent_id}/status")
 async def update_agent_status_endpoint(agent_id: str, body: AgentStatusUpdate):
-    await orchestrator.update_agent_status(
+    await get_orchestrator().update_agent_status(
         agent_id=agent_id,
         status=body.status,
         tag_text=body.tag_text or body.status,
@@ -295,7 +301,7 @@ def get_chat_history(agent_id: str):
 
 @app.post("/api/chat")
 async def send_chat(req: ChatRequest):
-    result = await orchestrator.run_agent_turn(req.agent_id, req.message)
+    result = await get_orchestrator().run_agent_turn(req.agent_id, req.message)
     await broadcast_ws({
         "type": "chat_response",
         "agent_id": req.agent_id,
