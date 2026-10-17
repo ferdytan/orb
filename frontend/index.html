@@ -19,8 +19,8 @@
   <link rel="preload" href="./assets/logo_orb.png" as="image" type="image/png" fetchpriority="high">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css?v=2.2.0">
-  <link rel="stylesheet" href="./css/avatars.css?v=2.2.0">
+  <link rel="stylesheet" href="./css/styles.css?v=3.0.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=3.0.0">
 
   <!-- Critical View Isolation CSS -->
   <style>
@@ -480,13 +480,13 @@
   </div>
 
   <!-- Scripts with cache-busting version parameter -->
-  <script src="./js/api.js?v=2.2.0"></script>
-  <script src="./js/auth.js?v=2.2.0"></script>
-  <script src="./js/avatars.js?v=2.2.0"></script>
-  <script src="./js/bento.js?v=2.2.0"></script>
-  <script src="./js/fin_workspace.js?v=2.2.0"></script>
-  <script src="./js/welly_workspace.js?v=2.2.0"></script>
-  <script src="./js/app.js?v=2.2.0"></script>
+  <script src="./js/api.js?v=3.0.0"></script>
+  <script src="./js/auth.js?v=3.0.0"></script>
+  <script src="./js/avatars.js?v=3.0.0"></script>
+  <script src="./js/bento.js?v=3.0.0"></script>
+  <script src="./js/fin_workspace.js?v=3.0.0"></script>
+  <script src="./js/welly_workspace.js?v=3.0.0"></script>
+  <script src="./js/app.js?v=3.0.0"></script>
 
   <!-- Modal close event handler -->
   <script>
@@ -499,11 +499,22 @@
     });
   </script>
 
-  <!-- PWA Service Worker Registration -->
+  <!-- Cache Purge & Service Worker Registration -->
   <script>
+    // Clean old caches on boot
+    if ('caches' in window) {
+      caches.keys().then((names) => {
+        for (const name of names) {
+          if (name !== 'orb-fin-welly-v3.0.0') {
+            caches.delete(name);
+          }
+        }
+      });
+    }
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=2.2.0')
+        navigator.serviceWorker.register('./sw.js?v=3.0.0')
           .then((registration) => {
             registration.update();
           })

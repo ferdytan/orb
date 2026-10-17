@@ -2,7 +2,7 @@ import os
 import json
 import asyncio
 from typing import List, Dict, Any, Optional
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
@@ -340,4 +340,11 @@ def serve_manifest():
 @app.get("/sw.js")
 def serve_sw():
     return FileResponse(os.path.join(frontend_dir, "sw.js"), media_type="application/javascript")
+
+@app.get("/favicon.ico")
+def serve_favicon():
+    fav_path = os.path.join(frontend_dir, "favicon.ico")
+    if os.path.exists(fav_path):
+        return FileResponse(fav_path, media_type="image/x-icon")
+    return Response(status_code=204)
 

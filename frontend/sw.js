@@ -1,17 +1,9 @@
-const CACHE_NAME = 'orb-fin-welly-v2.3.0';
+const CACHE_NAME = 'orb-fin-welly-v3.0.0';
+
+// Only cache immutable static assets (images, fonts).
+// NEVER cache HTML documents or API requests to avoid stale UI lockups.
 const STATIC_ASSETS = [
-  './',
-  './index.html',
   './manifest.json',
-  './css/styles.css?v=2.2.0',
-  './css/avatars.css?v=2.2.0',
-  './js/api.js?v=2.2.0',
-  './js/auth.js?v=2.2.0',
-  './js/avatars.js?v=2.2.0',
-  './js/bento.js?v=2.2.0',
-  './js/fin_workspace.js?v=2.2.0',
-  './js/welly_workspace.js?v=2.2.0',
-  './js/app.js?v=2.2.0',
   './assets/logo_orb.png',
   './assets/avatar_fin_360.png',
   './assets/avatar_welly_360.png',
@@ -22,15 +14,16 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch((err) => {
-        console.warn('SW cache pre-fill partial:', err);
-      });
+      return Promise.allSettled(
+        STATIC_ASSETS.map((asset) => cache.add(asset).catch(() => {}))
+      );
     })
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
+  // Purge ALL old cache stores completely
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
@@ -48,26 +41,30 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
-  
+
   const url = new URL(e.request.url);
-  // Never intercept /api/ or cross-origin requests
+
+  // 1. Never intercept /api, websockets, or external domains
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api') || url.pathname.includes('/api/')) return;
 
-  // Stale-while-revalidate for static assets
-  e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      const fetchPromise = fetch(e.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(e.request, responseToCache);
-          });
-        }
-        return networkResponse;
-      }).catch(() => cachedResponse);
+  // 2. Navigation / HTML pages MUST ALWAYS fetch fresh from network
+  if (e.request.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('.html')) {
+    return;
+  }
 
-      return cachedResponse || fetchPromise;
-    })
+  // 3. For images, try cache first, fall back to network
+  if (url.pathname.includes('/assets/')) {
+    e.respondWith(
+      caches.match(e.request).then((cached) => {
+        return cached || fetch(e.request);
+      })
+    );
+    return;
+  }
+
+  // 4. For JS and CSS, fetch from network first, fall back to cache
+  e.respondWith(
+    fetch(e.request).catch(() => caches.match(e.request))
   );
 });
