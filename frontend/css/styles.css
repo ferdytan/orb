@@ -295,25 +295,25 @@ body.app-pwa-body {
 .office-header-scene {
   position: relative;
   width: 100%;
-  min-height: 290px;
+  min-height: 340px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding-top: 10px;
+  padding-top: 14px;
   overflow: hidden;
   background-color: #0D0E12;
   transition: filter 0.6s ease;
 }
 
-/* 1 Consistent Cozy Blurred Office Image with Real-time Shaders */
+/* Clear, vivid office backdrop behind plush agents */
 .scene-backdrop-layer {
   position: absolute;
   inset: 0;
   background-image: url('../assets/office_morning.jpg');
   background-size: cover;
   background-position: center bottom;
-  filter: blur(var(--lighting-blur, 2.5px)) var(--lighting-filter, brightness(1));
-  transform: scale(1.1);
+  filter: blur(0px) brightness(0.92);
+  transform: scale(1.05);
   transition: filter 0.6s ease;
 }
 
@@ -1506,24 +1506,24 @@ body.app-pwa-body {
   border-radius: 99px;
 }
 
-/* Fin Hero Desk Card */
+/* Fin Hero Desk Card - Pure Transparent Agent Stage (Office Scene Visible) */
 .fin-hero-desk-card {
-  background: var(--bg-widget);
-  border: 1px solid var(--border-widget);
-  border-radius: 28px;
-  padding: 16px 18px 18px;
-  box-shadow: var(--shadow-widget);
+  background: transparent !important;
+  border: none !important;
+  border-radius: 24px;
+  padding: 6px 6px 14px;
+  box-shadow: none !important;
   cursor: pointer;
-  transition: all var(--transition-smooth);
+  transition: transform var(--transition-smooth);
   position: relative;
-  overflow: hidden;
-  margin-top: 6px;
+  overflow: visible;
+  margin-top: 0;
 }
 
 .fin-hero-desk-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-  border-color: rgba(16, 185, 129, 0.4);
+  transform: translateY(-4px);
+  box-shadow: none !important;
+  border-color: transparent !important;
 }
 
 .fin-hero-status-bar {
@@ -1537,12 +1537,16 @@ body.app-pwa-body {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(13, 14, 18, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
   padding: 4px 10px;
   border-radius: 99px;
   font-size: 0.72rem;
   font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .fin-status-dot {
@@ -1559,10 +1563,14 @@ body.app-pwa-body {
   gap: 5px;
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--accent-primary);
-  background: rgba(59, 130, 246, 0.1);
+  color: #60A5FA;
+  background: rgba(13, 14, 18, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.35);
   padding: 4px 10px;
   border-radius: 99px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .fin-character-stage {
@@ -1578,7 +1586,7 @@ body.app-pwa-body {
   width: 175px;
   height: 175px;
   object-fit: contain;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.55));
   z-index: 2;
   animation: plush-breathe 4s ease-in-out infinite;
   user-select: none;
@@ -1587,7 +1595,7 @@ body.app-pwa-body {
 .fin-contact-shadow {
   width: 140px;
   height: 20px;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.0) 70%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.0) 70%);
   border-radius: 50%;
   margin-top: -10px;
   z-index: 1;
@@ -1604,26 +1612,31 @@ body.app-pwa-body {
 .fin-hero-name {
   font-size: 1.25rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: #FFFFFF;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
 }
 
 .fin-hero-role {
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: #CBD5E1;
   font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
 }
 
 .fin-hero-note-bubble {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--bg-pill);
+  background: rgba(13, 14, 18, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 6px 14px;
   border-radius: 99px;
   font-size: 0.75rem;
-  color: var(--text-main);
+  color: #E2E8F0;
   margin-top: 3px;
-  border: 1px solid var(--border-light);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 /* Executive Brief Styles */
@@ -2523,12 +2536,15 @@ body.app-pwa-body {
     gap: 8px;
   }
   .hero-desk-dual-grid .fin-hero-desk-card {
-    padding: 12px 10px 14px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 4px 4px 10px;
     border-radius: 20px;
   }
   .hero-desk-dual-grid .fin-hero-plush-img {
-    width: 130px;
-    height: 130px;
+    width: 135px;
+    height: 135px;
   }
   .hero-desk-dual-grid .fin-hero-name {
     font-size: 1.05rem;

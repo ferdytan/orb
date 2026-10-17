@@ -19,8 +19,8 @@
   <link rel="preload" href="./assets/logo_orb.png" as="image" type="image/png" fetchpriority="high">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css?v=3.0.0">
-  <link rel="stylesheet" href="./css/avatars.css?v=3.0.0">
+  <link rel="stylesheet" href="./css/styles.css?v=3.1.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=3.1.0">
 
   <!-- Critical View Isolation CSS -->
   <style>
@@ -81,13 +81,6 @@
         <span class="brand-subtitle">Finance Workspace</span>
       </div>
     </div>
-
-    <!-- Right: Current Lighting & Status Pill (Click opens Settings) -->
-    <div class="header-status-pill" id="headerStatusPill" title="Ketuk untuk mengatur pencahayaan & setelan">
-      <span class="status-indicator-dot"></span>
-      <span id="headerLightingStatusText">Auto • Malam</span>
-      <span class="header-settings-icon">⚙️</span>
-    </div>
   </header>
 
   <!-- Main Native App Viewport -->
@@ -121,13 +114,8 @@
           </div>
         </section>
 
-        <!-- 2. Executive Brief Statistical Widgets (STRICTLY ZERO RUPIAH) -->
+        <!-- 2. Percentage Bento Widgets (STRICTLY ZERO RUPIAH) -->
         <section class="bento-section-container">
-          <div class="executive-brief-banner">
-            <div class="brief-banner-title">📊 Executive Brief</div>
-            <div class="brief-banner-desc">Status kesehatan finansial & pemantauan indikator kunci</div>
-          </div>
-
           <div class="executive-brief-grid">
             <!-- Widget 1: Budget Utilization -->
             <div class="bento-card executive-brief-card" id="briefBudgetCard" title="Ketuk untuk melihat rincian budget">
@@ -182,23 +170,6 @@
             </div>
           </div>
 
-          <!-- Executive Brief Bullet Insights Card -->
-          <div class="brief-insights-card">
-            <div class="brief-card-head">
-              <span class="brief-head-icon">📋</span>
-              <span class="brief-head-title">Catatan Eksekutif Fin</span>
-            </div>
-            <ul class="brief-insights-list" id="briefInsightsList">
-              <li class="brief-insight-item">
-                <span class="brief-bullet">✦</span>
-                <span>Fin siap mendampingi perencanaan keuangan pribadi Anda.</span>
-              </li>
-            </ul>
-            <div class="brief-quick-tip" id="briefQuickTip">
-              Klik Fin untuk membuka ruang kerja detail dengan kontrol privasi nominal.
-            </div>
-          </div>
-
           <!-- Quick Action Buttons -->
           <div class="brief-quick-actions-bar">
             <button class="brief-action-btn action-income" id="btnQuickIncome">+ Pemasukan</button>
@@ -206,24 +177,6 @@
             <button class="brief-action-btn action-workspace" id="btnOpenFinWorkspace">💰 Buka Fin Workspace ↗</button>
           </div>
         </section>
-
-        <!-- 3. Bottom Chat Capsule (Tanya Fin) -->
-        <div class="office-chat-bar-wrapper">
-          <div class="chat-input-capsule">
-            <div class="chat-active-agent-badge" id="chatActiveAgentBadge" title="Chat dengan Fin">
-              <img src="./assets/avatar_fin_360.png" alt="Fin" class="chat-avatar-thumb" />
-              <div class="chat-agent-name-tag">Fin</div>
-            </div>
-            <input 
-              type="text" 
-              class="chat-text-input" 
-              id="chatBarInput" 
-              placeholder="Tanya Fin seputar arus kas, budget, atau tagihan..." 
-              autocomplete="off"
-            />
-            <button class="chat-send-btn" id="chatSendBtn" title="Kirim pertanyaan">➤</button>
-          </div>
-        </div>
 
       </div>
 
@@ -480,13 +433,13 @@
   </div>
 
   <!-- Scripts with cache-busting version parameter -->
-  <script src="./js/api.js?v=3.0.0"></script>
-  <script src="./js/auth.js?v=3.0.0"></script>
-  <script src="./js/avatars.js?v=3.0.0"></script>
-  <script src="./js/bento.js?v=3.0.0"></script>
-  <script src="./js/fin_workspace.js?v=3.0.0"></script>
-  <script src="./js/welly_workspace.js?v=3.0.0"></script>
-  <script src="./js/app.js?v=3.0.0"></script>
+  <script src="./js/api.js?v=3.1.0"></script>
+  <script src="./js/auth.js?v=3.1.0"></script>
+  <script src="./js/avatars.js?v=3.1.0"></script>
+  <script src="./js/bento.js?v=3.1.0"></script>
+  <script src="./js/fin_workspace.js?v=3.1.0"></script>
+  <script src="./js/welly_workspace.js?v=3.1.0"></script>
+  <script src="./js/app.js?v=3.1.0"></script>
 
   <!-- Modal close event handler -->
   <script>
@@ -505,7 +458,7 @@
     if ('caches' in window) {
       caches.keys().then((names) => {
         for (const name of names) {
-          if (name !== 'orb-fin-welly-v3.0.0') {
+          if (name !== 'orb-fin-welly-v3.1.0') {
             caches.delete(name);
           }
         }
@@ -514,7 +467,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=3.0.0')
+        navigator.serviceWorker.register('./sw.js?v=3.1.0')
           .then((registration) => {
             registration.update();
           })
