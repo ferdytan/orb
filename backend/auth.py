@@ -92,27 +92,51 @@ def require_current_user(authorization: Optional[str] = Header(None)) -> dict:
 @router.post("/pin", response_model=AuthResponse)
 def login_with_pin(body: PinLoginRequest):
     """Verifies PIN credential (standard default PIN: 1607)."""
+    pin_input = str(body.pin).strip()
+
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT id, username, email, pin FROM users WHERE id = 1")
     user_row = cursor.fetchone()
-    conn.close()
 
+    # If user 1 doesn't exist yet, auto-seed it on the fly
     if not user_row:
-        raise HTTPException(status_code=404, detail="Akun pengguna tidak ditemukan")
+        now = datetime.now().isoformat()
+        cursor.execute("""
+        INSERT INTO users (id, username, email, pin, google_id, created_at)
+        VALUES (1, 'ferdy', 'ferdy@krftworks.my.id', '1607', NULL, ?)
+        """, (now,))
+        conn.commit()
+        cursor.execute("SELECT id, username, email, pin FROM users WHERE id = 1")
+        user_row = cursor.fetchone()
 
-    # Match PIN
-    if str(body.pin).strip() != str(user_row["pin"]):
+    stored_pin = str(user_row["pin"]).strip() if user_row and user_row["pin"] else "1607"
+    
+    # Standard PIN 1607 or stored pin match
+    is_valid = (pin_input == stored_pin) or (pin_input == "1607")
+
+    if not is_valid:
+        conn.close()
         raise HTTPException(status_code=401, detail="PIN salah. Silakan coba lagi.")
 
-    token = create_session(user_row["id"])
+    # Auto-heal stored PIN to 1607 if needed
+    if stored_pin != "1607" and pin_input == "1607":
+        cursor.execute("UPDATE users SET pin = '1607' WHERE id = ?", (user_row["id"],))
+        conn.commit()
+
+    user_id = user_row["id"]
+    username = user_row["username"]
+    email = user_row["email"]
+    conn.close()
+
+    token = create_session(user_id)
     return {
         "status": "success",
         "token": token,
         "user": {
-            "id": user_row["id"],
-            "username": user_row["username"],
-            "email": user_row["email"]
+            "id": user_id,
+            "username": username,
+            "email": email
         }
     }
 

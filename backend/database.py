@@ -676,13 +676,16 @@ def seed_data(conn):
         """)
 
     # 3. Seed Default User with Standard PIN 1607
-    cursor.execute("SELECT COUNT(*) FROM users")
-    if cursor.fetchone()[0] == 0:
+    cursor.execute("SELECT id, pin FROM users WHERE id = 1")
+    user_row = cursor.fetchone()
+    if not user_row:
         now = datetime.now().isoformat()
         cursor.execute("""
         INSERT INTO users (id, username, email, pin, google_id, created_at)
         VALUES (1, 'ferdy', 'ferdy@krftworks.my.id', '1607', NULL, ?)
         """, (now,))
+    else:
+        cursor.execute("UPDATE users SET pin = '1607' WHERE id = 1")
 
     # 4. Seed Collaboration Permissions
     cursor.execute("SELECT COUNT(*) FROM collaboration_permissions WHERE user_id = 1")
