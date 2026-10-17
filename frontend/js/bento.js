@@ -1,194 +1,195 @@
 /* ==========================================================================
-   ORB - EXECUTIVE BRIEF MANAGER (OFFICE VIEW)
-   Strictly zero rupiah amounts on the Office screen.
-   Pure percentage & statistical indicators with instant zero-blocking render.
+   ORB - AI AGENTS DASHBOARD & BENTO CONTROLLER
+   Manages interactive tasks, agent routing, financial widget & quick actions.
+   Strictly zero blocking awaits & responsive client-side state.
    ========================================================================== */
 
 const BentoManager = {
-  briefData: null,
+  tasks: [
+    { id: "t1", title: "Review anggaran bulanan", time: "09:00", done: true },
+    { id: "t2", title: "Analisis pengeluaran Q3", time: "11:30", done: true },
+    { id: "t3", title: "Update target tabungan", time: "14:00", done: true },
+    { id: "t4", title: "Sinkronisasi portofolio", time: "16:30", done: false }
+  ],
 
-  init(initialBrief = null) {
-    console.log("📊 Initializing Office Executive Brief...");
-    this.briefData = initialBrief;
-
-    // 1. Instant zero-blocking render of shell
-    this.render();
+  init() {
+    console.log("📊 Initializing AI Agents Dashboard Bento & Tasks...");
+    this.loadTaskState();
+    this.renderTasks();
     this.setupListeners();
-
-    // 2. Fetch fresh data in the background without blocking UI
     this.refresh();
   },
 
-  async refresh() {
+  loadTaskState() {
     try {
-      const data = await window.API.getFinExecutiveBrief();
-      this.briefData = data;
-      this.render();
-    } catch (e) {
-      console.warn("Executive brief sync failed, keeping offline shell:", e);
-    }
+      const saved = localStorage.getItem("orb_ai_tasks_state");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.tasks.forEach(t => {
+            const found = parsed.find(p => p.id === t.id);
+            if (found) t.done = !!found.done;
+          });
+        }
+      }
+    } catch (_) {}
   },
 
-  render() {
-    const data = this.briefData || {
-      has_data: false,
-      budget_utilization: {
-        id: "budget_utilization",
-        title: "Budget Bulanan",
-        percentage: null,
-        status_text: "Belum Ada Batas",
-        status_tone: "neutral",
-        indicator_note: "Belum ada anggaran bulanan aktif"
-      },
-      recording_coverage: {
-        id: "recording_coverage",
-        title: "Konsistensi Catat",
-        percentage: 0,
-        status_text: "Perlu Dicatat",
-        status_tone: "neutral",
-        indicator_note: "Mulai catat transaksi pertama Anda"
-      },
-      savings_allocation: {
-        id: "savings_allocation",
-        title: "Rasio Tabungan",
-        percentage: null,
-        status_text: "Nihil",
-        status_tone: "neutral",
-        indicator_note: "Belum ada catatan pemasukan"
-      },
-      upcoming_obligations: {
-        id: "upcoming_obligations",
-        title: "Kewajiban Tagihan",
-        percentage: 100,
-        status_text: "100% Bersih",
-        status_tone: "good",
-        indicator_note: "Tidak ada tagihan tertunda"
-      },
-      insights: [
-        "Fin siap mendampingi perencanaan keuangan pribadi Anda.",
-        "Klik Fin di atas untuk membuka ruang kerja detail lengkap."
-      ],
-      quick_tips: "Klik Fin untuk membuka ruang kerja detail dengan kontrol privasi nominal.",
-      fin_status: "ready"
-    };
+  saveTaskState() {
+    try {
+      localStorage.setItem("orb_ai_tasks_state", JSON.stringify(this.tasks));
+    } catch (_) {}
+  },
 
-    // Render Widget 1: Budget Utilization
-    this.renderWidget(
-      "briefBudgetCard",
-      "briefBudgetPct",
-      "briefBudgetBar",
-      "briefBudgetNote",
-      data.budget_utilization
-    );
+  renderTasks() {
+    const listEl = document.getElementById("aiTaskList");
+    const countEl = document.getElementById("aiTasksCountText");
+    const fillEl = document.getElementById("aiTasksBarFill");
 
-    // Render Widget 2: Recording Coverage
-    this.renderWidget(
-      "briefCoverageCard",
-      "briefCoveragePct",
-      "briefCoverageBar",
-      "briefCoverageNote",
-      data.recording_coverage
-    );
+    const total = this.tasks.length;
+    const completed = this.tasks.filter(t => t.done).length;
+    const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-    // Render Widget 3: Savings Allocation
-    this.renderWidget(
-      "briefSavingsCard",
-      "briefSavingsPct",
-      "briefSavingsBar",
-      "briefSavingsNote",
-      data.savings_allocation
-    );
+    if (countEl) {
+      countEl.textContent = `${completed}/${total} selesai ›`;
+    }
 
-    // Render Widget 4: Upcoming Obligations
-    this.renderWidget(
-      "briefObligationsCard",
-      "briefObligationsPct",
-      "briefObligationsBar",
-      "briefObligationsNote",
-      data.upcoming_obligations
-    );
+    if (fillEl) {
+      fillEl.style.width = `${pct}%`;
+    }
 
-    // Render Insights Card
-    const insightsList = document.getElementById("briefInsightsList");
-    if (insightsList && Array.isArray(data.insights)) {
-      insightsList.innerHTML = data.insights.map(item => `
-        <li class="brief-insight-item">
-          <span class="brief-bullet">✦</span>
-          <span>${item}</span>
-        </li>
+    if (listEl) {
+      listEl.innerHTML = this.tasks.map(t => `
+        <div class="ai-task-row ${t.done ? 'task-done' : ''}" data-task-id="${t.id}">
+          <div class="ai-task-left">
+            <span class="ai-task-checkbox ${t.done ? 'checked' : ''}" id="chk_${t.id}">${t.done ? '✓' : ''}</span>
+            <span class="ai-task-title">${t.title}</span>
+          </div>
+          <span class="ai-task-time">${t.time}</span>
+        </div>
       `).join("");
     }
+  },
 
-    const tipEl = document.getElementById("briefQuickTip");
-    if (tipEl && data.quick_tips) {
-      tipEl.textContent = data.quick_tips;
+  toggleTask(taskId) {
+    const task = this.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.done = !task.done;
+      this.saveTaskState();
+      this.renderTasks();
     }
   },
 
-  renderWidget(cardId, pctId, barId, noteId, widgetData) {
-    const cardEl = document.getElementById(cardId);
-    const pctEl = document.getElementById(pctId);
-    const barEl = document.getElementById(barId);
-    const noteEl = document.getElementById(noteId);
-
-    if (!widgetData) return;
-
-    if (pctEl) {
-      if (widgetData.percentage !== null && widgetData.percentage !== undefined) {
-        pctEl.textContent = `${widgetData.percentage}%`;
-        pctEl.className = `brief-stat-pct tone-${widgetData.status_tone || 'neutral'}`;
-      } else {
-        pctEl.textContent = widgetData.status_text || "--";
-        pctEl.className = `brief-stat-pct tone-neutral is-text`;
+  async refresh() {
+    // 1. Refresh Dynamic Keuangan Nominal from Fin transactions if available
+    try {
+      const summaryEl = document.getElementById("aiStatKeuanganValue");
+      if (summaryEl && window.FinWorkspace?.transactions) {
+        const txs = window.FinWorkspace.transactions;
+        if (Array.isArray(txs) && txs.length > 0) {
+          const totalExpense = txs
+            .filter(t => t.type === 'expense')
+            .reduce((acc, t) => acc + (t.amount || 0), 0);
+          
+          if (totalExpense > 0) {
+            summaryEl.textContent = this.formatIDR(totalExpense);
+          }
+        }
       }
-    }
+    } catch (_) {}
+  },
 
-    if (barEl) {
-      const pct = widgetData.percentage !== null && widgetData.percentage !== undefined ? Math.min(100, Math.max(0, widgetData.percentage)) : 0;
-      barEl.style.width = `${pct}%`;
-      barEl.className = `brief-progress-fill tone-${widgetData.status_tone || 'neutral'}`;
-    }
-
-    if (noteEl) {
-      noteEl.textContent = widgetData.indicator_note || widgetData.status_text || "";
-    }
-
-    if (cardEl) {
-      cardEl.className = `bento-card executive-brief-card tone-${widgetData.status_tone || 'neutral'}`;
-    }
+  formatIDR(num) {
+    if (typeof num !== "number") num = Number(num) || 0;
+    return `Rp ${Math.round(num).toLocaleString('id-ID')}`;
   },
 
   setupListeners() {
-    // Quick Action: Catat Pemasukan
-    document.getElementById("btnQuickIncome")?.addEventListener("click", () => {
-      window.FinWorkspace?.openAddTransactionModal("income");
+    // 1. Task Checkbox / Row Click
+    const listEl = document.getElementById("aiTaskList");
+    listEl?.addEventListener("click", (e) => {
+      const row = e.target.closest(".ai-task-row");
+      if (row) {
+        const taskId = row.dataset.taskId;
+        if (taskId) this.toggleTask(taskId);
+      }
     });
 
-    // Quick Action: Catat Pengeluaran
-    document.getElementById("btnQuickExpense")?.addEventListener("click", () => {
-      window.FinWorkspace?.openAddTransactionModal("expense");
+    // 2. Click Tasks Card Header -> Navigates to Fin Reminders / Tagihan
+    document.getElementById("aiTasksCard")?.addEventListener("click", (e) => {
+      if (e.target.closest(".ai-task-row")) return;
+      window.location.hash = "#fin/reminders";
     });
 
-    // Quick Action: Buka Fin Workspace
-    document.getElementById("btnOpenFinWorkspace")?.addEventListener("click", () => {
+    // 3. Click Keuangan Card -> Fin Workspace
+    document.getElementById("aiStatKeuangan")?.addEventListener("click", () => {
       window.location.hash = "#fin";
     });
 
-    // Clicking any widget cards navigates to corresponding Fin subtab
-    document.getElementById("briefBudgetCard")?.addEventListener("click", () => {
-      window.location.hash = "#fin/budgets";
+    // 4. Click Produktivitas Card -> Fin Reports
+    document.getElementById("aiStatProduktivitas")?.addEventListener("click", () => {
+      window.location.hash = "#fin/reports";
     });
 
-    document.getElementById("briefCoverageCard")?.addEventListener("click", () => {
-      window.location.hash = "#fin/transactions";
+    // 5. Agent List Item Clicks
+    document.getElementById("agentItemFin")?.addEventListener("click", () => {
+      window.location.hash = "#fin";
     });
 
-    document.getElementById("briefSavingsCard")?.addEventListener("click", () => {
+    document.getElementById("agentItemWelly")?.addEventListener("click", () => {
+      window.location.hash = "#welly";
+    });
+
+    document.getElementById("agentItemNova")?.addEventListener("click", () => {
+      window.location.hash = "#fin/chat";
+      setTimeout(() => {
+        const chatInput = document.getElementById("finChatTextInput");
+        if (chatInput) {
+          chatInput.value = "Halo Nova, bagaimana tren riset keuangan terbaru hari ini?";
+          chatInput.focus();
+        }
+      }, 150);
+    });
+
+    // 6. Segmented Filter Tabs
+    const segmentBtns = document.querySelectorAll(".ai-segment-tab");
+    segmentBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        segmentBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const filter = btn.dataset.filter;
+        if (filter === "tasks") {
+          document.getElementById("aiTasksCard")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else if (filter === "goals") {
+          window.location.hash = "#fin/goals";
+        } else if (filter === "insights") {
+          window.location.hash = "#fin/reports";
+        } else if (filter === "agents") {
+          document.getElementById("aiAgentsListCard")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      });
+    });
+
+    // 7. Quick Action Buttons
+    document.getElementById("btnQuickChatAI")?.addEventListener("click", () => {
+      window.location.hash = "#fin/chat";
+    });
+
+    document.getElementById("btnQuickBuatTugas")?.addEventListener("click", () => {
+      if (window.FinWorkspace?.openAddTransactionModal) {
+        window.FinWorkspace.openAddTransactionModal("expense");
+      } else {
+        window.location.hash = "#fin/transactions";
+      }
+    });
+
+    document.getElementById("btnQuickLihatLaporan")?.addEventListener("click", () => {
+      window.location.hash = "#fin/reports";
+    });
+
+    document.getElementById("btnQuickAturGoal")?.addEventListener("click", () => {
       window.location.hash = "#fin/goals";
-    });
-
-    document.getElementById("briefObligationsCard")?.addEventListener("click", () => {
-      window.location.hash = "#fin/reminders";
     });
   }
 };

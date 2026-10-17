@@ -34,6 +34,13 @@ const AvatarsManager = {
   render() {
     const fin = this.finData || window.DEFAULT_AGENTS[0];
     const welly = this.wellyData || window.DEFAULT_AGENTS[1];
+
+    // Update Modern AI Agents List Status
+    const finStatus = document.querySelector("#agentItemFin .ai-agent-status-text");
+    if (finStatus && fin.tag_text) finStatus.textContent = `${fin.tag_text} 🟢`;
+    const wellyStatus = document.querySelector("#agentItemWelly .ai-agent-status-text");
+    if (wellyStatus && welly.tag_text) wellyStatus.textContent = `${welly.tag_text} 🟢`;
+
     const deskContainer = document.getElementById("finDeskHeroContainer");
     if (!deskContainer) return;
 

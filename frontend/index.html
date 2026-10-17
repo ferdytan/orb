@@ -1,26 +1,29 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Orb - Fin Personal Finance Workspace</title>
+  <title>Orb - AI Agents Workspace</title>
   
   <!-- PWA & Mobile Web App Meta -->
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#0d0e12">
+  <meta name="theme-color" content="#F8FAFC">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Orb">
   <link rel="apple-touch-icon" href="./assets/avatar_fin_360.png">
 
   <!-- Preload high priority first-screen assets -->
+  <link rel="preload" href="./assets/office_hero_ai.jpg" as="image" type="image/jpeg" fetchpriority="high">
   <link rel="preload" href="./assets/avatar_fin_360.png" as="image" type="image/png" fetchpriority="high">
+  <link rel="preload" href="./assets/avatar_welly_360.png" as="image" type="image/png">
   <link rel="preload" href="./assets/logo_orb.png" as="image" type="image/png" fetchpriority="high">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css?v=3.1.0">
-  <link rel="stylesheet" href="./css/avatars.css?v=3.1.0">
+  <link rel="stylesheet" href="./css/styles.css?v=3.2.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=3.2.0">
+  <link rel="stylesheet" href="./css/ai_office.css?v=3.2.0">
 
   <!-- Critical View Isolation CSS -->
   <style>
@@ -74,12 +77,22 @@
   </div>
 
   <!-- Top Clean Mobile Header Bar -->
-  <header class="app-top-header">
-    <div class="brand-capsule" id="headerBrandBtn" title="Orb Virtual Office - Fin Finance">
-      <img src="./assets/logo_orb.png" alt="Orb" class="brand-logo-img" />
-      <div class="brand-text-col">
-        <span class="brand-subtitle">Finance Workspace</span>
+  <header class="ai-top-header" id="appTopHeader">
+    <div class="orb-brand-group" id="headerBrandBtn" title="Orb Virtual Office">
+      <div class="orb-brand-icon-wrap">
+        <img src="./assets/logo_orb.png" alt="Orb" />
       </div>
+      <div>
+        <div class="orb-title-text">Orb</div>
+        <div class="orb-subtitle-text">AI Agents</div>
+      </div>
+    </div>
+    <div class="ai-header-actions">
+      <div class="ai-online-pill">
+        <span class="ai-online-dot"></span>
+        <span>Online</span>
+      </div>
+      <button class="ai-settings-btn" id="headerSettingsBtn" title="Pengaturan">⚙️</button>
     </div>
   </header>
 
@@ -87,96 +100,193 @@
   <main class="app-main-viewport">
     <div class="app-content-container">
 
-      <!-- ================= PAGE 1: OFFICE / EXECUTIVE BRIEF VIEW ================= -->
+      <!-- ================= PAGE 1: OFFICE / AI AGENTS DASHBOARD ================= -->
       <div class="app-page-view active" id="viewOfficeHome">
         
-        <!-- 1. Office Scene with Dynamic Lighting & Fin Hero Desk -->
-        <section class="office-header-scene lighting-night" id="officeHeaderScene">
-          <!-- Backdrop Layer -->
-          <div class="scene-backdrop-layer" id="officeBackdropLayer" style="background-image: url('./assets/office_morning.jpg');"></div>
-          
-          <!-- Dynamic Shaders & Lighting Overlays -->
-          <div class="scene-lighting-overlay" id="sceneLightingOverlay"></div>
-          <div class="scene-ambient-lamp-glow" id="sceneLampGlow"></div>
-          <div class="scene-bottom-gradient"></div>
+        <!-- 1. Hero Stage: Sunlit Office Scene with AI Agents Seated at Desks -->
+        <div class="ai-hero-scene-card" id="aiHeroSceneCard">
+          <img src="./assets/office_hero_ai.jpg" alt="Orb AI Agents Office" class="ai-hero-scene-image" />
+        </div>
 
-          <!-- Fin Desk Hero Stage (Single Active Agent) -->
-          <div class="avatars-stage-wrapper">
-            <div class="stage-desk-label">
-              <span>🛋️ Executive Desk</span>
-              <span class="fin-badge-active">Fin • Online 🟢</span>
-            </div>
-
-            <!-- Fin Hero Desk Card (Click opens Fin Workspace) -->
-            <div id="finDeskHeroContainer">
-              <!-- Rendered immediately by avatars.js -->
-            </div>
+        <!-- 2. Segmented Filter Tabs -->
+        <div class="ai-segment-tabs-wrap">
+          <div class="ai-segment-tabs" id="aiSegmentTabs">
+            <button class="ai-segment-tab active" data-filter="agents">👥 AI Agents</button>
+            <button class="ai-segment-tab" data-filter="tasks">📋 Tasks</button>
+            <button class="ai-segment-tab" data-filter="goals">🎯 Goals</button>
+            <button class="ai-segment-tab" data-filter="insights">📊 Insights</button>
           </div>
-        </section>
+        </div>
 
-        <!-- 2. Percentage Bento Widgets (STRICTLY ZERO RUPIAH) -->
-        <section class="bento-section-container">
-          <div class="executive-brief-grid">
-            <!-- Widget 1: Budget Utilization -->
-            <div class="bento-card executive-brief-card" id="briefBudgetCard" title="Ketuk untuk melihat rincian budget">
-              <div class="bento-card-header">
-                <span class="bento-card-title">Budget Bulanan</span>
-                <span class="widget-action-arrow">↗</span>
+        <!-- 3. AI Agents List Card -->
+        <div class="ai-agents-list-card" id="aiAgentsListCard">
+          <!-- Fin -->
+          <div class="ai-agent-item" id="agentItemFin" title="Buka Fin Finance Workspace">
+            <div class="ai-agent-item-left">
+              <div class="ai-agent-avatar-wrap">
+                <img src="./assets/avatar_fin_360.png" alt="Fin" />
               </div>
-              <div class="brief-stat-pct" id="briefBudgetPct">--</div>
-              <div class="brief-progress-bar">
-                <div class="brief-progress-fill" id="briefBudgetBar" style="width: 0%;"></div>
+              <div class="ai-agent-text-col">
+                <span class="ai-agent-name">Fin</span>
+                <span class="ai-agent-role">Personal Finance</span>
               </div>
-              <div class="brief-stat-note" id="briefBudgetNote">Memuat data anggaran...</div>
             </div>
-
-            <!-- Widget 2: Recording Coverage -->
-            <div class="bento-card executive-brief-card" id="briefCoverageCard" title="Ketuk untuk melihat riwayat transaksi">
-              <div class="bento-card-header">
-                <span class="bento-card-title">Konsistensi Catat</span>
-                <span class="widget-action-arrow">↗</span>
-              </div>
-              <div class="brief-stat-pct" id="briefCoveragePct">--</div>
-              <div class="brief-progress-bar">
-                <div class="brief-progress-fill" id="briefCoverageBar" style="width: 0%;"></div>
-              </div>
-              <div class="brief-stat-note" id="briefCoverageNote">Memuat riwayat harian...</div>
-            </div>
-
-            <!-- Widget 3: Savings Allocation -->
-            <div class="bento-card executive-brief-card" id="briefSavingsCard" title="Ketuk untuk melihat target tabungan">
-              <div class="bento-card-header">
-                <span class="bento-card-title">Rasio Tabungan</span>
-                <span class="widget-action-arrow">↗</span>
-              </div>
-              <div class="brief-stat-pct" id="briefSavingsPct">--</div>
-              <div class="brief-progress-bar">
-                <div class="brief-progress-fill" id="briefSavingsBar" style="width: 0%;"></div>
-              </div>
-              <div class="brief-stat-note" id="briefSavingsNote">Memuat rasio alokasi...</div>
-            </div>
-
-            <!-- Widget 4: Upcoming Obligations -->
-            <div class="bento-card executive-brief-card" id="briefObligationsCard" title="Ketuk untuk melihat pengingat tagihan">
-              <div class="bento-card-header">
-                <span class="bento-card-title">Kewajiban Tagihan</span>
-                <span class="widget-action-arrow">↗</span>
-              </div>
-              <div class="brief-stat-pct" id="briefObligationsPct">--</div>
-              <div class="brief-progress-bar">
-                <div class="brief-progress-fill" id="briefObligationsBar" style="width: 0%;"></div>
-              </div>
-              <div class="brief-stat-note" id="briefObligationsNote">Memuat jadwal tagihan...</div>
+            <div class="ai-agent-item-right">
+              <span class="ai-agent-status-text">Online 🟢</span>
+              <span class="ai-agent-chevron">›</span>
             </div>
           </div>
 
-          <!-- Quick Action Buttons -->
-          <div class="brief-quick-actions-bar">
-            <button class="brief-action-btn action-income" id="btnQuickIncome">+ Pemasukan</button>
-            <button class="brief-action-btn action-expense" id="btnQuickExpense">- Pengeluaran</button>
-            <button class="brief-action-btn action-workspace" id="btnOpenFinWorkspace">💰 Buka Fin Workspace ↗</button>
+          <!-- Welly -->
+          <div class="ai-agent-item" id="agentItemWelly" title="Buka Welly Wealth Workspace">
+            <div class="ai-agent-item-left">
+              <div class="ai-agent-avatar-wrap">
+                <img src="./assets/avatar_welly_360.png" alt="Welly" />
+              </div>
+              <div class="ai-agent-text-col">
+                <span class="ai-agent-name">Welly</span>
+                <span class="ai-agent-role">Wealth & Planning</span>
+              </div>
+            </div>
+            <div class="ai-agent-item-right">
+              <span class="ai-agent-status-text">Online 🟢</span>
+              <span class="ai-agent-chevron">›</span>
+            </div>
           </div>
-        </section>
+
+          <!-- Nova -->
+          <div class="ai-agent-item" id="agentItemNova" title="Tanya Nova Research & Analysis">
+            <div class="ai-agent-item-left">
+              <div class="ai-agent-avatar-wrap">
+                <img src="./assets/avatar_nova_crop.png" alt="Nova" />
+              </div>
+              <div class="ai-agent-text-col">
+                <span class="ai-agent-name">Nova</span>
+                <span class="ai-agent-role">Research & Analysis</span>
+              </div>
+            </div>
+            <div class="ai-agent-item-right">
+              <span class="ai-agent-status-text">Online 🟢</span>
+              <span class="ai-agent-chevron">›</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Dual Bento Grid: Tasks on Left, Stats on Right -->
+        <div class="ai-bento-dual-grid">
+          <!-- Left: Tugas Hari Ini -->
+          <div class="ai-tasks-card" id="aiTasksCard">
+            <div class="ai-tasks-header">
+              <div class="ai-tasks-title-wrap">
+                <span>📋</span>
+                <span>Tugas Hari Ini</span>
+              </div>
+              <span class="ai-tasks-count" id="aiTasksCountText">3/4 selesai ›</span>
+            </div>
+
+            <div class="ai-tasks-bar-track">
+              <div class="ai-tasks-bar-fill" id="aiTasksBarFill" style="width: 75%;"></div>
+            </div>
+
+            <div class="ai-task-list" id="aiTaskList">
+              <div class="ai-task-row" data-task-id="t1">
+                <div class="ai-task-left">
+                  <span class="ai-task-checkbox checked" id="chk_t1">✓</span>
+                  <span class="ai-task-title">Review anggaran bulanan</span>
+                </div>
+                <span class="ai-task-time">09:00</span>
+              </div>
+
+              <div class="ai-task-row" data-task-id="t2">
+                <div class="ai-task-left">
+                  <span class="ai-task-checkbox checked" id="chk_t2">✓</span>
+                  <span class="ai-task-title">Analisis pengeluaran Q3</span>
+                </div>
+                <span class="ai-task-time">11:30</span>
+              </div>
+
+              <div class="ai-task-row" data-task-id="t3">
+                <div class="ai-task-left">
+                  <span class="ai-task-checkbox checked" id="chk_t3">✓</span>
+                  <span class="ai-task-title">Update target tabungan</span>
+                </div>
+                <span class="ai-task-time">14:00</span>
+              </div>
+
+              <div class="ai-task-row" data-task-id="t4">
+                <div class="ai-task-left">
+                  <span class="ai-task-checkbox" id="chk_t4">✓</span>
+                  <span class="ai-task-title">Sinkronisasi portofolio</span>
+                </div>
+                <span class="ai-task-time">16:30</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Stats Column (Keuangan & Produktivitas) -->
+          <div class="ai-stats-col">
+            <!-- Keuangan Card -->
+            <div class="ai-stat-card" id="aiStatKeuangan" title="Buka Fin Finance Workspace">
+              <div class="ai-stat-card-head">
+                <div class="ai-stat-card-head-left">
+                  <div class="ai-stat-icon-box ai-stat-icon-blue">💰</div>
+                  <div class="ai-stat-title-group">
+                    <span class="ai-stat-title">Keuangan</span>
+                    <span class="ai-stat-desc">Bulan ini</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ai-stat-value-row">
+                <span class="ai-stat-number" id="aiStatKeuanganValue">Rp 12.450.000</span>
+                <span class="ai-stat-badge-trend">+12%</span>
+              </div>
+            </div>
+
+            <!-- Produktivitas Card -->
+            <div class="ai-stat-card" id="aiStatProduktivitas" title="Buka Laporan Produktivitas">
+              <div class="ai-stat-card-head">
+                <div class="ai-stat-card-head-left">
+                  <div class="ai-stat-icon-box ai-stat-icon-purple">📈</div>
+                  <div class="ai-stat-title-group">
+                    <span class="ai-stat-title">Produktivitas</span>
+                    <span class="ai-stat-desc">Minggu ini</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ai-stat-value-row">
+                <span class="ai-stat-number" id="aiStatProduktivitasValue">12 / 15</span>
+                <span class="ai-stat-badge-trend">+20%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Quick Actions Row (4 colorful cards) -->
+        <div class="ai-quick-actions-row">
+          <div class="ai-action-card ai-action-blue" id="btnQuickChatAI" title="Tanya AI Fin & Nova">
+            <div class="ai-action-icon-wrap">💬</div>
+            <span class="ai-action-title">Chat</span>
+            <span class="ai-action-sub">dengan AI</span>
+          </div>
+
+          <div class="ai-action-card ai-action-green" id="btnQuickBuatTugas" title="Catat Transaksi atau Tugas Baru">
+            <div class="ai-action-icon-wrap">➕</div>
+            <span class="ai-action-title">Buat</span>
+            <span class="ai-action-sub">Tugas Baru</span>
+          </div>
+
+          <div class="ai-action-card ai-action-amber" id="btnQuickLihatLaporan" title="Lihat Laporan Keuangan Fin">
+            <div class="ai-action-icon-wrap">📊</div>
+            <span class="ai-action-title">Lihat</span>
+            <span class="ai-action-sub">Laporan</span>
+          </div>
+
+          <div class="ai-action-card ai-action-purple" id="btnQuickAturGoal" title="Atur Target Tabungan & Portofolio">
+            <div class="ai-action-icon-wrap">🎯</div>
+            <span class="ai-action-title">Atur</span>
+            <span class="ai-action-sub">Goal</span>
+          </div>
+        </div>
 
       </div>
 
@@ -403,23 +513,27 @@
     </div>
   </main>
 
-  <!-- Sticky Bottom Navigation Menu (PWA Mode) -->
-  <nav class="sticky-bottom-nav-bar">
-    <button class="nav-tab-btn active" data-tab="office" id="tabNavOffice">
-      <span class="nav-icon">🛋️</span>
-      <span class="nav-label">Office</span>
+  <!-- Sticky Bottom Navigation Menu (Modern Light AI Style) -->
+  <nav class="sticky-bottom-nav-bar ai-bottom-nav-bar" id="appBottomNavBar">
+    <button class="nav-tab-btn ai-nav-item active" data-tab="office" id="tabNavOffice">
+      <span class="ai-nav-icon">🏠</span>
+      <span>Beranda</span>
     </button>
-    <button class="nav-tab-btn" data-tab="fin" id="tabNavFin">
-      <span class="nav-icon">💰</span>
-      <span class="nav-label">Fin</span>
+    <button class="nav-tab-btn ai-nav-item" data-tab="agents" id="tabNavAgents">
+      <span class="ai-nav-icon">👥</span>
+      <span>Agents</span>
     </button>
-    <button class="nav-tab-btn" data-tab="welly" id="tabNavWelly">
-      <span class="nav-icon">📈</span>
-      <span class="nav-label">Welly</span>
+    <button class="nav-tab-btn ai-nav-item" data-tab="tugas" id="tabNavTugas">
+      <span class="ai-nav-icon">📋</span>
+      <span>Tugas</span>
     </button>
-    <button class="nav-tab-btn" data-tab="settings" id="tabNavSettings">
-      <span class="nav-icon">⚙️</span>
-      <span class="nav-label">Settings</span>
+    <button class="nav-tab-btn ai-nav-item" data-tab="goal" id="tabNavGoal">
+      <span class="ai-nav-icon">🎯</span>
+      <span>Goal</span>
+    </button>
+    <button class="nav-tab-btn ai-nav-item" data-tab="settings" id="tabNavSettings">
+      <span class="ai-nav-icon">⚙️</span>
+      <span>Pengaturan</span>
     </button>
   </nav>
 
@@ -433,13 +547,13 @@
   </div>
 
   <!-- Scripts with cache-busting version parameter -->
-  <script src="./js/api.js?v=3.1.0"></script>
-  <script src="./js/auth.js?v=3.1.0"></script>
-  <script src="./js/avatars.js?v=3.1.0"></script>
-  <script src="./js/bento.js?v=3.1.0"></script>
-  <script src="./js/fin_workspace.js?v=3.1.0"></script>
-  <script src="./js/welly_workspace.js?v=3.1.0"></script>
-  <script src="./js/app.js?v=3.1.0"></script>
+  <script src="./js/api.js?v=3.2.0"></script>
+  <script src="./js/auth.js?v=3.2.0"></script>
+  <script src="./js/avatars.js?v=3.2.0"></script>
+  <script src="./js/bento.js?v=3.2.0"></script>
+  <script src="./js/fin_workspace.js?v=3.2.0"></script>
+  <script src="./js/welly_workspace.js?v=3.2.0"></script>
+  <script src="./js/app.js?v=3.2.0"></script>
 
   <!-- Modal close event handler -->
   <script>
@@ -458,7 +572,7 @@
     if ('caches' in window) {
       caches.keys().then((names) => {
         for (const name of names) {
-          if (name !== 'orb-fin-welly-v3.1.0') {
+          if (name !== 'orb-fin-welly-v3.2.0') {
             caches.delete(name);
           }
         }
@@ -467,7 +581,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=3.1.0')
+        navigator.serviceWorker.register('./sw.js?v=3.2.0')
           .then((registration) => {
             registration.update();
           })

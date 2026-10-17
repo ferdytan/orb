@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orb-fin-welly-v3.1.0';
+const CACHE_NAME = 'orb-fin-welly-v3.2.0';
 
 // Only cache immutable static assets (images, fonts).
 // NEVER cache HTML documents or API requests to avoid stale UI lockups.
@@ -7,8 +7,8 @@ const STATIC_ASSETS = [
   './assets/logo_orb.png',
   './assets/avatar_fin_360.png',
   './assets/avatar_welly_360.png',
-  './assets/office_morning.jpg',
-  './assets/office_night.jpg'
+  './assets/avatar_nova_crop.png',
+  './assets/office_hero_ai.jpg'
 ];
 
 self.addEventListener('install', (e) => {

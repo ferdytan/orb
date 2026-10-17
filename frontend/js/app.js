@@ -111,6 +111,17 @@ const OrbApp = {
       } else if (window.WellyWorkspace) {
         window.WellyWorkspace.switchSubtab("snapshot");
       }
+    } else if (primaryTab === "tugas") {
+      this.switchTab("fin", false);
+      window.FinWorkspace?.switchSubtab("reminders");
+    } else if (primaryTab === "goal") {
+      this.switchTab("fin", false);
+      window.FinWorkspace?.switchSubtab("goals");
+    } else if (primaryTab === "agents") {
+      this.switchTab("office", false);
+      setTimeout(() => {
+        document.getElementById("aiAgentsListCard")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
     } else if (primaryTab === "settings") {
       this.switchTab("settings", false);
     } else {
@@ -125,6 +136,11 @@ const OrbApp = {
         const tab = btn.dataset.tab;
         window.location.hash = `#${tab}`;
       });
+    });
+
+    // Top Settings button click -> Settings
+    document.getElementById("headerSettingsBtn")?.addEventListener("click", () => {
+      window.location.hash = "#settings";
     });
 
     // Top status pill click -> Settings
@@ -147,7 +163,11 @@ const OrbApp = {
 
     // Update bottom nav button active states
     document.querySelectorAll(".nav-tab-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.tab === tabName);
+      const tab = btn.dataset.tab;
+      const isActive = (tab === tabName) || 
+                       (tabName === "office" && (tab === "office" || tab === "beranda")) ||
+                       (tabName === "settings" && tab === "settings");
+      btn.classList.toggle("active", isActive);
     });
 
     // Update page view containers
