@@ -1,10 +1,11 @@
 /* ==========================================================================
    ORB - AUTHENTICATION & CREDENTIAL CHECK CONTROLLER
-   Standard default PIN: 1607 | Google Login | Session Guard
+   Supports: PIN (1607) | Username & Password (ferdy / 1607) | Google Login
    ========================================================================== */
 
 const Auth = {
   currentPin: "",
+  activeMode: "pin", // 'pin' or 'password'
   sessionTokenKey: "orb_session_token",
   userKey: "orb_user",
 
@@ -27,7 +28,9 @@ const Auth = {
   },
 
   init() {
+    this.setupTabs();
     this.setupKeypad();
+    this.setupPasswordForm();
     this.setupGoogleAuth();
     this.setupKeyboard();
 
@@ -36,6 +39,37 @@ const Auth = {
       this.unlockApp();
     } else {
       this.lockApp();
+    }
+  },
+
+  setupTabs() {
+    const pinTabBtn = document.getElementById("authTabPinBtn");
+    const pwdTabBtn = document.getElementById("authTabPasswordBtn");
+    const pinPanel = document.getElementById("authPanelPin");
+    const pwdPanel = document.getElementById("authPanelPassword");
+
+    if (pinTabBtn && pwdTabBtn && pinPanel && pwdPanel) {
+      pinTabBtn.addEventListener("click", () => {
+        this.activeMode = "pin";
+        pinTabBtn.classList.add("active");
+        pwdTabBtn.classList.remove("active");
+        pinPanel.style.display = "flex";
+        pwdPanel.style.display = "none";
+        this.clearError();
+      });
+
+      pwdTabBtn.addEventListener("click", () => {
+        this.activeMode = "password";
+        pwdTabBtn.classList.add("active");
+        pinTabBtn.classList.remove("active");
+        pinPanel.style.display = "none";
+        pwdPanel.style.display = "flex";
+        this.clearError();
+
+        // Focus password input if username is already filled
+        const pwdInput = document.getElementById("authPasswordInput");
+        if (pwdInput) setTimeout(() => pwdInput.focus(), 100);
+      });
     }
   },
 
@@ -58,10 +92,43 @@ const Auth = {
     });
   },
 
+  setupPasswordForm() {
+    const form = document.getElementById("authPasswordForm");
+    const submitBtn = document.getElementById("authSubmitPasswordBtn");
+    const pwdInput = document.getElementById("authPasswordInput");
+
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.submitPassword();
+      });
+    }
+
+    if (submitBtn) {
+      submitBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.submitPassword();
+      });
+    }
+
+    if (pwdInput) {
+      pwdInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          this.submitPassword();
+        }
+      });
+    }
+  },
+
   setupKeyboard() {
     window.addEventListener("keydown", (e) => {
       const loginView = document.getElementById("viewAuthLogin");
       if (!loginView || loginView.style.display === "none") return;
+
+      // Only handle numeric keyboard when PIN mode is active and not focusing an input
+      if (this.activeMode !== "pin") return;
+      if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA")) return;
 
       if (e.key >= "0" && e.key <= "9") {
         this.appendDigit(e.key);
@@ -126,7 +193,7 @@ const Auth = {
       errEl.textContent = msg;
       errEl.style.display = "block";
     }
-    if (container) {
+    if (container && this.activeMode === "pin") {
       container.classList.add("shake-animation");
       setTimeout(() => container.classList.remove("shake-animation"), 500);
     }
@@ -164,9 +231,15 @@ const Auth = {
       clearTimeout(timeoutId);
       dots.forEach(d => d.style.opacity = "1");
 
+      if (res.status === 404) {
+        this.showError("Server backend belum aktif (HTTP 404). Silakan restart Python App di cPanel.");
+        setTimeout(() => this.clearPin(), 800);
+        return;
+      }
+
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        this.showError(errData.detail || "PIN salah. Silakan coba lagi.");
+        this.showError(errData.detail || "PIN salah. Silakan coba lagi (Standar: 1607).");
         setTimeout(() => this.clearPin(), 400);
         return;
       }
@@ -179,13 +252,84 @@ const Auth = {
       this.unlockApp();
     } catch (err) {
       dots.forEach(d => d.style.opacity = "1");
-      console.error("Auth request error:", err);
+      console.error("Auth PIN request error:", err);
       if (err.name === "AbortError") {
-        this.showError(`Koneksi timeout (8s) ke: ${targetUrl}. Server backend tidak merespons.`);
+        this.showError(`Koneksi timeout (8s) ke server backend.`);
       } else {
-        this.showError(`Gagal menghubungi server backend: ${targetUrl}`);
+        this.showError(`Gagal menghubungi backend: ${targetUrl}`);
       }
       setTimeout(() => this.clearPin(), 800);
+    }
+  },
+
+  async submitPassword() {
+    this.clearError();
+
+    const unameInput = document.getElementById("authUsernameInput");
+    const pwdInput = document.getElementById("authPasswordInput");
+    const submitBtn = document.getElementById("authSubmitPasswordBtn");
+
+    const username = unameInput ? unameInput.value.trim() : "";
+    const password = pwdInput ? pwdInput.value.trim() : "";
+
+    if (!username || !password) {
+      this.showError("Username dan password wajib diisi.");
+      return;
+    }
+
+    const targetUrl = API.buildUrl("/api/auth/login");
+    console.log("🔐 Memverifikasi kredensial ke:", targetUrl);
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Memverifikasi...";
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const res = await fetch(targetUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username, password: password }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Masuk ke Orb ➔";
+      }
+
+      if (res.status === 404) {
+        this.showError("Server backend belum aktif (HTTP 404). Silakan restart Python App di cPanel.");
+        return;
+      }
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        this.showError(errData.detail || "Username atau password salah. Standar: ferdy / 1607");
+        return;
+      }
+
+      const data = await res.json();
+      localStorage.setItem(this.sessionTokenKey, data.token);
+      localStorage.setItem(this.userKey, JSON.stringify(data.user));
+
+      if (pwdInput) pwdInput.value = "";
+      this.unlockApp();
+    } catch (err) {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Masuk ke Orb ➔";
+      }
+      console.error("Auth password request error:", err);
+      if (err.name === "AbortError") {
+        this.showError(`Koneksi timeout (8s) ke server backend.`);
+      } else {
+        this.showError(`Gagal menghubungi backend: ${targetUrl}`);
+      }
     }
   },
 

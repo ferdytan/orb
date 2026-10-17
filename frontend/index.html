@@ -19,8 +19,8 @@
   <link rel="preload" href="./assets/logo_orb.png" as="image" type="image/png" fetchpriority="high">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css?v=2.0.0">
-  <link rel="stylesheet" href="./css/avatars.css?v=2.0.0">
+  <link rel="stylesheet" href="./css/styles.css?v=2.1.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=2.1.0">
 
   <!-- Critical View Isolation CSS -->
   <style>
@@ -37,29 +37,57 @@
       <h1 class="auth-brand-title">Orb</h1>
       <p class="auth-brand-subtitle">Personal AI Workspace</p>
 
-      <div class="auth-pin-label">Masukkan PIN Keamanan</div>
-      <div class="auth-pin-dots" id="authPinDotsContainer">
-        <div class="auth-pin-dot" id="pinDot1"></div>
-        <div class="auth-pin-dot" id="pinDot2"></div>
-        <div class="auth-pin-dot" id="pinDot3"></div>
-        <div class="auth-pin-dot" id="pinDot4"></div>
+      <!-- Auth Method Switcher Tabs -->
+      <div class="auth-method-tabs">
+        <button class="auth-tab-btn active" id="authTabPinBtn" type="button">🔢 PIN</button>
+        <button class="auth-tab-btn" id="authTabPasswordBtn" type="button">👤 Password</button>
       </div>
 
+      <!-- Shared Error Message -->
       <div class="auth-error-msg" id="authErrorMessage"></div>
 
-      <div class="auth-numeric-keypad" id="authNumericKeypad">
-        <button class="auth-key-btn" data-key="1">1</button>
-        <button class="auth-key-btn" data-key="2">2</button>
-        <button class="auth-key-btn" data-key="3">3</button>
-        <button class="auth-key-btn" data-key="4">4</button>
-        <button class="auth-key-btn" data-key="5">5</button>
-        <button class="auth-key-btn" data-key="6">6</button>
-        <button class="auth-key-btn" data-key="7">7</button>
-        <button class="auth-key-btn" data-key="8">8</button>
-        <button class="auth-key-btn" data-key="9">9</button>
-        <button class="auth-key-btn action-key" data-key="clear">C</button>
-        <button class="auth-key-btn" data-key="0">0</button>
-        <button class="auth-key-btn action-key" data-key="backspace">⌫</button>
+      <!-- Mode 1: PIN Keypad -->
+      <div class="auth-mode-panel active" id="authPanelPin">
+        <div class="auth-pin-label">Masukkan PIN Keamanan</div>
+        <div class="auth-pin-dots" id="authPinDotsContainer">
+          <div class="auth-pin-dot" id="pinDot1"></div>
+          <div class="auth-pin-dot" id="pinDot2"></div>
+          <div class="auth-pin-dot" id="pinDot3"></div>
+          <div class="auth-pin-dot" id="pinDot4"></div>
+        </div>
+
+        <div class="auth-numeric-keypad" id="authNumericKeypad">
+          <button class="auth-key-btn" data-key="1">1</button>
+          <button class="auth-key-btn" data-key="2">2</button>
+          <button class="auth-key-btn" data-key="3">3</button>
+          <button class="auth-key-btn" data-key="4">4</button>
+          <button class="auth-key-btn" data-key="5">5</button>
+          <button class="auth-key-btn" data-key="6">6</button>
+          <button class="auth-key-btn" data-key="7">7</button>
+          <button class="auth-key-btn" data-key="8">8</button>
+          <button class="auth-key-btn" data-key="9">9</button>
+          <button class="auth-key-btn action-key" data-key="clear">C</button>
+          <button class="auth-key-btn" data-key="0">0</button>
+          <button class="auth-key-btn action-key" data-key="backspace">⌫</button>
+        </div>
+      </div>
+
+      <!-- Mode 2: Username & Password Form -->
+      <div class="auth-mode-panel" id="authPanelPassword" style="display: none;">
+        <form id="authPasswordForm" class="auth-form-container" onsubmit="return false;">
+          <div class="auth-input-group">
+            <label class="auth-input-label" for="authUsernameInput">Username</label>
+            <input type="text" id="authUsernameInput" class="auth-input-field" placeholder="Username (misal: ferdy)" value="ferdy" autocomplete="username" required />
+          </div>
+          <div class="auth-input-group">
+            <label class="auth-input-label" for="authPasswordInput">Password</label>
+            <input type="password" id="authPasswordInput" class="auth-input-field" placeholder="Password (misal: 1607)" autocomplete="current-password" required />
+          </div>
+          <button type="submit" id="authSubmitPasswordBtn" class="auth-submit-btn">
+            Masuk ke Orb ➔
+          </button>
+          <div class="auth-form-hint">Standar kredensial: <strong>ferdy</strong> / <strong>1607</strong></div>
+        </form>
       </div>
 
       <div class="auth-divider-row">
@@ -68,7 +96,7 @@
         <div class="auth-divider-line"></div>
       </div>
 
-      <button class="auth-google-btn" id="authGoogleBtn">
+      <button class="auth-google-btn" id="authGoogleBtn" type="button">
         <svg class="google-icon-svg" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -487,13 +515,13 @@
   </div>
 
   <!-- Scripts with cache-busting version parameter -->
-  <script src="./js/api.js?v=2.0.0"></script>
-  <script src="./js/auth.js?v=2.0.0"></script>
-  <script src="./js/avatars.js?v=2.0.0"></script>
-  <script src="./js/bento.js?v=2.0.0"></script>
-  <script src="./js/fin_workspace.js?v=2.0.0"></script>
-  <script src="./js/welly_workspace.js?v=2.0.0"></script>
-  <script src="./js/app.js?v=2.0.0"></script>
+  <script src="./js/api.js?v=2.1.0"></script>
+  <script src="./js/auth.js?v=2.1.0"></script>
+  <script src="./js/avatars.js?v=2.1.0"></script>
+  <script src="./js/bento.js?v=2.1.0"></script>
+  <script src="./js/fin_workspace.js?v=2.1.0"></script>
+  <script src="./js/welly_workspace.js?v=2.1.0"></script>
+  <script src="./js/app.js?v=2.1.0"></script>
 
   <!-- Modal close event handler -->
   <script>

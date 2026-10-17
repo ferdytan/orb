@@ -15,9 +15,15 @@
 #    tidak ada karena browser akan menolak CSS/JS akibat MIME type text/html.
 # ==============================================================================
 
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/satulogi/krftworks/orb"
+PassengerBaseURI "/"
+PassengerPython "/home/satulogi/virtualenv/krftworks/orb/3.11/bin/python"
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+
 DirectoryIndex index.html
 
-# Serve existing static files directly via Apache
+# Serve existing static files directly via LiteSpeed / Apache
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -25,7 +31,6 @@ DirectoryIndex index.html
     RewriteRule ^ - [L]
 </IfModule>
 
-# Passenger is kept enabled for dynamic backend requests (e.g. /api/...)
 <IfModule mod_passenger.c>
     PassengerEnabled on
 </IfModule>

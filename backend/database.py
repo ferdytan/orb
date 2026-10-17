@@ -208,10 +208,17 @@ def init_db():
         username TEXT NOT NULL UNIQUE,
         email TEXT,
         pin TEXT NOT NULL DEFAULT '1607',
+        password TEXT NOT NULL DEFAULT '1607',
         google_id TEXT,
         created_at TEXT NOT NULL
     )
     """)
+
+    # Ensure password column exists on users table if already created
+    cursor.execute("PRAGMA table_info(users)")
+    user_cols = [col[1] for col in cursor.fetchall()]
+    if "password" not in user_cols:
+        cursor.execute("ALTER TABLE users ADD COLUMN password TEXT NOT NULL DEFAULT '1607'")
 
     # User Sessions Table
     cursor.execute("""
@@ -675,17 +682,17 @@ def seed_data(conn):
         WHERE id = 'welly'
         """)
 
-    # 3. Seed Default User with Standard PIN 1607
-    cursor.execute("SELECT id, pin FROM users WHERE id = 1")
+    # 3. Seed Default User with Standard PIN & Password 1607
+    cursor.execute("SELECT id, pin, password FROM users WHERE id = 1")
     user_row = cursor.fetchone()
     if not user_row:
         now = datetime.now().isoformat()
         cursor.execute("""
-        INSERT INTO users (id, username, email, pin, google_id, created_at)
-        VALUES (1, 'ferdy', 'ferdy@krftworks.my.id', '1607', NULL, ?)
+        INSERT INTO users (id, username, email, pin, password, google_id, created_at)
+        VALUES (1, 'ferdy', 'ferdy@krftworks.my.id', '1607', '1607', NULL, ?)
         """, (now,))
     else:
-        cursor.execute("UPDATE users SET pin = '1607' WHERE id = 1")
+        cursor.execute("UPDATE users SET pin = '1607', password = '1607' WHERE id = 1")
 
     # 4. Seed Collaboration Permissions
     cursor.execute("SELECT COUNT(*) FROM collaboration_permissions WHERE user_id = 1")
