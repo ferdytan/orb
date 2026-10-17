@@ -61,13 +61,8 @@ const getApiBaseUrl = () => {
     if (custom) return custom;
   }
 
-  // 2. Lingkungan produksi:
-  if (typeof window !== "undefined" && window.location && window.location.hostname === "orb.krftworks.my.id") {
-    return "https://krftworks.my.id";
-  }
-
-  // 3. Lingkungan local development (localhost, 127.0.0.1):
-  return window.location.origin + getBasePath();
+  // 2. Gunakan origin domain yang sama (https://orb.krftworks.my.id atau localhost)
+  return window.location.origin;
 };
 
 const API = {

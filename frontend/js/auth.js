@@ -142,15 +142,27 @@ const Auth = {
 
   async submitPin() {
     const pin = this.currentPin;
-    const errEl = document.getElementById("authErrorMessage");
     this.clearError();
 
+    const targetUrl = API.buildUrl("/api/auth/pin");
+    console.log("🔐 Memverifikasi PIN ke:", targetUrl);
+
+    // Visual feedback: dim dots during validation
+    const dots = document.querySelectorAll(".auth-pin-dot");
+    dots.forEach(d => d.style.opacity = "0.5");
+
     try {
-      const res = await fetch(API.buildUrl("/api/auth/pin"), {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const res = await fetch(targetUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin: pin })
+        body: JSON.stringify({ pin: pin }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
+      dots.forEach(d => d.style.opacity = "1");
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
@@ -166,8 +178,14 @@ const Auth = {
       this.clearPin();
       this.unlockApp();
     } catch (err) {
-      this.showError("Gagal menghubungi server. Periksa koneksi.");
-      setTimeout(() => this.clearPin(), 400);
+      dots.forEach(d => d.style.opacity = "1");
+      console.error("Auth request error:", err);
+      if (err.name === "AbortError") {
+        this.showError(`Koneksi timeout (8s) ke: ${targetUrl}. Server backend tidak merespons.`);
+      } else {
+        this.showError(`Gagal menghubungi server backend: ${targetUrl}`);
+      }
+      setTimeout(() => this.clearPin(), 800);
     }
   },
 

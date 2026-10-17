@@ -17,12 +17,15 @@
 
 DirectoryIndex index.html
 
-# Disable mod_rewrite to prevent parent folder rewrite rules from interfering
+# Serve existing static files directly via Apache
 <IfModule mod_rewrite.c>
-    RewriteEngine Off
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
 </IfModule>
 
-# Disable Passenger for this static frontend document root
+# Passenger is kept enabled for dynamic backend requests (e.g. /api/...)
 <IfModule mod_passenger.c>
-    PassengerEnabled off
+    PassengerEnabled on
 </IfModule>
