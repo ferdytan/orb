@@ -21,9 +21,10 @@
   <link rel="preload" href="./assets/logo_orb.png" as="image" type="image/png" fetchpriority="high">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css?v=3.2.0">
-  <link rel="stylesheet" href="./css/avatars.css?v=3.2.0">
-  <link rel="stylesheet" href="./css/ai_office.css?v=3.2.0">
+  <link rel="stylesheet" href="./css/styles.css?v=3.3.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=3.3.0">
+  <link rel="stylesheet" href="./css/ai_office.css?v=3.3.0">
+  <link rel="stylesheet" href="./css/dots_bot.css?v=3.3.0">
 
   <!-- Critical View Isolation CSS -->
   <style>
@@ -100,8 +101,295 @@
   <main class="app-main-viewport">
     <div class="app-content-container">
 
+      <!-- ================= PAGE 0: OPENDOTS & GROK BOT VIEW ================= -->
+      <div class="app-page-view active" id="viewDotsBot">
+        <!-- Sidebar Drawer Backdrop (for mobile) -->
+        <div class="dots-sidebar-backdrop" id="dotsSidebarBackdrop"></div>
+
+        <!-- Left Desktop Sidebar / Mobile Off-canvas Drawer -->
+        <aside class="dots-sidebar" id="dotsSidebar">
+          <!-- Sidebar Header -->
+          <div class="dots-sidebar-header">
+            <div class="dots-brand-lockup" id="btnDotsBrandHome" title="OpenDots Workspace">
+              <span class="dots-brand-icon">✦</span>
+              <span class="dots-brand-name">OpenDots</span>
+            </div>
+            <button class="dots-btn-sidebar-toggle" id="btnToggleDotsSidebar" title="Tutup / Buka Sidebar">
+              ◫
+            </button>
+          </div>
+
+          <!-- + New Chat Button -->
+          <div class="dots-new-chat-wrap">
+            <button class="dots-new-chat-btn" id="btnDotsNewChat">
+              <span>+</span>
+              <span>New chat</span>
+            </button>
+          </div>
+
+          <!-- Scrollable Navigation Area -->
+          <div class="dots-sidebar-scroll">
+            <!-- Section: DOTS -->
+            <div>
+              <div class="dots-section-head">
+                <span>DOTS</span>
+                <button class="dots-section-action" title="Tambah Agent Baru">+</button>
+              </div>
+              <div class="dots-agent-nav-list">
+                <!-- Fin -->
+                <div class="dots-agent-nav-item active" data-agent="fin">
+                  <div class="dots-agent-nav-left">
+                    <img src="./assets/dot_fin.png" alt="Fin" class="dots-agent-nav-icon" />
+                    <span class="dots-agent-nav-label">Fin</span>
+                  </div>
+                  <button class="dots-agent-nav-menu-btn" title="Opsi Fin">···</button>
+                </div>
+
+                <!-- Welly -->
+                <div class="dots-agent-nav-item" data-agent="welly">
+                  <div class="dots-agent-nav-left">
+                    <img src="./assets/dot_welly.png" alt="Welly" class="dots-agent-nav-icon" />
+                    <span class="dots-agent-nav-label">Welly</span>
+                  </div>
+                  <button class="dots-agent-nav-menu-btn" title="Opsi Welly">···</button>
+                </div>
+
+                <!-- Aaron -->
+                <div class="dots-agent-nav-item" data-agent="aaron">
+                  <div class="dots-agent-nav-left">
+                    <img src="./assets/dot_aaron.png" alt="Aaron" class="dots-agent-nav-icon" />
+                    <span class="dots-agent-nav-label">Aaron</span>
+                  </div>
+                  <button class="dots-agent-nav-menu-btn" title="Opsi Aaron">···</button>
+                </div>
+
+                <!-- Lynn -->
+                <div class="dots-agent-nav-item" data-agent="lynn">
+                  <div class="dots-agent-nav-left">
+                    <img src="./assets/dot_lynn.png" alt="Lynn" class="dots-agent-nav-icon" />
+                    <span class="dots-agent-nav-label">Lynn</span>
+                  </div>
+                  <button class="dots-agent-nav-menu-btn" title="Opsi Lynn">···</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section: SPACES -->
+            <div>
+              <div class="dots-section-head">
+                <span>SPACES</span>
+                <button class="dots-section-action" title="Kelola Spaces">+</button>
+              </div>
+              <div class="dots-spaces-list">
+                <div class="dots-space-item active" id="dotsSpaceEveryday">
+                  <span>📁</span>
+                  <span>Everyday Chat</span>
+                </div>
+                <div class="dots-space-item" id="dotsSpaceFin">
+                  <span>💰</span>
+                  <span>Fin Workspace (Ledger)</span>
+                </div>
+                <div class="dots-space-item" id="dotsSpaceWelly">
+                  <span>📈</span>
+                  <span>Welly Wealth Space</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar Footer -->
+          <div class="dots-sidebar-footer">
+            <button class="dots-footer-link" id="dotsFooterScheduled">
+              <span>🕒</span>
+              <span>Scheduled & activity</span>
+            </button>
+            <button class="dots-footer-link" id="dotsFooterMemories">
+              <span>📖</span>
+              <span>Memories</span>
+            </button>
+            <button class="dots-footer-link" id="dotsFooterSettings">
+              <span>⚙️</span>
+              <span>Settings & setup</span>
+            </button>
+            <button class="dots-footer-link" id="dotsFooterMakeOwn">
+              <span>&lt;/&gt;</span>
+              <span>Make it your own ↗</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- Right Main Content & Chat Stage -->
+        <main class="dots-main-content">
+          <!-- Top Bar -->
+          <header class="dots-topbar">
+            <div class="dots-topbar-left">
+              <button class="dots-btn-drawer" id="btnOpenDotsDrawer" title="Buka Menu Drawer">☰</button>
+              <div class="dots-breadcrumb">
+                <span>Dots</span>
+                <span>/</span>
+                <span class="dots-breadcrumb-agent" id="dotsBreadcrumbAgent">Fin</span>
+              </div>
+            </div>
+            <div class="dots-topbar-right">
+              <div class="dots-status-pill">
+                <span class="dots-status-dot"></span>
+                <span>Active</span>
+              </div>
+              <button class="dots-topbar-btn" id="btnDotsTopPause">Pause</button>
+              <button class="dots-topbar-btn" id="btnDotsTopFullscreen">⛶</button>
+            </div>
+          </header>
+
+          <!-- Quick Mobile Swipeable Agent Bar -->
+          <div class="dots-mobile-agent-bar" id="dotsMobileAgentBar">
+            <button class="dots-pill-agent active" data-agent="fin">
+              <img src="./assets/dot_fin.png" alt="Fin" />
+              <span>Fin</span>
+            </button>
+            <button class="dots-pill-agent" data-agent="welly">
+              <img src="./assets/dot_welly.png" alt="Welly" />
+              <span>Welly</span>
+            </button>
+            <button class="dots-pill-agent" data-agent="aaron">
+              <img src="./assets/dot_aaron.png" alt="Aaron" />
+              <span>Aaron</span>
+            </button>
+            <button class="dots-pill-agent" data-agent="lynn">
+              <img src="./assets/dot_lynn.png" alt="Lynn" />
+              <span>Lynn</span>
+            </button>
+          </div>
+
+          <!-- Main Scrollable Chat & Tasks Container -->
+          <div class="dots-stage-scroll" id="dotsStageScroll">
+            <!-- Centered Agent Identity Banner -->
+            <div class="dots-agent-hero">
+              <div class="dots-agent-plush-wrap">
+                <img src="./assets/opendots_fin.png" alt="Agent Avatar" class="dots-agent-plush-img" id="dotsAgentHeroAvatar" />
+              </div>
+              <h1 class="dots-agent-hero-name" id="dotsAgentHeroName">Fin</h1>
+              <p class="dots-agent-hero-bio" id="dotsAgentHeroBio">
+                Be thoughtful, practical, and concise. Help the user track personal finances, manage daily budgets, and follow through.
+              </p>
+              <span class="dots-agent-specialist-chip" id="dotsAgentSpecialist">
+                Specialist: Cashflow & Budget
+              </span>
+            </div>
+
+            <!-- Swipeable Tasks & Results Menu Carousel ("menu bisa di swipe2") -->
+            <section class="dots-tasks-carousel-section">
+              <div class="dots-carousel-head">
+                <div class="dots-carousel-title-col">
+                  <span class="dots-carousel-title">📋 Tugas & Hasil Kerja Agent</span>
+                  <span class="dots-carousel-subtitle">• Geser kartu untuk melihat detail</span>
+                </div>
+                <div class="dots-carousel-nav-arrows">
+                  <button class="dots-arrow-btn" id="btnDotsDeckLeft" title="Geser ke kiri">‹</button>
+                  <button class="dots-arrow-btn" id="btnDotsDeckRight" title="Geser ke kanan">›</button>
+                </div>
+              </div>
+
+              <!-- Swipeable Horizontal Deck -->
+              <div class="dots-tasks-deck" id="dotsTasksDeck">
+                <!-- Rendered dynamically by dots_bot.js -->
+              </div>
+            </section>
+
+            <!-- Chat Messages Stream (Loaded persistently) -->
+            <div class="dots-chat-stream" id="dotsChatStream">
+              <!-- Rendered dynamically by dots_bot.js -->
+            </div>
+          </div>
+
+          <!-- Sticky Bottom Input Dock (Grok & OpenDots Style) -->
+          <div class="dots-bottom-dock">
+            <!-- Swipeable Suggestion Chips -->
+            <div class="dots-suggestions-row" id="dotsSuggestionsRow">
+              <!-- Rendered dynamically by dots_bot.js -->
+            </div>
+
+            <!-- Input Card -->
+            <div class="dots-input-card">
+              <input 
+                type="text" 
+                id="dotsChatInput" 
+                class="dots-input-field" 
+                placeholder="Tanya Fin seputar tugas, angka, atau rekomendasi..." 
+                autocomplete="off"
+              />
+              <button id="btnDotsSendMsg" class="dots-send-btn" title="Kirim Pesan">
+                ↑
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <!-- Task Details & Results Modal ("Cek tugasnya apa saja dan hasilnya bagaimana") -->
+      <div class="dots-task-modal-backdrop" id="dotsTaskModalBackdrop">
+        <div class="dots-task-modal-box">
+          <button class="dots-modal-close-btn" id="btnDotsTaskModalClose">✕</button>
+
+          <div class="dots-modal-header">
+            <div class="dots-modal-icon-box" id="dotsModalTaskIcon">📌</div>
+            <div class="dots-modal-title-col">
+              <h2 id="dotsModalTaskTitle">Nama Tugas</h2>
+              <div class="dots-modal-meta-row">
+                <span class="dots-task-badge-status" id="dotsModalTaskStatus">Selesai 🟢</span>
+                <span id="dotsModalTaskSchedule">Jadwal: Harian</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 1: Tugas Agent Ini Apa Saja? -->
+          <div class="dots-modal-section-card">
+            <div class="dots-modal-section-head">
+              <span>📋</span>
+              <span>Tugas Agent Ini Apa Saja? (Cakupan Kerja)</span>
+            </div>
+            <div class="dots-modal-section-body" id="dotsModalTaskScope">
+              Memuat deskripsi tugas...
+            </div>
+          </div>
+
+          <!-- Section 2: Hasilnya Bagaimana? -->
+          <div class="dots-modal-section-card">
+            <div class="dots-modal-section-head">
+              <span>📊</span>
+              <span>Hasilnya Bagaimana? (Eksekusi & Metrik Riil)</span>
+            </div>
+            <div class="dots-modal-section-body" id="dotsModalTaskResult">
+              Memuat hasil eksekusi...
+            </div>
+          </div>
+
+          <!-- Section 3: Rekomendasi Langkah Selanjutnya -->
+          <div class="dots-modal-section-card">
+            <div class="dots-modal-section-head">
+              <span>💡</span>
+              <span>Rekomendasi Langkah Selanjutnya</span>
+            </div>
+            <div class="dots-modal-section-body" id="dotsModalTaskNextAction">
+              Memuat rekomendasi...
+            </div>
+          </div>
+
+          <!-- Modal Action Buttons -->
+          <div class="dots-modal-actions-row">
+            <button class="dots-btn-modal-primary" id="btnDotsModalDiscussChat">
+              <span>💬</span>
+              <span>Bahas di Chat dengan Agen</span>
+            </button>
+            <button class="dots-btn-modal-secondary" id="btnDotsModalReanalyze">
+              <span>🔄</span>
+              <span>Jalankan Ulang</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- ================= PAGE 1: OFFICE / AI AGENTS DASHBOARD ================= -->
-      <div class="app-page-view active" id="viewOfficeHome">
+      <div class="app-page-view" id="viewOfficeHome" style="display: none;">
         
         <!-- 1. Hero Stage: Sunlit Office Scene with AI Agents Seated at Desks -->
         <div class="ai-hero-scene-card" id="aiHeroSceneCard">
@@ -295,6 +583,11 @@
         <div class="fin-workspace-container">
           
           <!-- Workspace Header -->
+          <div style="padding: 12px 16px 0;">
+            <a href="#dots" class="dots-return-link" style="color: #a78bfa; text-decoration: none; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.25); border-radius: 99px;">
+              ← Kembali ke OpenDots Chat
+            </a>
+          </div>
           <div class="fin-workspace-topbar">
             <div class="fin-topbar-left">
               <img src="./assets/avatar_fin_360.png" alt="Fin" class="fin-topbar-avatar" />
@@ -374,6 +667,11 @@
         <div class="fin-workspace-container">
           
           <!-- Workspace Header -->
+          <div style="padding: 12px 16px 0;">
+            <a href="#dots" class="dots-return-link" style="color: #60a5fa; text-decoration: none; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 99px;">
+              ← Kembali ke OpenDots Chat
+            </a>
+          </div>
           <div class="fin-workspace-topbar">
             <div class="fin-topbar-left">
               <img src="./assets/avatar_welly_360.png" alt="Welly" class="fin-topbar-avatar" />
@@ -547,13 +845,14 @@
   </div>
 
   <!-- Scripts with cache-busting version parameter -->
-  <script src="./js/api.js?v=3.2.0"></script>
-  <script src="./js/auth.js?v=3.2.0"></script>
-  <script src="./js/avatars.js?v=3.2.0"></script>
-  <script src="./js/bento.js?v=3.2.0"></script>
-  <script src="./js/fin_workspace.js?v=3.2.0"></script>
-  <script src="./js/welly_workspace.js?v=3.2.0"></script>
-  <script src="./js/app.js?v=3.2.0"></script>
+  <script src="./js/api.js?v=3.3.0"></script>
+  <script src="./js/auth.js?v=3.3.0"></script>
+  <script src="./js/avatars.js?v=3.3.0"></script>
+  <script src="./js/bento.js?v=3.3.0"></script>
+  <script src="./js/fin_workspace.js?v=3.3.0"></script>
+  <script src="./js/welly_workspace.js?v=3.3.0"></script>
+  <script src="./js/dots_bot.js?v=3.3.0"></script>
+  <script src="./js/app.js?v=3.3.0"></script>
 
   <!-- Modal close event handler -->
   <script>
@@ -572,7 +871,7 @@
     if ('caches' in window) {
       caches.keys().then((names) => {
         for (const name of names) {
-          if (name !== 'orb-fin-welly-v3.2.0') {
+          if (name !== 'orb-dots-bot-v3.3.0') {
             caches.delete(name);
           }
         }
@@ -581,7 +880,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=3.2.0')
+        navigator.serviceWorker.register('./sw.js?v=3.3.0')
           .then((registration) => {
             registration.update();
           })

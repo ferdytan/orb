@@ -1,14 +1,17 @@
-const CACHE_NAME = 'orb-fin-welly-v3.2.0';
+const CACHE_NAME = 'orb-dots-bot-v3.3.0';
 
 // Only cache immutable static assets (images, fonts).
 // NEVER cache HTML documents or API requests to avoid stale UI lockups.
 const STATIC_ASSETS = [
   './manifest.json',
   './assets/logo_orb.png',
+  './assets/dot_fin.png',
+  './assets/dot_welly.png',
+  './assets/dot_aaron.png',
+  './assets/dot_lynn.png',
+  './assets/opendots_fin.png',
   './assets/avatar_fin_360.png',
-  './assets/avatar_welly_360.png',
-  './assets/avatar_nova_crop.png',
-  './assets/office_hero_ai.jpg'
+  './assets/avatar_welly_360.png'
 ];
 
 self.addEventListener('install', (e) => {

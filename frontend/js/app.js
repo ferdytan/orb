@@ -29,6 +29,10 @@ const OrbApp = {
       window.WellyWorkspace.init();
     }
 
+    if (window.DotsBotManager) {
+      window.DotsBotManager.init();
+    }
+
     // 2. Setup Navigation, Router, Auth & Clock
     if (window.Auth) {
       window.Auth.init();
@@ -89,15 +93,20 @@ const OrbApp = {
 
     const rawHash = window.location.hash.replace(/^#/, '').trim();
     if (!rawHash) {
-      this.switchTab("office", false);
+      this.switchTab("dots", false);
       return;
     }
 
     const parts = rawHash.split("/");
-    const primaryTab = parts[0] || "office";
+    const primaryTab = parts[0] || "dots";
     const subRoute = parts[1] || null;
 
-    if (primaryTab === "fin") {
+    if (primaryTab === "dots") {
+      this.switchTab("dots", false);
+      if (subRoute && window.DotsBotManager) {
+        window.DotsBotManager.switchAgent(subRoute);
+      }
+    } else if (primaryTab === "fin") {
       this.switchTab("fin", false);
       if (subRoute && window.FinWorkspace) {
         window.FinWorkspace.switchSubtab(subRoute);
@@ -118,14 +127,13 @@ const OrbApp = {
       this.switchTab("fin", false);
       window.FinWorkspace?.switchSubtab("goals");
     } else if (primaryTab === "agents") {
+      this.switchTab("dots", false);
+    } else if (primaryTab === "office") {
       this.switchTab("office", false);
-      setTimeout(() => {
-        document.getElementById("aiAgentsListCard")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 100);
     } else if (primaryTab === "settings") {
       this.switchTab("settings", false);
     } else {
-      this.switchTab("office", false);
+      this.switchTab("dots", false);
     }
   },
 
@@ -150,7 +158,12 @@ const OrbApp = {
 
     // Top Brand title click -> Office Home
     document.getElementById("headerBrandBtn")?.addEventListener("click", () => {
-      window.location.hash = "#office";
+      window.location.hash = "#dots";
+    });
+
+    // OpenDots brand home click
+    document.getElementById("btnDotsBrandHome")?.addEventListener("click", () => {
+      window.location.hash = "#dots";
     });
   },
 
@@ -160,6 +173,15 @@ const OrbApp = {
     if (updateHash) {
       window.location.hash = `#${tabName}`;
     }
+
+    // Toggle dots-mode on body and header visibility
+    const isDots = (tabName === "dots");
+    document.body.classList.toggle("dots-mode", isDots);
+
+    const topHeader = document.getElementById("appTopHeader");
+    const bottomNav = document.getElementById("appBottomNavBar");
+    if (topHeader) topHeader.style.display = isDots ? "none" : "";
+    if (bottomNav) bottomNav.style.display = isDots ? "none" : "";
 
     // Update bottom nav button active states
     document.querySelectorAll(".nav-tab-btn").forEach(btn => {
@@ -172,6 +194,7 @@ const OrbApp = {
 
     // Update page view containers
     const pageMap = {
+      dots: "viewDotsBot",
       office: "viewOfficeHome",
       fin: "viewFinWorkspace",
       welly: "viewWellyWorkspace",
