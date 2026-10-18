@@ -12,20 +12,20 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Orb">
-  <link rel="apple-touch-icon" href="./assets/avatar_fin_360.png">
+  <link rel="apple-touch-icon" href="./assets/logo_orb_icon.png">
+  <link rel="icon" type="image/png" href="./assets/logo_orb_icon.png">
 
   <!-- Preload high priority first-screen assets -->
-  <link rel="preload" href="./assets/office_hero_ai.jpg" as="image" type="image/jpeg" fetchpriority="high">
+  <link rel="preload" href="./assets/logo_orb.png" as="image" type="image/png" fetchpriority="high">
   <link rel="preload" href="./assets/avatar_fin_360.png" as="image" type="image/png" fetchpriority="high">
   <link rel="preload" href="./assets/avatar_welly_360.png" as="image" type="image/png">
-  <link rel="preload" href="./assets/logo_orb.png" as="image" type="image/png" fetchpriority="high">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css?v=4.1.0">
-  <link rel="stylesheet" href="./css/avatars.css?v=4.1.0">
-  <link rel="stylesheet" href="./css/ai_office.css?v=4.1.0">
-  <link rel="stylesheet" href="./css/dots_bot.css?v=4.1.0">
-  <link rel="stylesheet" href="./css/chat_first.css?v=4.1.0">
+  <link rel="stylesheet" href="./css/styles.css?v=4.2.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=4.2.0">
+  <link rel="stylesheet" href="./css/ai_office.css?v=4.2.0">
+  <link rel="stylesheet" href="./css/dots_bot.css?v=4.2.0">
+  <link rel="stylesheet" href="./css/chat_first.css?v=4.2.0">
 
   <!-- Critical View Isolation CSS -->
   <style>
@@ -50,9 +50,8 @@
   <!-- ================= CREDENTIAL CHECK / LOGIN SCREEN ================= -->
   <div class="auth-login-screen" id="viewAuthLogin" style="display: none;">
     <div class="auth-box-container">
-      <img src="./assets/logo_orb.png" alt="Orb" class="auth-brand-logo" />
-      <h1 class="auth-brand-title">Orb</h1>
-      <p class="auth-brand-subtitle">Personal AI Workspace</p>
+      <img src="./assets/logo_orb.png" alt="Orb" class="auth-brand-logo orb-brand-wordmark-img" />
+      <p class="auth-brand-subtitle" style="margin-top: 4px;">Personal AI Workspace</p>
 
       <!-- Error Message -->
       <div class="auth-error-msg" id="authErrorMessage"></div>
@@ -124,10 +123,7 @@
           <!-- Sidebar Brand Lockup -->
           <div class="orb-sidebar-brand-row">
             <div class="orb-brand-logo-group" id="btnOrbSidebarBrandHome" title="Orb AI Workspace">
-              <div class="orb-brand-badge-icon">
-                <img src="./assets/logo_orb.png" alt="Orb" />
-              </div>
-              <span class="orb-brand-name-text">Orb</span>
+              <img src="./assets/logo_orb.png" alt="Orb" class="orb-brand-wordmark-img" />
             </div>
             <button class="orb-btn-menu-drawer" id="btnOrbCloseSidebar" title="Tutup Menu">✕</button>
           </div>
@@ -188,9 +184,10 @@
         <section class="orb-conversation-workspace">
           <!-- Mobile Header Bar -->
           <header class="orb-mobile-header">
-            <div class="orb-mobile-left">
+            <div class="orb-mobile-left" style="display: flex; align-items: center; gap: 8px;">
               <button class="orb-btn-menu-drawer" id="btnOrbOpenDrawer" title="Buka Menu Agent">☰</button>
-              <span id="orbMobileHeaderTitle" style="font-size: 0.92rem; font-weight: 700; color: var(--orb-text-main);">Fin • Pencatatan keuangan</span>
+              <img src="./assets/logo_orb.png" alt="Orb" class="orb-brand-wordmark-img" style="height: 18px; width: auto; max-width: 55px; object-fit: contain;" />
+              <span id="orbMobileHeaderTitle" style="font-size: 0.9rem; font-weight: 700; color: var(--orb-text-main);">• Fin</span>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
               <button class="orb-btn-menu-drawer" id="btnOrbMobileSettings" title="Pengaturan">⚙️</button>
@@ -997,16 +994,16 @@
   </div>
 
   <!-- Scripts with cache-busting version parameter -->
-  <script src="./js/api.js?v=4.1.0"></script>
-  <script src="./js/auth.js?v=4.1.0"></script>
-  <script src="./js/avatars.js?v=4.1.0"></script>
-  <script src="./js/bento.js?v=4.1.0"></script>
-  <script src="./js/fin_workspace.js?v=4.1.0"></script>
-  <script src="./js/welly_workspace.js?v=4.1.0"></script>
-  <script src="./js/dots_bot.js?v=4.1.0"></script>
-  <script src="./js/agent_registry.js?v=4.1.0"></script>
-  <script src="./js/chat_first.js?v=4.1.0"></script>
-  <script src="./js/app.js?v=4.1.0"></script>
+  <script src="./js/api.js?v=4.2.0"></script>
+  <script src="./js/auth.js?v=4.2.0"></script>
+  <script src="./js/avatars.js?v=4.2.0"></script>
+  <script src="./js/bento.js?v=4.2.0"></script>
+  <script src="./js/fin_workspace.js?v=4.2.0"></script>
+  <script src="./js/welly_workspace.js?v=4.2.0"></script>
+  <script src="./js/dots_bot.js?v=4.2.0"></script>
+  <script src="./js/agent_registry.js?v=4.2.0"></script>
+  <script src="./js/chat_first.js?v=4.2.0"></script>
+  <script src="./js/app.js?v=4.2.0"></script>
 
   <!-- Modal close event handler -->
   <script>
@@ -1025,7 +1022,7 @@
     if ('caches' in window) {
       caches.keys().then((names) => {
         for (const name of names) {
-          if (name !== 'orb-chat-first-v4.1.0') {
+          if (name !== 'orb-chat-first-v4.2.0') {
             caches.delete(name);
           }
         }
@@ -1034,7 +1031,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=4.1.0')
+        navigator.serviceWorker.register('./sw.js?v=4.2.0')
           .then((registration) => {
             registration.update();
           })

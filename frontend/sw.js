@@ -1,10 +1,11 @@
-const CACHE_NAME = 'orb-chat-first-v4.1.0';
+const CACHE_NAME = 'orb-chat-first-v4.2.0';
 
 // Only cache immutable static assets (images, fonts).
 // NEVER cache HTML documents or API requests to avoid stale UI lockups.
 const STATIC_ASSETS = [
   './manifest.json',
   './assets/logo_orb.png',
+  './assets/logo_orb_icon.png',
   './assets/avatar_fin_360.png',
   './assets/avatar_welly_360.png'
 ];

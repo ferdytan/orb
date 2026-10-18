@@ -60,12 +60,49 @@ const AgentRegistry = {
     }
   },
 
+  PRESET_AVATARS: [
+    { id: "fin_orig", name: "Fin Original", url: "./assets/avatar_fin_360.png" },
+    { id: "welly_orig", name: "Welly Original", url: "./assets/avatar_welly_360.png" },
+    { id: "sage", name: "Sage (Analis)", url: "./assets/avatar_sage.png" },
+    { id: "blaze", name: "Blaze (Dinamis)", url: "./assets/avatar_blaze.png" },
+    { id: "nova", name: "Nova (Futuristik)", url: "./assets/avatar_nova.png" },
+    { id: "spark", name: "Spark (Ceria)", url: "./assets/avatar_spark.png" },
+    { id: "echo", name: "Echo (Minimalis)", url: "./assets/avatar_echo.png" },
+    { id: "atlas", name: "Atlas (Kokoh)", url: "./assets/avatar_atlas.png" },
+    { id: "pixel", name: "Pixel (Retro)", url: "./assets/avatar_pixel.png" },
+    { id: "muse", name: "Muse (Elegan)", url: "./assets/avatar_muse.png" },
+    { id: "dot_fin", name: "Dot Fin (Icon)", url: "./assets/dot_fin.png" },
+    { id: "dot_welly", name: "Dot Welly (Icon)", url: "./assets/dot_welly.png" }
+  ],
+
   getAgent(agentId) {
-    return this.agents[agentId] || this.agents.fin;
+    const base = this.agents[agentId] || this.agents.fin;
+    const customAvatar = localStorage.getItem(`orb_avatar_${base.id}`);
+    return {
+      ...base,
+      avatar: customAvatar || base.avatar
+    };
+  },
+
+  setAgentAvatar(agentId, avatarUrl) {
+    try {
+      localStorage.setItem(`orb_avatar_${agentId}`, avatarUrl);
+      if (this.agents[agentId]) {
+        this.agents[agentId].avatar = avatarUrl;
+      }
+    } catch (_) {}
+  },
+
+  resetAgentAvatar(agentId) {
+    try {
+      localStorage.removeItem(`orb_avatar_${agentId}`);
+      if (agentId === "fin") this.agents.fin.avatar = "./assets/avatar_fin_360.png";
+      if (agentId === "welly") this.agents.welly.avatar = "./assets/avatar_welly_360.png";
+    } catch (_) {}
   },
 
   getAllAgents() {
-    return Object.values(this.agents);
+    return Object.keys(this.agents).map(id => this.getAgent(id));
   }
 };
 

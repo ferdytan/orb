@@ -136,15 +136,26 @@ body.orb-chat-first-mode #appBottomNavBar {
   cursor: pointer;
 }
 
-.orb-brand-badge-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, #06B6D4, #3B82F6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+.orb-brand-wordmark-img {
+  height: 26px;
+  width: auto;
+  max-width: 100px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+
+[data-theme="dark"] .orb-brand-wordmark-img,
+body.orb-chat-first-mode[data-theme="dark"] .orb-brand-wordmark-img {
+  filter: brightness(0) invert(1);
+}
+
+.auth-brand-logo.orb-brand-wordmark-img {
+  height: 44px;
+  max-width: 150px;
+  margin: 0 auto 12px;
+  display: block;
 }
 
 .orb-brand-badge-icon img {

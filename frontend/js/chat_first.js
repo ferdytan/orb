@@ -123,7 +123,7 @@ const ChatFirstManager = {
 
     // Mobile Header Title
     const mobileTitle = document.getElementById("orbMobileHeaderTitle");
-    if (mobileTitle) mobileTitle.textContent = `${agent.name} • ${agent.role}`;
+    if (mobileTitle) mobileTitle.textContent = `• ${agent.name}`;
 
     // 5. Render Contextual Action Toolbar for this agent
     this.renderActionToolbar(agent);
@@ -700,6 +700,9 @@ const ChatFirstManager = {
   // --- SETTINGS PANEL ---
   openSettingsPanel() {
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const finAgent = window.AgentRegistry?.getAgent("fin") || { name: "Fin", avatar: "./assets/avatar_fin_360.png" };
+    const wellyAgent = window.AgentRegistry?.getAgent("welly") || { name: "Welly", avatar: "./assets/avatar_welly_360.png" };
+
     const content = `
       <div style="display: flex; flex-direction: column; gap: 16px;">
         <!-- User Profile Card -->
@@ -711,6 +714,41 @@ const ChatFirstManager = {
             <div>
               <div style="font-size: 1rem; font-weight: 800; color: var(--orb-text-main);">Ferdy</div>
               <div style="font-size: 0.76rem; color: #10B981; font-weight: 600;">● Sesi Aktif (PIN Terverifikasi)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orb Avatar Customization -->
+        <div class="orb-dash-stat-card" style="padding: 16px;">
+          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 6px;">🎭 Tampilan & Avatar Orb</h3>
+          <p style="font-size: 0.76rem; color: var(--orb-text-muted); margin-bottom: 12px; line-height: 1.45;">
+            Kustomisasi avatar untuk para Orb Anda (Fin & Welly) dari galeri siap pakai atau upload foto Anda sendiri.
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--orb-bg-app); border-radius: 10px; border: 1px solid var(--orb-border);">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="${finAgent.avatar}" id="settingsFinAvatarPreview" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1.5px solid #10B981;" />
+                <div>
+                  <div style="font-size: 0.86rem; font-weight: 700; color: var(--orb-text-main);">Orb Fin</div>
+                  <div style="font-size: 0.72rem; color: var(--orb-text-muted);">Pencatatan & Budgeting</div>
+                </div>
+              </div>
+              <button class="orb-rich-card-action-btn" id="btnChangeFinAvatar">
+                Ganti Avatar
+              </button>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--orb-bg-app); border-radius: 10px; border: 1px solid var(--orb-border);">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="${wellyAgent.avatar}" id="settingsWellyAvatarPreview" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1.5px solid #3B82F6;" />
+                <div>
+                  <div style="font-size: 0.86rem; font-weight: 700; color: var(--orb-text-main);">Orb Welly</div>
+                  <div style="font-size: 0.72rem; color: var(--orb-text-muted);">Perencanaan & Investasi</div>
+                </div>
+              </div>
+              <button class="orb-rich-card-action-btn" id="btnChangeWellyAvatar">
+                Ganti Avatar
+              </button>
             </div>
           </div>
         </div>
@@ -766,6 +804,14 @@ const ChatFirstManager = {
     this.openPanel("settings", "Pengaturan Orb", content);
 
     // Event listeners inside Settings Panel
+    document.getElementById("btnChangeFinAvatar")?.addEventListener("click", () => {
+      this.openAvatarPickerPanel("fin");
+    });
+
+    document.getElementById("btnChangeWellyAvatar")?.addEventListener("click", () => {
+      this.openAvatarPickerPanel("welly");
+    });
+
     document.getElementById("btnPanelThemeToggle")?.addEventListener("click", () => {
       const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
       const nextTheme = currentTheme === "dark" ? "light" : "dark";
@@ -798,6 +844,126 @@ const ChatFirstManager = {
         window.location.reload();
       }
     });
+  },
+
+  // --- AVATAR PICKER PANEL ---
+  openAvatarPickerPanel(agentId) {
+    const agent = window.AgentRegistry?.getAgent(agentId) || { id: agentId, name: agentId === 'fin' ? 'Fin' : 'Welly', avatar: './assets/avatar_fin_360.png' };
+    const presets = window.AgentRegistry?.PRESET_AVATARS || [];
+
+    const content = `
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Current Avatar Preview -->
+        <div class="orb-dash-stat-card" style="padding: 16px; text-align: center;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--orb-text-muted); margin-bottom: 8px;">
+            Avatar Aktif: <strong style="color: var(--orb-text-main);">Orb ${agent.name}</strong>
+          </div>
+          <img src="${agent.avatar}" id="avatarPickerPreviewImg" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid ${agent.accentColor || '#3B82F6'}; margin: 0 auto; display: block;" />
+        </div>
+
+        <!-- Option 1: Upload Custom Photo -->
+        <div class="orb-dash-stat-card" style="padding: 16px;">
+          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 8px;">📁 Upload Gambar / Foto Sendiri</h3>
+          <p style="font-size: 0.76rem; color: var(--orb-text-muted); margin-bottom: 12px; line-height: 1.45;">
+            Pilih foto dari HP atau komputer Anda. Tersimpan otomatis di browser ini.
+          </p>
+          <input type="file" id="inputAvatarFileUpload" accept="image/*" style="display: none;" />
+          <button class="orb-btn-submit-form" id="btnTriggerAvatarUpload" style="margin: 0; padding: 10px; font-size: 0.84rem;">
+            📸 Pilih Foto dari Perangkat
+          </button>
+        </div>
+
+        <!-- Option 2: Choose from Preset Gallery -->
+        <div class="orb-dash-stat-card" style="padding: 16px;">
+          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 12px;">🎨 Galeri Avatar Bawaan (Folder Assets)</h3>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+            ${presets.map(p => `
+              <button class="orb-preset-avatar-btn" data-avatar-url="${p.url}" title="${p.name}" style="background: var(--orb-bg-app); border: 2px solid ${agent.avatar === p.url ? '#3B82F6' : 'var(--orb-border)'}; border-radius: 12px; padding: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.15s;">
+                <img src="${p.url}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;" />
+                <span style="font-size: 0.64rem; font-weight: 600; color: var(--orb-text-muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">${p.name.split(' ')[0]}</span>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        <!-- Option 3: Reset to Default -->
+        <div style="display: flex; gap: 8px;">
+          <button class="orb-rich-card-action-btn" id="btnResetDefaultAvatar" style="flex: 1; padding: 10px; text-align: center;">
+            ↺ Reset ke Avatar Awal
+          </button>
+          <button class="orb-toolbar-btn" id="btnBackToSettingsFromAvatar" style="padding: 10px 16px;">
+            Kembali
+          </button>
+        </div>
+      </div>
+    `;
+
+    this.openPanel("avatar_picker", `Ubah Avatar Orb ${agent.name}`, content);
+
+    // Event listeners
+    const fileInput = document.getElementById("inputAvatarFileUpload");
+    document.getElementById("btnTriggerAvatarUpload")?.addEventListener("click", () => {
+      fileInput?.click();
+    });
+
+    fileInput?.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (loadEvt) => {
+        const dataUrl = loadEvt.target?.result;
+        if (dataUrl) {
+          window.AgentRegistry?.setAgentAvatar(agentId, dataUrl);
+          this.applyNewAvatar(agentId, dataUrl);
+          this.openAvatarPickerPanel(agentId); // refresh
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Preset avatar click
+    document.querySelectorAll(".orb-preset-avatar-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const url = btn.dataset.avatarUrl;
+        if (url) {
+          window.AgentRegistry?.setAgentAvatar(agentId, url);
+          this.applyNewAvatar(agentId, url);
+          this.openAvatarPickerPanel(agentId);
+        }
+      });
+    });
+
+    // Reset default
+    document.getElementById("btnResetDefaultAvatar")?.addEventListener("click", () => {
+      window.AgentRegistry?.resetAgentAvatar(agentId);
+      const defUrl = agentId === 'fin' ? './assets/avatar_fin_360.png' : './assets/avatar_welly_360.png';
+      this.applyNewAvatar(agentId, defUrl);
+      this.openAvatarPickerPanel(agentId);
+    });
+
+    document.getElementById("btnBackToSettingsFromAvatar")?.addEventListener("click", () => {
+      this.openSettingsPanel();
+    });
+  },
+
+  applyNewAvatar(agentId, newUrl) {
+    // 1. Update Sidebar Avatar
+    const sideRowImg = document.querySelector(`.orb-agent-sidebar-row[data-agent="${agentId}"] img`);
+    if (sideRowImg) sideRowImg.src = newUrl;
+
+    // 2. Update Stories Switcher Avatar
+    const storyImg = document.querySelector(`.orb-story-item[data-agent="${agentId}"] img`);
+    if (storyImg) storyImg.src = newUrl;
+
+    // 3. Update Topbar if this agent is active
+    if (this.activeAgentId === agentId) {
+      const topAvatar = document.getElementById("orbTopAgentAvatar");
+      if (topAvatar) topAvatar.src = newUrl;
+    }
+
+    // 4. Re-render Timeline so agent messages reflect new avatar
+    this.renderTimeline(this.activeAgentId);
   },
 
   // --------------------------------------------------------------------------
@@ -1415,6 +1581,16 @@ const ChatFirstManager = {
         document.querySelectorAll(".orb-more-dropdown-menu").forEach(m => m.classList.remove("active"));
       }
     });
+
+    // 9. Click on Agent Avatar in Topbar opens Avatar Customizer
+    const topAvatar = document.getElementById("orbTopAgentAvatar");
+    if (topAvatar) {
+      topAvatar.style.cursor = "pointer";
+      topAvatar.title = "Klik untuk mengubah tampilan / avatar Orb ini";
+      topAvatar.addEventListener("click", () => {
+        this.openAvatarPickerPanel(this.activeAgentId);
+      });
+    }
   }
 };
 

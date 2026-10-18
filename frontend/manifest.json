@@ -1,21 +1,21 @@
 {
-  "name": "Orb - Personal Finance & Wealth Workspace",
+  "name": "Orb - Personal AI Workspace",
   "short_name": "Orb",
-  "description": "Personal Finance & Wealth Planning AI Workspace with Fin & Welly",
+  "description": "Personal AI Workspace with Orb Agents",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0D0E12",
-  "theme_color": "#0D0E12",
+  "background_color": "#0F172A",
+  "theme_color": "#0F172A",
   "icons": [
     {
-      "src": "./assets/avatar_fin_360.png",
+      "src": "./assets/logo_orb_icon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./assets/avatar_fin.png",
+      "src": "./assets/logo_orb_icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
