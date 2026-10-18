@@ -61,25 +61,27 @@ const AgentRegistry = {
   },
 
   PRESET_AVATARS: [
-    { id: "fin_orig", name: "Fin Original", url: "./assets/avatar_fin_360.png" },
-    { id: "welly_orig", name: "Welly Original", url: "./assets/avatar_welly_360.png" },
-    { id: "sage", name: "Sage (Analis)", url: "./assets/avatar_sage.png" },
-    { id: "blaze", name: "Blaze (Dinamis)", url: "./assets/avatar_blaze.png" },
-    { id: "nova", name: "Nova (Futuristik)", url: "./assets/avatar_nova.png" },
-    { id: "spark", name: "Spark (Ceria)", url: "./assets/avatar_spark.png" },
-    { id: "echo", name: "Echo (Minimalis)", url: "./assets/avatar_echo.png" },
-    { id: "atlas", name: "Atlas (Kokoh)", url: "./assets/avatar_atlas.png" },
-    { id: "pixel", name: "Pixel (Retro)", url: "./assets/avatar_pixel.png" },
-    { id: "muse", name: "Muse (Elegan)", url: "./assets/avatar_muse.png" },
-    { id: "dot_fin", name: "Dot Fin (Icon)", url: "./assets/dot_fin.png" },
-    { id: "dot_welly", name: "Dot Welly (Icon)", url: "./assets/dot_welly.png" }
+    { id: "fin_orig", url: "./assets/avatar_fin_360.png" },
+    { id: "welly_orig", url: "./assets/avatar_welly_360.png" },
+    { id: "sage", url: "./assets/avatar_sage.png" },
+    { id: "blaze", url: "./assets/avatar_blaze.png" },
+    { id: "nova", url: "./assets/avatar_nova.png" },
+    { id: "spark", url: "./assets/avatar_spark.png" },
+    { id: "echo", url: "./assets/avatar_echo.png" },
+    { id: "atlas", url: "./assets/avatar_atlas.png" },
+    { id: "pixel", url: "./assets/avatar_pixel.png" },
+    { id: "muse", url: "./assets/avatar_muse.png" },
+    { id: "dot_fin", url: "./assets/dot_fin.png" },
+    { id: "dot_welly", url: "./assets/dot_welly.png" }
   ],
 
   getAgent(agentId) {
     const base = this.agents[agentId] || this.agents.fin;
     const customAvatar = localStorage.getItem(`orb_avatar_${base.id}`);
+    const customName = localStorage.getItem(`orb_name_${base.id}`);
     return {
       ...base,
+      name: (customName && customName.trim()) ? customName.trim() : base.name,
       avatar: customAvatar || base.avatar
     };
   },
@@ -98,6 +100,26 @@ const AgentRegistry = {
       localStorage.removeItem(`orb_avatar_${agentId}`);
       if (agentId === "fin") this.agents.fin.avatar = "./assets/avatar_fin_360.png";
       if (agentId === "welly") this.agents.welly.avatar = "./assets/avatar_welly_360.png";
+    } catch (_) {}
+  },
+
+  setAgentName(agentId, newName) {
+    try {
+      if (newName && newName.trim()) {
+        const cleanName = newName.trim();
+        localStorage.setItem(`orb_name_${agentId}`, cleanName);
+        if (this.agents[agentId]) {
+          this.agents[agentId].name = cleanName;
+        }
+      }
+    } catch (_) {}
+  },
+
+  resetAgentName(agentId) {
+    try {
+      localStorage.removeItem(`orb_name_${agentId}`);
+      if (agentId === "fin") this.agents.fin.name = "Fin";
+      if (agentId === "welly") this.agents.welly.name = "Welly";
     } catch (_) {}
   },
 

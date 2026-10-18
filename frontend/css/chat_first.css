@@ -981,6 +981,66 @@ body.orb-chat-first-mode[data-theme="dark"] .orb-brand-wordmark-img {
   background: #059669;
 }
 
+/* Theme Selector (Auto / Light / Dark) */
+.orb-theme-choice-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 6px;
+  border-radius: 12px;
+  background: var(--orb-bg-app);
+  border: 1.5px solid var(--orb-border);
+  color: var(--orb-text-main);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 3px;
+  user-select: none;
+}
+
+.orb-theme-choice-btn:hover {
+  border-color: var(--orb-border-focus);
+  transform: translateY(-1px);
+}
+
+.orb-theme-choice-btn.active {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: #3B82F6;
+  color: #3B82F6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+[data-theme="dark"] .orb-theme-choice-btn.active {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #60A5FA;
+  color: #93C5FD;
+}
+
+/* Preset Avatar Grid Items (No names, pure image cards) */
+.orb-preset-avatar-btn {
+  background: var(--orb-bg-app);
+  border: 2px solid var(--orb-border);
+  border-radius: 14px;
+  padding: 8px 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+  aspect-ratio: 1;
+}
+
+.orb-preset-avatar-btn:hover {
+  border-color: var(--orb-border-focus);
+  transform: scale(1.05);
+}
+
+.orb-preset-avatar-btn.active {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 2.5px rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.08);
+}
+
 /* ==========================================================================
    8. MOBILE RESPONSIVE ADAPTATION (≤ 768px)
    ========================================================================== */

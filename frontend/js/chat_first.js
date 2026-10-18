@@ -21,10 +21,120 @@ const ChatFirstManager = {
       }
     }
 
+    this.initTheme();
+    this.initCustomAgentProfiles();
     this.setupSidebarDrawer();
     this.setupComposer();
     this.setupListeners();
     this.switchAgent(this.activeAgentId);
+  },
+
+  // --------------------------------------------------------------------------
+  // THEME MANAGEMENT (Auto 12-Hour Switch: 06:00-17:59 Light, 18:00-05:59 Dark)
+  // --------------------------------------------------------------------------
+  getThemeMode() {
+    try {
+      return localStorage.getItem("orb_theme_mode") || "auto";
+    } catch (_) {
+      return "auto";
+    }
+  },
+
+  getAutoTheme() {
+    const hour = new Date().getHours();
+    // 6 pagi (06:00) s/d 5.59 sore (17:59) => light
+    // 6 sore (18:00) s/d 5.59 pagi (05:59) => dark
+    return (hour >= 6 && hour < 18) ? "light" : "dark";
+  },
+
+  resolveTheme(mode) {
+    if (!mode) mode = this.getThemeMode();
+    if (mode === "auto") {
+      return this.getAutoTheme();
+    }
+    return mode === "light" ? "light" : "dark";
+  },
+
+  setThemeMode(mode) {
+    try {
+      localStorage.setItem("orb_theme_mode", mode);
+    } catch (_) {}
+    this.applyTheme(mode);
+  },
+
+  applyTheme(mode) {
+    if (!mode) mode = this.getThemeMode();
+    const resolved = this.resolveTheme(mode);
+    document.documentElement.setAttribute("data-theme", resolved);
+    document.documentElement.setAttribute("data-theme-mode", mode);
+    document.body.setAttribute("data-theme", resolved);
+
+    // Sync mobile browser status bar / theme-color
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) metaTheme.setAttribute("content", resolved === "dark" ? "#0F172A" : "#F8FAFC");
+
+    if (window.OrbApp) {
+      window.OrbApp.currentTheme = resolved;
+    }
+    return resolved;
+  },
+
+  initTheme() {
+    this.applyTheme(this.getThemeMode());
+
+    // Auto-check periodically (every 30 seconds) to switch seamlessly
+    if (!this._themeInterval) {
+      this._themeInterval = setInterval(() => {
+        if (this.getThemeMode() === "auto") {
+          const expected = this.getAutoTheme();
+          const current = document.documentElement.getAttribute("data-theme");
+          if (expected !== current) {
+            this.applyTheme("auto");
+            if (this.panelOpen && this.panelType === "settings") {
+              this.openSettingsPanel();
+            }
+          }
+        }
+      }, 30000);
+    }
+
+    // Check immediately when user re-focuses tab / screen unlocks
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && this.getThemeMode() === "auto") {
+        this.applyTheme("auto");
+      }
+    });
+    window.addEventListener("focus", () => {
+      if (this.getThemeMode() === "auto") {
+        this.applyTheme("auto");
+      }
+    });
+  },
+
+  initCustomAgentProfiles() {
+    ["fin", "welly"].forEach(id => {
+      const agent = window.AgentRegistry?.getAgent(id);
+      if (agent) {
+        // Update sidebar
+        const row = document.querySelector(`.orb-agent-sidebar-row[data-agent="${id}"]`);
+        if (row) {
+          row.dataset.agentName = agent.name;
+          const nameEl = row.querySelector(".orb-sidebar-agent-name");
+          if (nameEl) nameEl.textContent = agent.name;
+          const imgEl = row.querySelector("img");
+          if (imgEl) imgEl.src = agent.avatar;
+        }
+
+        // Update mobile stories
+        const story = document.querySelector(`.orb-story-item[data-agent="${id}"]`);
+        if (story) {
+          const nameEl = story.querySelector(".orb-story-name");
+          if (nameEl) nameEl.textContent = agent.name;
+          const imgEl = story.querySelector("img");
+          if (imgEl) imgEl.src = agent.avatar;
+        }
+      }
+    });
   },
 
   setupSidebarDrawer() {
@@ -699,7 +809,8 @@ const ChatFirstManager = {
 
   // --- SETTINGS PANEL ---
   openSettingsPanel() {
-    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const themeMode = this.getThemeMode(); // 'auto', 'light', 'dark'
+    const activeTheme = this.resolveTheme(themeMode); // 'light' or 'dark'
     const finAgent = window.AgentRegistry?.getAgent("fin") || { name: "Fin", avatar: "./assets/avatar_fin_360.png" };
     const wellyAgent = window.AgentRegistry?.getAgent("welly") || { name: "Welly", avatar: "./assets/avatar_welly_360.png" };
 
@@ -718,23 +829,23 @@ const ChatFirstManager = {
           </div>
         </div>
 
-        <!-- Orb Avatar Customization -->
+        <!-- Orb Avatar & Name Customization -->
         <div class="orb-dash-stat-card" style="padding: 16px;">
-          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 6px;">🎭 Tampilan & Avatar Orb</h3>
+          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 6px;">🎭 Tampilan & Nama Orb</h3>
           <p style="font-size: 0.76rem; color: var(--orb-text-muted); margin-bottom: 12px; line-height: 1.45;">
-            Kustomisasi avatar untuk para Orb Anda (Fin & Welly) dari galeri siap pakai atau upload foto Anda sendiri.
+            Kustomisasi nama dan avatar untuk para Orb Anda (Fin & Welly) dari galeri siap pakai atau upload foto sendiri.
           </p>
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--orb-bg-app); border-radius: 10px; border: 1px solid var(--orb-border);">
               <div style="display: flex; align-items: center; gap: 10px;">
                 <img src="${finAgent.avatar}" id="settingsFinAvatarPreview" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1.5px solid #10B981;" />
                 <div>
-                  <div style="font-size: 0.86rem; font-weight: 700; color: var(--orb-text-main);">Orb Fin</div>
+                  <div style="font-size: 0.86rem; font-weight: 700; color: var(--orb-text-main);">Orb ${finAgent.name}</div>
                   <div style="font-size: 0.72rem; color: var(--orb-text-muted);">Pencatatan & Budgeting</div>
                 </div>
               </div>
               <button class="orb-rich-card-action-btn" id="btnChangeFinAvatar">
-                Ganti Avatar
+                Ubah Profil
               </button>
             </div>
 
@@ -742,28 +853,51 @@ const ChatFirstManager = {
               <div style="display: flex; align-items: center; gap: 10px;">
                 <img src="${wellyAgent.avatar}" id="settingsWellyAvatarPreview" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1.5px solid #3B82F6;" />
                 <div>
-                  <div style="font-size: 0.86rem; font-weight: 700; color: var(--orb-text-main);">Orb Welly</div>
+                  <div style="font-size: 0.86rem; font-weight: 700; color: var(--orb-text-main);">Orb ${wellyAgent.name}</div>
                   <div style="font-size: 0.72rem; color: var(--orb-text-muted);">Perencanaan & Investasi</div>
                 </div>
               </div>
               <button class="orb-rich-card-action-btn" id="btnChangeWellyAvatar">
-                Ganti Avatar
+                Ubah Profil
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Appearance -->
+        <!-- Appearance: Auto 12-Hour Switch / Light / Dark -->
         <div class="orb-dash-stat-card" style="padding: 16px;">
-          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 12px;">🎨 Tampilan & Tema</h3>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <div style="font-size: 0.84rem; font-weight: 700; color: var(--orb-text-main);">Mode Gelap (Dark Mode)</div>
-              <div style="font-size: 0.74rem; color: var(--orb-text-muted);">Ubah tema ke mode gelap / terang</div>
-            </div>
-            <button id="btnPanelThemeToggle" style="padding: 6px 14px; border-radius: 99px; background: ${isDark ? '#3B82F6' : '#E2E8F0'}; color: ${isDark ? '#FFFFFF' : '#0F172A'}; border: none; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
-              ${isDark ? '🌙 Gelap' : '☀️ Terang'}
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin: 0;">🎨 Tema Tampilan</h3>
+            <span style="font-size: 0.72rem; padding: 3px 9px; border-radius: 99px; background: var(--orb-border); color: var(--orb-text-main); font-weight: 700;">
+              ${activeTheme === 'dark' ? '🌙 Gelap Aktif' : '☀️ Terang Aktif'}
+            </span>
+          </div>
+          <p style="font-size: 0.76rem; color: var(--orb-text-muted); margin-bottom: 12px; line-height: 1.45;">
+            Pilih mode otomatis 12 jam atau atur manual tema terang / gelap:
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+            <button class="orb-theme-choice-btn ${themeMode === 'auto' ? 'active' : ''}" data-theme-mode="auto">
+              <span style="font-size: 1.15rem;">⏱️</span>
+              <span style="font-size: 0.8rem; font-weight: 700;">Auto</span>
+              <span style="font-size: 0.62rem; color: var(--orb-text-muted);">12 Jam</span>
             </button>
+            <button class="orb-theme-choice-btn ${themeMode === 'light' ? 'active' : ''}" data-theme-mode="light">
+              <span style="font-size: 1.15rem;">☀️</span>
+              <span style="font-size: 0.8rem; font-weight: 700;">Terang</span>
+              <span style="font-size: 0.62rem; color: var(--orb-text-muted);">Light</span>
+            </button>
+            <button class="orb-theme-choice-btn ${themeMode === 'dark' ? 'active' : ''}" data-theme-mode="dark">
+              <span style="font-size: 1.15rem;">🌙</span>
+              <span style="font-size: 0.8rem; font-weight: 700;">Gelap</span>
+              <span style="font-size: 0.62rem; color: var(--orb-text-muted);">Dark</span>
+            </button>
+          </div>
+
+          <div style="margin-top: 12px; font-size: 0.72rem; color: var(--orb-text-muted); background: var(--orb-bg-app); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--orb-border); line-height: 1.55;">
+            💡 <strong>Aturan Auto Switch (12 Jam):</strong><br>
+            • <strong>06.00 – 17.59</strong> : Mode Terang (Light)<br>
+            • <strong>18.00 – 05.59</strong> : Mode Gelap (Dark)
           </div>
         </div>
 
@@ -784,10 +918,10 @@ const ChatFirstManager = {
           <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 10px;">💬 Riwayat Percakapan</h3>
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <button class="orb-rich-card-action-btn" id="btnResetFinChat" style="text-align: left; padding: 10px 14px;">
-              🗑️ Bersihkan Riwayat Chat Fin
+              🗑️ Bersihkan Riwayat Chat ${finAgent.name}
             </button>
             <button class="orb-rich-card-action-btn" id="btnResetWellyChat" style="text-align: left; padding: 10px 14px;">
-              🗑️ Bersihkan Riwayat Chat Welly
+              🗑️ Bersihkan Riwayat Chat ${wellyAgent.name}
             </button>
           </div>
         </div>
@@ -812,28 +946,29 @@ const ChatFirstManager = {
       this.openAvatarPickerPanel("welly");
     });
 
-    document.getElementById("btnPanelThemeToggle")?.addEventListener("click", () => {
-      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
-      const nextTheme = currentTheme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", nextTheme);
-      document.body.setAttribute("data-theme", nextTheme);
-      try { localStorage.setItem("orb_theme", nextTheme); } catch (_) {}
-      this.openSettingsPanel(); // refresh button state
+    document.querySelectorAll(".orb-theme-choice-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const mode = btn.dataset.themeMode;
+        if (mode) {
+          this.setThemeMode(mode);
+          this.openSettingsPanel();
+        }
+      });
     });
 
     document.getElementById("btnResetFinChat")?.addEventListener("click", () => {
-      if (confirm("Hapus seluruh riwayat percakapan dengan Fin? Data transaksi ledger tetap aman.")) {
+      if (confirm(`Hapus seluruh riwayat percakapan dengan ${finAgent.name}? Data transaksi ledger tetap aman.`)) {
         localStorage.removeItem("orb_chat_history_v4_fin");
         if (this.activeAgentId === "fin") this.renderTimeline("fin");
-        alert("Riwayat chat Fin telah dibersihkan.");
+        alert(`Riwayat chat ${finAgent.name} telah dibersihkan.`);
       }
     });
 
     document.getElementById("btnResetWellyChat")?.addEventListener("click", () => {
-      if (confirm("Hapus seluruh riwayat percakapan dengan Welly? Data portofolio tetap aman.")) {
+      if (confirm(`Hapus seluruh riwayat percakapan dengan ${wellyAgent.name}? Data portofolio tetap aman.`)) {
         localStorage.removeItem("orb_chat_history_v4_welly");
         if (this.activeAgentId === "welly") this.renderTimeline("welly");
-        alert("Riwayat chat Welly telah dibersihkan.");
+        alert(`Riwayat chat ${wellyAgent.name} telah dibersihkan.`);
       }
     });
 
@@ -846,7 +981,7 @@ const ChatFirstManager = {
     });
   },
 
-  // --- AVATAR PICKER PANEL ---
+  // --- AVATAR & NAME PICKER PANEL ---
   openAvatarPickerPanel(agentId) {
     const agent = window.AgentRegistry?.getAgent(agentId) || { id: agentId, name: agentId === 'fin' ? 'Fin' : 'Welly', avatar: './assets/avatar_fin_360.png' };
     const presets = window.AgentRegistry?.PRESET_AVATARS || [];
@@ -856,12 +991,27 @@ const ChatFirstManager = {
         <!-- Current Avatar Preview -->
         <div class="orb-dash-stat-card" style="padding: 16px; text-align: center;">
           <div style="font-size: 0.8rem; font-weight: 700; color: var(--orb-text-muted); margin-bottom: 8px;">
-            Avatar Aktif: <strong style="color: var(--orb-text-main);">Orb ${agent.name}</strong>
+            Avatar Aktif: <strong id="avatarPickerActiveNameText" style="color: var(--orb-text-main);">Orb ${agent.name}</strong>
           </div>
           <img src="${agent.avatar}" id="avatarPickerPreviewImg" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2.5px solid ${agent.accentColor || '#3B82F6'}; margin: 0 auto; display: block;" />
         </div>
 
-        <!-- Option 1: Upload Custom Photo -->
+        <!-- Option 1: Custom Name for this Orb -->
+        <div class="orb-dash-stat-card" style="padding: 16px;">
+          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 6px;">🏷️ Beri Nama Orb Ini</h3>
+          <p style="font-size: 0.76rem; color: var(--orb-text-muted); margin-bottom: 12px; line-height: 1.45;">
+            Tentukan nama panggilan untuk Orb ini sesuai keinginan Anda.
+          </p>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="inputOrbCustomName" class="orb-form-input" value="${agent.name}" placeholder="Nama Orb..." style="margin-bottom: 0; flex: 1; padding: 10px 12px; font-size: 0.88rem;" />
+            <button class="orb-btn-submit-form" id="btnSaveOrbCustomName" style="margin: 0; padding: 10px 16px; font-size: 0.84rem; white-space: nowrap; width: auto;">
+              ✓ Simpan
+            </button>
+          </div>
+          <div id="orbNameSaveStatus" style="font-size: 0.74rem; color: #10B981; font-weight: 600; margin-top: 8px; display: none;">✓ Nama Orb berhasil diperbarui!</div>
+        </div>
+
+        <!-- Option 2: Upload Custom Photo -->
         <div class="orb-dash-stat-card" style="padding: 16px;">
           <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 8px;">📁 Upload Gambar / Foto Sendiri</h3>
           <p style="font-size: 0.76rem; color: var(--orb-text-muted); margin-bottom: 12px; line-height: 1.45;">
@@ -873,23 +1023,25 @@ const ChatFirstManager = {
           </button>
         </div>
 
-        <!-- Option 2: Choose from Preset Gallery -->
+        <!-- Option 3: Choose from Preset Gallery (NO NAMES UNDERNEATH) -->
         <div class="orb-dash-stat-card" style="padding: 16px;">
-          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 12px;">🎨 Galeri Avatar Bawaan (Folder Assets)</h3>
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 6px;">🎨 Galeri Avatar Bawaan</h3>
+          <p style="font-size: 0.76rem; color: var(--orb-text-muted); margin-bottom: 12px; line-height: 1.45;">
+            Pilih tampilan avatar dari koleksi bawaan di folder assets.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
             ${presets.map(p => `
-              <button class="orb-preset-avatar-btn" data-avatar-url="${p.url}" title="${p.name}" style="background: var(--orb-bg-app); border: 2px solid ${agent.avatar === p.url ? '#3B82F6' : 'var(--orb-border)'}; border-radius: 12px; padding: 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.15s;">
-                <img src="${p.url}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;" />
-                <span style="font-size: 0.64rem; font-weight: 600; color: var(--orb-text-muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">${p.name.split(' ')[0]}</span>
+              <button class="orb-preset-avatar-btn ${agent.avatar === p.url ? 'active' : ''}" data-avatar-url="${p.url}" title="Pilih Avatar">
+                <img src="${p.url}" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; display: block;" />
               </button>
             `).join("")}
           </div>
         </div>
 
-        <!-- Option 3: Reset to Default -->
+        <!-- Actions: Reset to Default & Back -->
         <div style="display: flex; gap: 8px;">
           <button class="orb-rich-card-action-btn" id="btnResetDefaultAvatar" style="flex: 1; padding: 10px; text-align: center;">
-            ↺ Reset ke Avatar Awal
+            ↺ Reset ke Awal
           </button>
           <button class="orb-toolbar-btn" id="btnBackToSettingsFromAvatar" style="padding: 10px 16px;">
             Kembali
@@ -901,6 +1053,28 @@ const ChatFirstManager = {
     this.openPanel("avatar_picker", `Ubah Avatar Orb ${agent.name}`, content);
 
     // Event listeners
+    // 1. Save Custom Name
+    const doSaveName = () => {
+      const inputEl = document.getElementById("inputOrbCustomName");
+      const val = inputEl?.value?.trim();
+      if (!val) return;
+      window.AgentRegistry?.setAgentName(agentId, val);
+      this.applyNewAgentName(agentId, val);
+      const statusEl = document.getElementById("orbNameSaveStatus");
+      if (statusEl) {
+        statusEl.style.display = "block";
+        setTimeout(() => { if (statusEl) statusEl.style.display = "none"; }, 2500);
+      }
+    };
+    document.getElementById("btnSaveOrbCustomName")?.addEventListener("click", doSaveName);
+    document.getElementById("inputOrbCustomName")?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        doSaveName();
+      }
+    });
+
+    // 2. Upload file
     const fileInput = document.getElementById("inputAvatarFileUpload");
     document.getElementById("btnTriggerAvatarUpload")?.addEventListener("click", () => {
       fileInput?.click();
@@ -922,7 +1096,7 @@ const ChatFirstManager = {
       reader.readAsDataURL(file);
     });
 
-    // Preset avatar click
+    // 3. Preset avatar click
     document.querySelectorAll(".orb-preset-avatar-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const url = btn.dataset.avatarUrl;
@@ -934,11 +1108,14 @@ const ChatFirstManager = {
       });
     });
 
-    // Reset default
+    // 4. Reset default
     document.getElementById("btnResetDefaultAvatar")?.addEventListener("click", () => {
       window.AgentRegistry?.resetAgentAvatar(agentId);
+      window.AgentRegistry?.resetAgentName(agentId);
       const defUrl = agentId === 'fin' ? './assets/avatar_fin_360.png' : './assets/avatar_welly_360.png';
+      const defName = agentId === 'fin' ? 'Fin' : 'Welly';
       this.applyNewAvatar(agentId, defUrl);
+      this.applyNewAgentName(agentId, defName);
       this.openAvatarPickerPanel(agentId);
     });
 
@@ -964,6 +1141,39 @@ const ChatFirstManager = {
 
     // 4. Re-render Timeline so agent messages reflect new avatar
     this.renderTimeline(this.activeAgentId);
+  },
+
+  applyNewAgentName(agentId, newName) {
+    // 1. Update Sidebar Name
+    document.querySelectorAll(`.orb-agent-sidebar-row[data-agent="${agentId}"] .orb-sidebar-agent-name`).forEach(el => {
+      el.textContent = newName;
+    });
+    document.querySelectorAll(`.orb-agent-sidebar-row[data-agent="${agentId}"]`).forEach(el => {
+      el.dataset.agentName = newName;
+    });
+
+    // 2. Update Stories Switcher Name
+    document.querySelectorAll(`.orb-story-item[data-agent="${agentId}"] .orb-story-name`).forEach(el => {
+      el.textContent = newName;
+    });
+
+    // 3. Update Topbar if this agent is active
+    if (this.activeAgentId === agentId) {
+      const topName = document.getElementById("orbTopAgentName");
+      if (topName) topName.textContent = newName;
+
+      const mobileTitle = document.getElementById("orbMobileHeaderTitle");
+      if (mobileTitle) mobileTitle.textContent = `• ${newName}`;
+    }
+
+    // 4. Update Header in Avatar Picker if open
+    const activeText = document.getElementById("avatarPickerActiveNameText");
+    if (activeText) activeText.textContent = `Orb ${newName}`;
+
+    const panelTitle = document.querySelector(".orb-panel-head h2");
+    if (panelTitle && panelTitle.textContent.includes("Avatar Orb")) {
+      panelTitle.textContent = `Ubah Avatar Orb ${newName}`;
+    }
   },
 
   // --------------------------------------------------------------------------
@@ -1595,3 +1805,10 @@ const ChatFirstManager = {
 };
 
 window.ChatFirstManager = ChatFirstManager;
+window.OrbTheme = {
+  getMode: () => ChatFirstManager.getThemeMode(),
+  getAutoTheme: () => ChatFirstManager.getAutoTheme(),
+  resolveCurrentTheme: (m) => ChatFirstManager.resolveTheme(m),
+  apply: (m) => ChatFirstManager.setThemeMode(m),
+  init: () => ChatFirstManager.initTheme()
+};

@@ -4,6 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Orb - AI Agents Workspace</title>
+
+  <!-- Instant Synchronous Theme Resolver (Auto 12-hour: 06:00-17:59 Light, 18:00-05:59 Dark) -->
+  <script>
+    (function() {
+      try {
+        var mode = localStorage.getItem("orb_theme_mode") || "auto";
+        var theme = mode;
+        if (mode === "auto") {
+          var h = new Date().getHours();
+          theme = (h >= 6 && h < 18) ? "light" : "dark";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+        document.documentElement.setAttribute("data-theme-mode", mode);
+      } catch (_) {}
+    })();
+  </script>
   
   <!-- PWA & Mobile Web App Meta -->
   <link rel="manifest" href="./manifest.json">
@@ -21,11 +37,11 @@
   <link rel="preload" href="./assets/avatar_welly_360.png" as="image" type="image/png">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css?v=4.2.0">
-  <link rel="stylesheet" href="./css/avatars.css?v=4.2.0">
-  <link rel="stylesheet" href="./css/ai_office.css?v=4.2.0">
-  <link rel="stylesheet" href="./css/dots_bot.css?v=4.2.0">
-  <link rel="stylesheet" href="./css/chat_first.css?v=4.2.0">
+  <link rel="stylesheet" href="./css/styles.css?v=4.3.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=4.3.0">
+  <link rel="stylesheet" href="./css/ai_office.css?v=4.3.0">
+  <link rel="stylesheet" href="./css/dots_bot.css?v=4.3.0">
+  <link rel="stylesheet" href="./css/chat_first.css?v=4.3.0">
 
   <!-- Critical View Isolation CSS -->
   <style>
@@ -994,16 +1010,16 @@
   </div>
 
   <!-- Scripts with cache-busting version parameter -->
-  <script src="./js/api.js?v=4.2.0"></script>
-  <script src="./js/auth.js?v=4.2.0"></script>
-  <script src="./js/avatars.js?v=4.2.0"></script>
-  <script src="./js/bento.js?v=4.2.0"></script>
-  <script src="./js/fin_workspace.js?v=4.2.0"></script>
-  <script src="./js/welly_workspace.js?v=4.2.0"></script>
-  <script src="./js/dots_bot.js?v=4.2.0"></script>
-  <script src="./js/agent_registry.js?v=4.2.0"></script>
-  <script src="./js/chat_first.js?v=4.2.0"></script>
-  <script src="./js/app.js?v=4.2.0"></script>
+  <script src="./js/api.js?v=4.3.0"></script>
+  <script src="./js/auth.js?v=4.3.0"></script>
+  <script src="./js/avatars.js?v=4.3.0"></script>
+  <script src="./js/bento.js?v=4.3.0"></script>
+  <script src="./js/fin_workspace.js?v=4.3.0"></script>
+  <script src="./js/welly_workspace.js?v=4.3.0"></script>
+  <script src="./js/dots_bot.js?v=4.3.0"></script>
+  <script src="./js/agent_registry.js?v=4.3.0"></script>
+  <script src="./js/chat_first.js?v=4.3.0"></script>
+  <script src="./js/app.js?v=4.3.0"></script>
 
   <!-- Modal close event handler -->
   <script>
@@ -1022,7 +1038,7 @@
     if ('caches' in window) {
       caches.keys().then((names) => {
         for (const name of names) {
-          if (name !== 'orb-chat-first-v4.2.0') {
+          if (name !== 'orb-chat-first-v4.3.0') {
             caches.delete(name);
           }
         }
@@ -1031,7 +1047,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=4.2.0')
+        navigator.serviceWorker.register('./sw.js?v=4.3.0')
           .then((registration) => {
             registration.update();
           })

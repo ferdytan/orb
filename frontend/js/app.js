@@ -49,7 +49,11 @@ const OrbApp = {
 
     // 3. Apply real-time lighting based on actual clock
     this.syncLightingWithRealClock();
-    this.applyTheme(this.currentTheme);
+    if (window.OrbTheme) {
+      window.OrbTheme.init();
+    } else {
+      this.applyTheme(this.currentTheme);
+    }
 
     // 4. Background Async Hydration: Fetch live data from backend without delaying UI
     this.hydrateFromBackend();
