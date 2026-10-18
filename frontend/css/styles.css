@@ -246,7 +246,7 @@ body.app-pwa-body {
   animation: viewFadeIn 0.22s ease-out forwards;
 }
 
-.app-page-view.active {
+.app-page-view.active:not(#viewChatFirstApp) {
   display: block !important;
 }
 

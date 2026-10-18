@@ -127,7 +127,8 @@ const OrbApp = {
         window.ChatFirstManager?.openWellyPlansPanel();
       }
     } else if (primaryTab === "settings") {
-      this.switchTab("settings", false);
+      this.switchTab("chat_first", false);
+      window.ChatFirstManager?.openSettingsPanel();
     } else if (primaryTab === "office") {
       this.switchTab("office", false);
     } else if (primaryTab === "dots") {
@@ -145,18 +146,22 @@ const OrbApp = {
     tabBtns.forEach(btn => {
       btn.addEventListener("click", () => {
         const tab = btn.dataset.tab;
-        window.location.hash = `#${tab}`;
+        if (tab === "settings") {
+          window.ChatFirstManager?.openSettingsPanel();
+        } else {
+          window.location.hash = `#${tab}`;
+        }
       });
     });
 
-    // Top Settings button click -> Settings
+    // Top Settings button click -> Settings Panel
     document.getElementById("headerSettingsBtn")?.addEventListener("click", () => {
-      window.location.hash = "#settings";
+      window.ChatFirstManager?.openSettingsPanel();
     });
 
-    // Top status pill click -> Settings
+    // Top status pill click -> Settings Panel
     document.getElementById("headerStatusPill")?.addEventListener("click", () => {
-      window.location.hash = "#settings";
+      window.ChatFirstManager?.openSettingsPanel();
     });
 
     // Top Brand title click -> Agents Home

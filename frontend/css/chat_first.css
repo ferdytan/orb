@@ -58,22 +58,32 @@ body.orb-chat-first-mode .app-main-viewport,
 body.orb-chat-first-mode .app-content-container {
   width: 100% !important;
   max-width: 100% !important;
-  height: 100% !important;
+  height: 100vh !important;
+  height: 100dvh !important;
   padding: 0 !important;
   margin: 0 !important;
   overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.orb-chat-first-mode #appTopHeader,
+body.orb-chat-first-mode #appBottomNavBar {
+  display: none !important;
 }
 
 /* ==========================================================================
    1. MAIN DESKTOP SHELL (SIDEBAR + CHAT + RIGHT DETAIL PANEL)
    ========================================================================== */
+#viewChatFirstApp.active,
 #viewChatFirstApp {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-  position: relative;
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+  position: relative !important;
   background: var(--orb-bg-app);
 }
 
@@ -89,6 +99,13 @@ body.orb-chat-first-mode .app-content-container {
 
 .orb-chat-backdrop.active {
   display: block;
+}
+
+/* Close button on sidebar only appears on mobile drawer */
+@media (min-width: 769px) {
+  #btnOrbCloseSidebar {
+    display: none !important;
+  }
 }
 
 /* --- A. SIDEBAR KIRI (280px - 320px) --- */
@@ -296,13 +313,14 @@ body.orb-chat-first-mode .app-content-container {
    2. CONVERSATION WORKSPACE (CENTER)
    ========================================================================== */
 .orb-conversation-workspace {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-width: 0;
-  background: var(--orb-bg-chat);
-  position: relative;
+  flex: 1 1 0% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  background: var(--orb-bg-chat) !important;
+  position: relative !important;
+  overflow: hidden !important;
 }
 
 /* Mobile Top Bar (Clean & Compact) */

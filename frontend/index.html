@@ -21,19 +21,31 @@
   <link rel="preload" href="./assets/logo_orb.png" as="image" type="image/png" fetchpriority="high">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css?v=4.0.0">
-  <link rel="stylesheet" href="./css/avatars.css?v=4.0.0">
-  <link rel="stylesheet" href="./css/ai_office.css?v=4.0.0">
-  <link rel="stylesheet" href="./css/dots_bot.css?v=4.0.0">
-  <link rel="stylesheet" href="./css/chat_first.css?v=4.0.0">
+  <link rel="stylesheet" href="./css/styles.css?v=4.1.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=4.1.0">
+  <link rel="stylesheet" href="./css/ai_office.css?v=4.1.0">
+  <link rel="stylesheet" href="./css/dots_bot.css?v=4.1.0">
+  <link rel="stylesheet" href="./css/chat_first.css?v=4.1.0">
 
   <!-- Critical View Isolation CSS -->
   <style>
     .app-page-view:not(.active) { display: none !important; }
-    .app-page-view.active { display: block !important; }
+    .app-page-view.active:not(#viewChatFirstApp) { display: block !important; }
+    #viewChatFirstApp.active,
+    #viewChatFirstApp {
+      display: flex !important;
+      flex-direction: row !important;
+      width: 100% !important;
+      width: 100vw !important;
+      height: 100% !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      overflow: hidden !important;
+      position: relative !important;
+    }
   </style>
 </head>
-<body class="app-pwa-body">
+<body class="app-pwa-body orb-chat-first-mode">
 
   <!-- ================= CREDENTIAL CHECK / LOGIN SCREEN ================= -->
   <div class="auth-login-screen" id="viewAuthLogin" style="display: none;">
@@ -876,59 +888,37 @@
         </div>
       </div>
 
-      <!-- ================= PAGE 4: SETTINGS VIEW ================= -->
+      <!-- ================= PAGE 4: SETTINGS VIEW (CHAT-FIRST STYLE) ================= -->
       <div class="app-page-view" id="viewSettings" style="display: none;">
-        <div class="page-view-inner">
-          <div class="page-title-row">
-            <div>
-              <h2 class="page-heading">Settings</h2>
-              <p class="page-subheading">Suasana kantor, pencahayaan, dan preferensi</p>
-            </div>
+        <div class="page-view-inner" style="max-width: 640px; margin: 0 auto; padding: 20px 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+            <a href="#agents/fin" class="orb-toolbar-btn" style="text-decoration: none;">
+              ← Kembali ke Percakapan
+            </a>
+            <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--orb-text-main);">Pengaturan Orb</h2>
+            <div style="width: 40px;"></div>
           </div>
 
-          <!-- Section A: Office Scenery Lighting -->
-          <div class="settings-card-group">
-            <h3 class="settings-group-title">🌅 Pencahayaan Office (Scenery Lighting)</h3>
-            <p class="settings-group-desc">
-              Pencahayaan cozy blurred office mengikuti jam nyata secara otomatis, atau Anda dapat memilih mode manual di bawah ini.
-            </p>
-
-            <div class="lighting-select-grid">
-              <button class="lighting-mode-card active" data-lighting="auto">
-                <span class="lighting-icon">⏱️</span>
-                <span class="lighting-label">Auto (Jam Nyata)</span>
-                <span class="lighting-sub">Mengikuti jam saat ini</span>
-              </button>
-              <button class="lighting-mode-card" data-lighting="morning">
-                <span class="lighting-icon">🌅</span>
-                <span class="lighting-label">Pagi (Terang)</span>
-                <span class="lighting-sub">05:00 - 11:00</span>
-              </button>
-              <button class="lighting-mode-card" data-lighting="noon">
-                <span class="lighting-icon">☀️</span>
-                <span class="lighting-label">Siang (Cerah)</span>
-                <span class="lighting-sub">11:00 - 15:00</span>
-              </button>
-              <button class="lighting-mode-card" data-lighting="evening">
-                <span class="lighting-icon">🌇</span>
-                <span class="lighting-label">Sore (Senja)</span>
-                <span class="lighting-sub">15:00 - 18:30</span>
-              </button>
-              <button class="lighting-mode-card" data-lighting="night">
-                <span class="lighting-icon">🌙</span>
-                <span class="lighting-label">Malam (Redup & Cozy)</span>
-                <span class="lighting-sub">18:30 - 05:00</span>
-              </button>
+          <!-- Section A: User Profile -->
+          <div class="orb-dash-stat-card" style="padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6, #10B981); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #FFF; font-weight: 800;">
+                F
+              </div>
+              <div>
+                <div style="font-size: 1.05rem; font-weight: 800; color: var(--orb-text-main);">Ferdy</div>
+                <div style="font-size: 0.78rem; color: #10B981; font-weight: 600;">● Sesi Aktif (PIN Terverifikasi)</div>
+              </div>
             </div>
           </div>
 
           <!-- Section B: Appearance & Theme -->
-          <div class="settings-card-group">
-            <h3 class="settings-group-title">🎨 Tampilan & Tema</h3>
-            <div class="settings-row-item">
+          <div class="orb-dash-stat-card" style="padding: 16px; margin-bottom: 16px;">
+            <h3 style="font-size: 0.92rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 12px;">🎨 Tampilan & Tema</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <div class="settings-item-label">Tema Gelap (Dark Mode)</div>
-                <div class="settings-item-sub">Palet warna hitam minimalis OLED</div>
+                <div style="font-size: 0.88rem; font-weight: 700; color: var(--orb-text-main);">Tema Gelap (Dark Mode)</div>
+                <div style="font-size: 0.76rem; color: var(--orb-text-muted);">Palet warna kontras minimalis</div>
               </div>
               <button class="toggle-pill-switch active" id="settingsThemeToggle">
                 <span class="toggle-thumb"></span>
@@ -936,23 +926,37 @@
             </div>
           </div>
 
-          <!-- Section C: System Information & Security -->
-          <div class="settings-card-group">
-            <h3 class="settings-group-title">ℹ️ Informasi Sistem</h3>
-            <div class="settings-info-box">
-              <div><strong>Aplikasi:</strong> Orb Personal Finance & Wealth Workspace</div>
-              <div><strong>Active Agents:</strong> Fin (Finance) & Welly (Wealth)</div>
-              <div><strong>Arsitektur:</strong> Pure Integer IDR & Structured Snapshot (fin.snapshot.v1)</div>
-              <div><strong>Status Autentikasi:</strong> Terproteksi PIN (1607) & Google</div>
+          <!-- Section C: AI Engine -->
+          <div class="orb-dash-stat-card" style="padding: 16px; margin-bottom: 16px;">
+            <h3 style="font-size: 0.92rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 8px;">🤖 AI Engine & Model</h3>
+            <p style="font-size: 0.8rem; color: var(--orb-text-muted); line-height: 1.5; margin-bottom: 12px;">
+              Engine percakapan Fin & Welly menggunakan integrasi Google Gemini dan aturan pencatatan keuangan IDR murni.
+            </p>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--orb-bg-app); border-radius: 10px; border: 1px solid var(--orb-border);">
+              <span style="font-size: 0.82rem; font-weight: 600; color: var(--orb-text-main);">Status Server API</span>
+              <span style="font-size: 0.78rem; font-weight: 700; color: #10B981;">Online & Siap</span>
             </div>
+          </div>
 
-            <div style="margin-top: 14px;">
-              <button class="brief-action-btn" id="btnSettingsLogout" style="width: 100%; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #F87171; font-weight: 700; padding: 12px; border-radius: 12px; cursor: pointer;">
-                🔒 Kunci Sesi / Keluar
+          <!-- Section D: Conversation History Management -->
+          <div class="orb-dash-stat-card" style="padding: 16px; margin-bottom: 16px;">
+            <h3 style="font-size: 0.92rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 12px;">💬 Riwayat Percakapan</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button class="orb-rich-card-action-btn" id="btnPageResetFinChat" style="text-align: left; padding: 10px 14px;">
+                🗑️ Bersihkan Riwayat Chat Fin
+              </button>
+              <button class="orb-rich-card-action-btn" id="btnPageResetWellyChat" style="text-align: left; padding: 10px 14px;">
+                🗑️ Bersihkan Riwayat Chat Welly
               </button>
             </div>
           </div>
 
+          <!-- Section E: Security & Logout -->
+          <div style="margin-top: 14px;">
+            <button class="brief-action-btn" id="btnSettingsLogout" style="width: 100%; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #F87171; font-weight: 700; padding: 12px; border-radius: 12px; cursor: pointer;">
+              🔒 Kunci Sesi / Keluar
+            </button>
+          </div>
         </div>
       </div>
 
@@ -993,16 +997,16 @@
   </div>
 
   <!-- Scripts with cache-busting version parameter -->
-  <script src="./js/api.js?v=4.0.0"></script>
-  <script src="./js/auth.js?v=4.0.0"></script>
-  <script src="./js/avatars.js?v=4.0.0"></script>
-  <script src="./js/bento.js?v=4.0.0"></script>
-  <script src="./js/fin_workspace.js?v=4.0.0"></script>
-  <script src="./js/welly_workspace.js?v=4.0.0"></script>
-  <script src="./js/dots_bot.js?v=4.0.0"></script>
-  <script src="./js/agent_registry.js?v=4.0.0"></script>
-  <script src="./js/chat_first.js?v=4.0.0"></script>
-  <script src="./js/app.js?v=4.0.0"></script>
+  <script src="./js/api.js?v=4.1.0"></script>
+  <script src="./js/auth.js?v=4.1.0"></script>
+  <script src="./js/avatars.js?v=4.1.0"></script>
+  <script src="./js/bento.js?v=4.1.0"></script>
+  <script src="./js/fin_workspace.js?v=4.1.0"></script>
+  <script src="./js/welly_workspace.js?v=4.1.0"></script>
+  <script src="./js/dots_bot.js?v=4.1.0"></script>
+  <script src="./js/agent_registry.js?v=4.1.0"></script>
+  <script src="./js/chat_first.js?v=4.1.0"></script>
+  <script src="./js/app.js?v=4.1.0"></script>
 
   <!-- Modal close event handler -->
   <script>
@@ -1021,7 +1025,7 @@
     if ('caches' in window) {
       caches.keys().then((names) => {
         for (const name of names) {
-          if (name !== 'orb-chat-first-v4.0.0') {
+          if (name !== 'orb-chat-first-v4.1.0') {
             caches.delete(name);
           }
         }
@@ -1030,7 +1034,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=4.0.0')
+        navigator.serviceWorker.register('./sw.js?v=4.1.0')
           .then((registration) => {
             registration.update();
           })

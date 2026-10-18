@@ -55,12 +55,53 @@ const ChatFirstManager = {
     this.saveComposerDraft(this.activeAgentId);
 
     this.activeAgentId = agentId;
-    const agent = window.AgentRegistry?.getAgent(agentId) || {
-      id: agentId,
-      name: agentId === "fin" ? "Fin" : "Welly",
-      role: agentId === "fin" ? "Pencatatan keuangan & budgeting" : "Perencanaan keuangan & investasi",
-      avatar: agentId === "fin" ? "./assets/avatar_fin_360.png" : "./assets/avatar_welly_360.png"
-    };
+    const defaultFinActions = [
+      { id: "dashboard", label: "Dashboard", icon: "📊", isPrimary: false },
+      { id: "add_log", label: "+ Tambah Log", icon: "➕", isPrimary: true },
+      { id: "budget", label: "Budget", icon: "🎯", isPrimary: false },
+      {
+        id: "more",
+        label: "Lainnya",
+        icon: "···",
+        isPrimary: false,
+        subActions: [
+          { id: "accounts", label: "Akun & Saldo", icon: "🏦" },
+          { id: "reminders", label: "Tagihan & Reminder", icon: "📅" },
+          { id: "goals", label: "Target Tabungan", icon: "🏆" },
+          { id: "reports", label: "Laporan Keuangan", icon: "📈" },
+          { id: "collab_welly", label: "Review bersama Welly", icon: "🤝" }
+        ]
+      }
+    ];
+
+    const defaultWellyActions = [
+      { id: "portfolio", label: "Portofolio", icon: "💼", isPrimary: false },
+      { id: "add_investment", label: "+ Investasi", icon: "➕", isPrimary: true },
+      { id: "plans", label: "Rencana", icon: "🎯", isPrimary: false },
+      { id: "joint_review", label: "Review Bersama", icon: "🤝", isPrimary: false },
+      {
+        id: "more_welly",
+        label: "Lainnya",
+        icon: "···",
+        isPrimary: false,
+        subActions: [
+          { id: "goals_welly", label: "Tujuan Masa Depan", icon: "🏆" },
+          { id: "risk_alloc", label: "Risiko & Alokasi", icon: "⚖️" },
+          { id: "snapshot_fin", label: "Data dari Fin", icon: "📊" }
+        ]
+      }
+    ];
+
+    let agent = window.AgentRegistry?.getAgent(agentId);
+    if (!agent || !agent.actions) {
+      agent = {
+        id: agentId,
+        name: agentId === "fin" ? "Fin" : "Welly",
+        role: agentId === "fin" ? "Pencatatan keuangan & budgeting" : "Perencanaan keuangan & investasi",
+        avatar: agentId === "fin" ? "./assets/avatar_fin_360.png" : "./assets/avatar_welly_360.png",
+        actions: agentId === "fin" ? defaultFinActions : defaultWellyActions
+      };
+    }
 
     // 2. Update Desktop Sidebar Selected State
     document.querySelectorAll(".orb-agent-sidebar-row").forEach(row => {
@@ -106,8 +147,14 @@ const ChatFirstManager = {
     document.getElementById("orbChatSidebar")?.classList.remove("open");
     document.getElementById("orbChatBackdrop")?.classList.remove("active");
 
-    // 10. Update Hash
-    window.location.hash = `#agents/${agentId}`;
+    // 10. Update Hash cleanly without loops
+    if (window.location.hash !== `#agents/${agentId}`) {
+      try {
+        history.replaceState(null, "", `#agents/${agentId}`);
+      } catch (_) {
+        window.location.hash = `#agents/${agentId}`;
+      }
+    }
   },
 
   // --------------------------------------------------------------------------
@@ -648,6 +695,109 @@ const ChatFirstManager = {
     } catch (e) {
       this.openPanel("snapshot_fin", "Data Keuangan dari Fin", `<div>Error: ${e.message}</div>`);
     }
+  },
+
+  // --- SETTINGS PANEL ---
+  openSettingsPanel() {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const content = `
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- User Profile Card -->
+        <div class="orb-dash-stat-card" style="padding: 16px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6, #10B981); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #FFF; font-weight: 800;">
+              F
+            </div>
+            <div>
+              <div style="font-size: 1rem; font-weight: 800; color: var(--orb-text-main);">Ferdy</div>
+              <div style="font-size: 0.76rem; color: #10B981; font-weight: 600;">● Sesi Aktif (PIN Terverifikasi)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appearance -->
+        <div class="orb-dash-stat-card" style="padding: 16px;">
+          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 12px;">🎨 Tampilan & Tema</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 0.84rem; font-weight: 700; color: var(--orb-text-main);">Mode Gelap (Dark Mode)</div>
+              <div style="font-size: 0.74rem; color: var(--orb-text-muted);">Ubah tema ke mode gelap / terang</div>
+            </div>
+            <button id="btnPanelThemeToggle" style="padding: 6px 14px; border-radius: 99px; background: ${isDark ? '#3B82F6' : '#E2E8F0'}; color: ${isDark ? '#FFFFFF' : '#0F172A'}; border: none; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+              ${isDark ? '🌙 Gelap' : '☀️ Terang'}
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Engine -->
+        <div class="orb-dash-stat-card" style="padding: 16px;">
+          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 8px;">🤖 AI Engine & Model</h3>
+          <p style="font-size: 0.78rem; color: var(--orb-text-muted); line-height: 1.45; margin-bottom: 10px;">
+            Engine percakapan Fin & Welly terhubung ke Google Gemini dengan fallback analisis aturan terstruktur lokal.
+          </p>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--orb-bg-app); border-radius: 8px; border: 1px solid var(--orb-border);">
+            <span style="font-size: 0.78rem; font-weight: 600; color: var(--orb-text-main);">Status Server API</span>
+            <span style="font-size: 0.74rem; font-weight: 700; color: #10B981;">Online & Siap</span>
+          </div>
+        </div>
+
+        <!-- Chat History Management -->
+        <div class="orb-dash-stat-card" style="padding: 16px;">
+          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--orb-text-main); margin-bottom: 10px;">💬 Riwayat Percakapan</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="orb-rich-card-action-btn" id="btnResetFinChat" style="text-align: left; padding: 10px 14px;">
+              🗑️ Bersihkan Riwayat Chat Fin
+            </button>
+            <button class="orb-rich-card-action-btn" id="btnResetWellyChat" style="text-align: left; padding: 10px 14px;">
+              🗑️ Bersihkan Riwayat Chat Welly
+            </button>
+          </div>
+        </div>
+
+        <!-- Security / Logout -->
+        <div style="margin-top: 8px;">
+          <button class="orb-btn-submit-form" id="btnPanelLogout" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444;">
+            🔒 Kunci Sesi / Keluar
+          </button>
+        </div>
+      </div>
+    `;
+
+    this.openPanel("settings", "Pengaturan Orb", content);
+
+    // Event listeners inside Settings Panel
+    document.getElementById("btnPanelThemeToggle")?.addEventListener("click", () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", nextTheme);
+      document.body.setAttribute("data-theme", nextTheme);
+      try { localStorage.setItem("orb_theme", nextTheme); } catch (_) {}
+      this.openSettingsPanel(); // refresh button state
+    });
+
+    document.getElementById("btnResetFinChat")?.addEventListener("click", () => {
+      if (confirm("Hapus seluruh riwayat percakapan dengan Fin? Data transaksi ledger tetap aman.")) {
+        localStorage.removeItem("orb_chat_history_v4_fin");
+        if (this.activeAgentId === "fin") this.renderTimeline("fin");
+        alert("Riwayat chat Fin telah dibersihkan.");
+      }
+    });
+
+    document.getElementById("btnResetWellyChat")?.addEventListener("click", () => {
+      if (confirm("Hapus seluruh riwayat percakapan dengan Welly? Data portofolio tetap aman.")) {
+        localStorage.removeItem("orb_chat_history_v4_welly");
+        if (this.activeAgentId === "welly") this.renderTimeline("welly");
+        alert("Riwayat chat Welly telah dibersihkan.");
+      }
+    });
+
+    document.getElementById("btnPanelLogout")?.addEventListener("click", () => {
+      if (window.Auth?.lockApp) {
+        window.Auth.lockApp();
+      } else {
+        window.location.reload();
+      }
+    });
   },
 
   // --------------------------------------------------------------------------
@@ -1223,9 +1373,26 @@ const ChatFirstManager = {
       }
     });
 
-    // 7. Settings and Lock Navigation
-    const openSettings = () => {
-      window.location.hash = "#settings";
+    document.getElementById("btnPageResetFinChat")?.addEventListener("click", () => {
+      if (confirm("Hapus seluruh riwayat percakapan dengan Fin? Data transaksi ledger tetap aman.")) {
+        localStorage.removeItem("orb_chat_history_v4_fin");
+        if (this.activeAgentId === "fin") this.renderTimeline("fin");
+        alert("Riwayat chat Fin telah dibersihkan.");
+      }
+    });
+
+    document.getElementById("btnPageResetWellyChat")?.addEventListener("click", () => {
+      if (confirm("Hapus seluruh riwayat percakapan dengan Welly? Data portofolio tetap aman.")) {
+        localStorage.removeItem("orb_chat_history_v4_welly");
+        if (this.activeAgentId === "welly") this.renderTimeline("welly");
+        alert("Riwayat chat Welly telah dibersihkan.");
+      }
+    });
+
+    // 7. Settings Panel Navigation
+    const openSettings = (e) => {
+      e?.preventDefault?.();
+      this.openSettingsPanel();
     };
     document.getElementById("btnOrbSettings")?.addEventListener("click", openSettings);
     document.getElementById("btnOrbMobileSettings")?.addEventListener("click", openSettings);
@@ -1240,6 +1407,13 @@ const ChatFirstManager = {
 
     document.getElementById("btnOrbSidebarBrandHome")?.addEventListener("click", () => {
       this.switchAgent("fin");
+    });
+
+    // 8. Close dropdown menus on clicking outside
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".orb-more-dropdown-menu") && !e.target.closest("[data-action-id='more']") && !e.target.closest("[data-action-id='more_welly']")) {
+        document.querySelectorAll(".orb-more-dropdown-menu").forEach(m => m.classList.remove("active"));
+      }
     });
   }
 };
