@@ -1,0 +1,1005 @@
+/* ==========================================================================
+   ORB - CHAT-FIRST PERSONAL AGENT APPLICATION
+   Information Architecture: Chat as Core + Contextual Toolbars + Side Panel
+   ========================================================================== */
+
+:root {
+  --orb-bg-app: #F8FAFC;
+  --orb-bg-sidebar: #FFFFFF;
+  --orb-bg-chat: #F8FAFC;
+  --orb-bg-card: #FFFFFF;
+  --orb-bg-panel: #FFFFFF;
+  --orb-bg-user-bubble: #1E293B;
+  --orb-text-user-bubble: #FFFFFF;
+  --orb-bg-agent-bubble: #FFFFFF;
+  --orb-text-agent-bubble: #0F172A;
+  --orb-border: #E2E8F0;
+  --orb-border-focus: #3B82F6;
+  --orb-text-main: #0F172A;
+  --orb-text-muted: #64748B;
+  --orb-text-dim: #94A3B8;
+  --orb-fin-color: #10B981;
+  --orb-welly-color: #3B82F6;
+  --orb-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --orb-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.06);
+  --orb-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --orb-radius-sm: 8px;
+  --orb-radius-md: 14px;
+  --orb-radius-lg: 20px;
+}
+
+[data-theme="dark"] {
+  --orb-bg-app: #0F172A;
+  --orb-bg-sidebar: #1E293B;
+  --orb-bg-chat: #0F172A;
+  --orb-bg-card: #1E293B;
+  --orb-bg-panel: #1E293B;
+  --orb-bg-user-bubble: #3B82F6;
+  --orb-text-user-bubble: #FFFFFF;
+  --orb-bg-agent-bubble: #1E293B;
+  --orb-text-agent-bubble: #F1F5F9;
+  --orb-border: #334155;
+  --orb-border-focus: #60A5FA;
+  --orb-text-main: #F1F5F9;
+  --orb-text-muted: #94A3B8;
+  --orb-text-dim: #64748B;
+}
+
+/* Base Body Override */
+body.orb-chat-first-mode {
+  background-color: var(--orb-bg-app);
+  color: var(--orb-text-main);
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+}
+
+body.orb-chat-first-mode .app-main-viewport,
+body.orb-chat-first-mode .app-content-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+/* ==========================================================================
+   1. MAIN DESKTOP SHELL (SIDEBAR + CHAT + RIGHT DETAIL PANEL)
+   ========================================================================== */
+#viewChatFirstApp {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  position: relative;
+  background: var(--orb-bg-app);
+}
+
+/* Backdrop overlay for mobile drawer */
+.orb-chat-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 35;
+}
+
+.orb-chat-backdrop.active {
+  display: block;
+}
+
+/* --- A. SIDEBAR KIRI (280px - 320px) --- */
+.orb-chat-sidebar {
+  width: 300px;
+  background: var(--orb-bg-sidebar);
+  border-right: 1px solid var(--orb-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100%;
+  z-index: 40;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.orb-sidebar-brand-row {
+  padding: 16px 18px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--orb-border);
+}
+
+.orb-brand-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.orb-brand-badge-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #06B6D4, #3B82F6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+.orb-brand-badge-icon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.orb-brand-name-text {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--orb-text-main);
+}
+
+.orb-sidebar-search-box {
+  padding: 10px 14px;
+}
+
+.orb-search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--orb-bg-app);
+  border: 1px solid var(--orb-border);
+  border-radius: 10px;
+  padding: 7px 12px;
+}
+
+.orb-search-input-wrap input {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.82rem;
+  color: var(--orb-text-main);
+}
+
+.orb-search-input-wrap input::placeholder {
+  color: var(--orb-text-dim);
+}
+
+.orb-agent-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.orb-agent-list-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.orb-agent-list-scroll::-webkit-scrollbar-thumb {
+  background: var(--orb-border);
+  border-radius: 4px;
+}
+
+.orb-agent-sidebar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  border: 1px solid transparent;
+}
+
+.orb-agent-sidebar-row:hover {
+  background: rgba(0, 0, 0, 0.025);
+}
+
+.orb-agent-sidebar-row.active {
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+}
+
+[data-theme="dark"] .orb-agent-sidebar-row.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.orb-sidebar-avatar-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--orb-bg-app);
+  border: 1.5px solid var(--orb-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.orb-sidebar-avatar-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.orb-sidebar-info-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.orb-sidebar-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.orb-sidebar-agent-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--orb-text-main);
+}
+
+.orb-sidebar-time-text {
+  font-size: 0.7rem;
+  color: var(--orb-text-dim);
+}
+
+.orb-sidebar-msg-preview {
+  font-size: 0.78rem;
+  color: var(--orb-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+/* Sidebar Footer */
+.orb-sidebar-footer {
+  padding: 12px 14px;
+  border-top: 1px solid var(--orb-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.orb-footer-btn {
+  background: transparent;
+  border: none;
+  color: var(--orb-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.orb-footer-btn:hover {
+  background: var(--orb-bg-app);
+  color: var(--orb-text-main);
+}
+
+/* ==========================================================================
+   2. CONVERSATION WORKSPACE (CENTER)
+   ========================================================================== */
+.orb-conversation-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: var(--orb-bg-chat);
+  position: relative;
+}
+
+/* Mobile Top Bar (Clean & Compact) */
+.orb-mobile-header {
+  display: none;
+  height: 52px;
+  padding: 0 14px;
+  background: var(--orb-bg-sidebar);
+  border-bottom: 1px solid var(--orb-border);
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  z-index: 30;
+}
+
+.orb-mobile-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.orb-btn-menu-drawer {
+  background: transparent;
+  border: none;
+  color: var(--orb-text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 6px;
+}
+
+/* Stories-Style Agent Switcher (Mobile & Compact) */
+.orb-stories-switcher-wrap {
+  display: none;
+  background: var(--orb-bg-sidebar);
+  border-bottom: 1px solid var(--orb-border);
+  padding: 8px 14px;
+  overflow-x: auto;
+  gap: 16px;
+  flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.orb-stories-switcher-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.orb-story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+}
+
+.orb-story-ring {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  padding: 2px;
+  background: transparent;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb-story-item.active .orb-story-ring {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.orb-story-item[data-agent="fin"].active .orb-story-ring {
+  border-color: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.orb-story-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--orb-bg-app);
+}
+
+.orb-story-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--orb-text-muted);
+}
+
+.orb-story-item.active .orb-story-name {
+  color: var(--orb-text-main);
+  font-weight: 700;
+}
+
+/* Desktop Agent Topbar */
+.orb-chat-topbar {
+  padding: 12px 20px;
+  background: var(--orb-bg-sidebar);
+  border-bottom: 1px solid var(--orb-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.orb-agent-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.orb-agent-header-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--orb-border);
+}
+
+.orb-agent-header-text h1 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--orb-text-main);
+  line-height: 1.2;
+}
+
+.orb-agent-header-text p {
+  font-size: 0.76rem;
+  color: var(--orb-text-muted);
+}
+
+/* Contextual Action Toolbar (Under Agent Header) */
+.orb-action-toolbar-bar {
+  padding: 8px 20px;
+  background: var(--orb-bg-sidebar);
+  border-bottom: 1px solid var(--orb-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.orb-action-toolbar-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.orb-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  background: var(--orb-bg-app);
+  border: 1px solid var(--orb-border);
+  color: var(--orb-text-main);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.orb-toolbar-btn:hover {
+  background: #E2E8F0;
+  border-color: #CBD5E1;
+}
+
+[data-theme="dark"] .orb-toolbar-btn:hover {
+  background: #334155;
+}
+
+.orb-toolbar-btn.primary {
+  background: #10B981;
+  color: #FFFFFF;
+  border-color: #10B981;
+}
+
+.orb-toolbar-btn.primary:hover {
+  background: #059669;
+}
+
+.orb-toolbar-btn.primary.welly-theme {
+  background: #3B82F6;
+  border-color: #3B82F6;
+}
+
+.orb-toolbar-btn.primary.welly-theme:hover {
+  background: #2563EB;
+}
+
+/* More Dropdown Menu */
+.orb-more-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--orb-bg-card);
+  border: 1px solid var(--orb-border);
+  border-radius: 12px;
+  box-shadow: var(--orb-shadow-lg);
+  padding: 6px 0;
+  min-width: 200px;
+  z-index: 100;
+}
+
+.orb-more-dropdown-menu.active {
+  display: block;
+}
+
+.orb-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  font-size: 0.82rem;
+  color: var(--orb-text-main);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.orb-dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* ==========================================================================
+   3. CHAT TIMELINE (SCROLLABLE MESSAGE STREAM)
+   ========================================================================== */
+.orb-chat-timeline {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.orb-chat-timeline::-webkit-scrollbar {
+  width: 6px;
+}
+.orb-chat-timeline::-webkit-scrollbar-thumb {
+  background: var(--orb-border);
+  border-radius: 6px;
+}
+
+/* Message Rows */
+.orb-msg-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.orb-msg-row.user {
+  justify-content: flex-end;
+}
+
+.orb-msg-row.agent {
+  justify-content: flex-start;
+}
+
+.orb-msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--orb-border);
+}
+
+.orb-msg-bubble-wrap {
+  max-width: 78%;
+  display: flex;
+  flex-direction: column;
+}
+
+.orb-msg-bubble {
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.orb-msg-row.user .orb-msg-bubble {
+  background: var(--orb-bg-user-bubble);
+  color: var(--orb-text-user-bubble);
+  border-bottom-right-radius: 4px;
+}
+
+.orb-msg-row.agent .orb-msg-bubble {
+  background: var(--orb-bg-agent-bubble);
+  color: var(--orb-text-agent-bubble);
+  border: 1px solid var(--orb-border);
+  border-bottom-left-radius: 4px;
+  box-shadow: var(--orb-shadow-sm);
+}
+
+.orb-msg-time {
+  font-size: 0.68rem;
+  color: var(--orb-text-dim);
+  margin-top: 4px;
+  padding: 0 4px;
+}
+.orb-msg-row.user .orb-msg-time {
+  text-align: right;
+}
+
+/* ==========================================================================
+   4. RICH STRUCTURED CARDS (TRANSACTION RESULT, DRAFT, JOINT REVIEW)
+   ========================================================================== */
+.orb-rich-card {
+  background: var(--orb-bg-card);
+  border: 1px solid var(--orb-border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: var(--orb-shadow-sm);
+  margin-top: 6px;
+  width: 100%;
+}
+
+.orb-rich-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--orb-border);
+}
+
+.orb-rich-card-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--orb-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.orb-rich-badge-success {
+  background: #DCFCE7;
+  color: #15803D;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.orb-rich-tx-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 6px 0;
+}
+
+.orb-rich-tx-desc {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--orb-text-main);
+}
+
+.orb-rich-tx-amount {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--orb-text-main);
+}
+
+.orb-rich-tx-meta {
+  font-size: 0.76rem;
+  color: var(--orb-text-muted);
+  margin-bottom: 10px;
+}
+
+.orb-rich-card-action-btn {
+  background: var(--orb-bg-app);
+  border: 1px solid var(--orb-border);
+  color: var(--orb-text-main);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.orb-rich-card-action-btn:hover {
+  background: #E2E8F0;
+}
+
+/* NLP Draft Preview Card (with Confirm / Cancel) */
+.orb-draft-preview-card {
+  border-color: #93C5FD;
+  background: #F0F9FF;
+}
+
+[data-theme="dark"] .orb-draft-preview-card {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.orb-draft-btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.orb-btn-confirm-draft {
+  background: #10B981;
+  color: #FFFFFF;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.orb-btn-cancel-draft {
+  background: transparent;
+  border: 1px solid var(--orb-border);
+  color: var(--orb-text-muted);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   5. COMPOSER (BOTTOM CHAT INPUT)
+   ========================================================================== */
+.orb-chat-composer-wrap {
+  padding: 12px 20px 16px;
+  background: var(--orb-bg-sidebar);
+  border-top: 1px solid var(--orb-border);
+  flex-shrink: 0;
+}
+
+.orb-composer-box {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  background: var(--orb-bg-app);
+  border: 1.5px solid var(--orb-border);
+  border-radius: 20px;
+  padding: 8px 12px 8px 16px;
+  transition: border-color 0.15s;
+}
+
+.orb-composer-box:focus-within {
+  border-color: var(--orb-border-focus);
+}
+
+.orb-composer-textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  min-height: 24px;
+  max-height: 120px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--orb-text-main);
+  line-height: 1.4;
+  padding: 2px 0;
+}
+
+.orb-composer-textarea::placeholder {
+  color: var(--orb-text-dim);
+}
+
+.orb-btn-send {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #3B82F6;
+  border: none;
+  color: #FFFFFF;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.orb-btn-send:hover {
+  background: #2563EB;
+  transform: scale(1.05);
+}
+
+/* ==========================================================================
+   6. OPTIONAL DETAIL PANEL (DESKTOP RIGHT PANEL / MOBILE SHEET)
+   ========================================================================== */
+.orb-detail-sidepanel {
+  display: none;
+  width: 440px;
+  background: var(--orb-bg-panel);
+  border-left: 1px solid var(--orb-border);
+  flex-direction: column;
+  height: 100%;
+  flex-shrink: 0;
+  z-index: 50;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.04);
+}
+
+.orb-detail-sidepanel.open {
+  display: flex;
+  animation: slidePanelIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slidePanelIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.orb-panel-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--orb-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.orb-panel-head h2 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--orb-text-main);
+}
+
+.orb-btn-close-panel {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--orb-bg-app);
+  border: 1px solid var(--orb-border);
+  color: var(--orb-text-muted);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.orb-btn-close-panel:hover {
+  background: #E2E8F0;
+  color: var(--orb-text-main);
+}
+
+.orb-panel-body-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ==========================================================================
+   7. DASHBOARD WIDGETS (INSIDE PANEL)
+   ========================================================================== */
+.orb-dash-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.orb-dash-stat-card {
+  background: var(--orb-bg-app);
+  border: 1px solid var(--orb-border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.orb-dash-stat-label {
+  font-size: 0.74rem;
+  color: var(--orb-text-muted);
+  font-weight: 600;
+}
+
+.orb-dash-stat-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--orb-text-main);
+  margin-top: 4px;
+}
+
+.orb-dash-stat-val.income { color: #10B981; }
+.orb-dash-stat-val.expense { color: #EF4444; }
+
+/* Form Tambah Log Styles */
+.orb-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.orb-form-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--orb-text-muted);
+}
+
+.orb-form-input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: var(--orb-bg-app);
+  border: 1px solid var(--orb-border);
+  color: var(--orb-text-main);
+  font-size: 0.88rem;
+  outline: none;
+}
+
+.orb-form-input:focus {
+  border-color: #3B82F6;
+}
+
+.orb-btn-submit-form {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: #10B981;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.orb-btn-submit-form:hover {
+  background: #059669;
+}
+
+/* ==========================================================================
+   8. MOBILE RESPONSIVE ADAPTATION (≤ 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .orb-chat-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .orb-chat-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .orb-mobile-header {
+    display: flex;
+  }
+
+  .orb-stories-switcher-wrap {
+    display: flex;
+  }
+
+  .orb-chat-topbar {
+    display: none;
+  }
+
+  .orb-detail-sidepanel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 100;
+  }
+
+  .orb-chat-timeline {
+    padding: 14px;
+  }
+
+  .orb-msg-bubble-wrap {
+    max-width: 88%;
+  }
+
+  .orb-chat-composer-wrap {
+    padding: 8px 12px 12px;
+  }
+}

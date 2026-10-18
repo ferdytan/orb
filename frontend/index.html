@@ -21,10 +21,11 @@
   <link rel="preload" href="./assets/logo_orb.png" as="image" type="image/png" fetchpriority="high">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css?v=3.3.0">
-  <link rel="stylesheet" href="./css/avatars.css?v=3.3.0">
-  <link rel="stylesheet" href="./css/ai_office.css?v=3.3.0">
-  <link rel="stylesheet" href="./css/dots_bot.css?v=3.3.0">
+  <link rel="stylesheet" href="./css/styles.css?v=4.0.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=4.0.0">
+  <link rel="stylesheet" href="./css/ai_office.css?v=4.0.0">
+  <link rel="stylesheet" href="./css/dots_bot.css?v=4.0.0">
+  <link rel="stylesheet" href="./css/chat_first.css?v=4.0.0">
 
   <!-- Critical View Isolation CSS -->
   <style>
@@ -101,8 +102,155 @@
   <main class="app-main-viewport">
     <div class="app-content-container">
 
-      <!-- ================= PAGE 0: OPENDOTS & GROK BOT VIEW ================= -->
-      <div class="app-page-view active" id="viewDotsBot">
+      <!-- ================= PAGE 0: CHAT-FIRST PERSONAL AGENT APP (FIN & WELLY) ================= -->
+      <div class="app-page-view active" id="viewChatFirstApp">
+        <!-- Backdrop for mobile sidebar drawer -->
+        <div class="orb-chat-backdrop" id="orbChatBackdrop"></div>
+
+        <!-- Left Desktop Sidebar (280-320px) / Mobile Drawer -->
+        <aside class="orb-chat-sidebar" id="orbChatSidebar">
+          <!-- Sidebar Brand Lockup -->
+          <div class="orb-sidebar-brand-row">
+            <div class="orb-brand-logo-group" id="btnOrbSidebarBrandHome" title="Orb AI Workspace">
+              <div class="orb-brand-badge-icon">
+                <img src="./assets/logo_orb.png" alt="Orb" />
+              </div>
+              <span class="orb-brand-name-text">Orb</span>
+            </div>
+            <button class="orb-btn-menu-drawer" id="btnOrbCloseSidebar" title="Tutup Menu">✕</button>
+          </div>
+
+          <!-- Search Agent / Percakapan -->
+          <div class="orb-sidebar-search-box">
+            <div class="orb-search-input-wrap">
+              <span>🔍</span>
+              <input type="text" id="orbSidebarSearchInput" placeholder="Cari agent (Fin, Welly)..." autocomplete="off" />
+            </div>
+          </div>
+
+          <!-- Agent List (Fin and Welly only) -->
+          <div class="orb-agent-list-scroll" id="orbSidebarAgentList">
+            <!-- Fin Row -->
+            <div class="orb-agent-sidebar-row active" data-agent="fin" data-agent-name="Fin">
+              <div class="orb-sidebar-avatar-wrap">
+                <img src="./assets/avatar_fin_360.png" alt="Fin" />
+              </div>
+              <div class="orb-sidebar-info-col">
+                <div class="orb-sidebar-row-head">
+                  <span class="orb-sidebar-agent-name">Fin</span>
+                  <span class="orb-sidebar-time-text">Aktif</span>
+                </div>
+                <div class="orb-sidebar-msg-preview" id="orbSidebarPreview_fin">Pencatatan keuangan & budgeting</div>
+              </div>
+            </div>
+
+            <!-- Welly Row -->
+            <div class="orb-agent-sidebar-row" data-agent="welly" data-agent-name="Welly">
+              <div class="orb-sidebar-avatar-wrap">
+                <img src="./assets/avatar_welly_360.png" alt="Welly" />
+              </div>
+              <div class="orb-sidebar-info-col">
+                <div class="orb-sidebar-row-head">
+                  <span class="orb-sidebar-agent-name">Welly</span>
+                  <span class="orb-sidebar-time-text">Aktif</span>
+                </div>
+                <div class="orb-sidebar-msg-preview" id="orbSidebarPreview_welly">Perencanaan keuangan & investasi</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar Footer Settings -->
+          <div class="orb-sidebar-footer">
+            <button class="orb-footer-btn" id="btnOrbSettings">
+              <span>⚙️</span>
+              <span>Pengaturan</span>
+            </button>
+            <button class="orb-footer-btn" id="btnOrbLock">
+              <span>🔒</span>
+              <span>Kunci</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- Center Conversation Workspace -->
+        <section class="orb-conversation-workspace">
+          <!-- Mobile Header Bar -->
+          <header class="orb-mobile-header">
+            <div class="orb-mobile-left">
+              <button class="orb-btn-menu-drawer" id="btnOrbOpenDrawer" title="Buka Menu Agent">☰</button>
+              <span id="orbMobileHeaderTitle" style="font-size: 0.92rem; font-weight: 700; color: var(--orb-text-main);">Fin • Pencatatan keuangan</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="orb-btn-menu-drawer" id="btnOrbMobileSettings" title="Pengaturan">⚙️</button>
+            </div>
+          </header>
+
+          <!-- Mobile Stories-Style Agent Switcher -->
+          <div class="orb-stories-switcher-wrap" id="orbStoriesSwitcher">
+            <button class="orb-story-item active" data-agent="fin">
+              <div class="orb-story-ring">
+                <img src="./assets/avatar_fin_360.png" alt="Fin" class="orb-story-avatar" />
+              </div>
+              <span class="orb-story-name">Fin</span>
+            </button>
+            <button class="orb-story-item" data-agent="welly">
+              <div class="orb-story-ring">
+                <img src="./assets/avatar_welly_360.png" alt="Welly" class="orb-story-avatar" />
+              </div>
+              <span class="orb-story-name">Welly</span>
+            </button>
+          </div>
+
+          <!-- Desktop Agent Topbar -->
+          <header class="orb-chat-topbar">
+            <div class="orb-agent-header-info">
+              <img src="./assets/avatar_fin_360.png" alt="Fin" class="orb-agent-header-avatar" id="orbTopAgentAvatar" />
+              <div class="orb-agent-header-text">
+                <h1 id="orbTopAgentName">Fin</h1>
+                <p id="orbTopAgentRole">Pencatatan keuangan & budgeting</p>
+              </div>
+            </div>
+            <div class="orb-topbar-actions">
+              <button class="orb-toolbar-btn" id="btnOrbClearHistory" title="Bersihkan riwayat percakapan" style="font-size: 0.74rem; padding: 4px 10px;">
+                <span>🗑️</span>
+                <span>Bersihkan Chat</span>
+              </button>
+            </div>
+          </header>
+
+          <!-- Contextual Action Toolbar Bar -->
+          <div class="orb-action-toolbar-bar" id="orbActionToolbarBar">
+            <!-- Dynamically populated by ChatFirstManager.renderActionToolbar -->
+          </div>
+
+          <!-- Scrollable Chat Timeline -->
+          <div class="orb-chat-timeline" id="orbChatTimeline">
+            <!-- Dynamically rendered messages, rich cards, draft confirmations -->
+          </div>
+
+          <!-- Message Composer -->
+          <div class="orb-chat-composer-wrap">
+            <div class="orb-composer-box">
+              <textarea id="orbComposerTextarea" class="orb-composer-textarea" rows="1" placeholder="Tulis pesan atau ketik: 'Catat makan siang 35000'..."></textarea>
+              <button class="orb-btn-send" id="btnOrbSendMessage" title="Kirim Pesan">➔</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Optional Detail Sidepanel (Desktop Slide-in / Mobile Sheet) -->
+        <aside class="orb-detail-sidepanel" id="orbDetailSidepanel">
+          <div class="orb-panel-head">
+            <h2 id="orbPanelTitle">Detail</h2>
+            <button class="orb-btn-close-panel" id="btnOrbClosePanel" title="Tutup Panel">✕</button>
+          </div>
+          <div class="orb-panel-body-scroll" id="orbPanelBodyScroll">
+            <!-- Dynamic panel content (Dashboard stats, Tambah Log form, Portfolio, etc.) -->
+          </div>
+        </aside>
+      </div>
+
+      <!-- ================= PAGE 0B: OPENDOTS & GROK BOT VIEW (FALLBACK) ================= -->
+      <div class="app-page-view" id="viewDotsBot">
         <!-- Sidebar Drawer Backdrop (for mobile) -->
         <div class="dots-sidebar-backdrop" id="dotsSidebarBackdrop"></div>
 
@@ -845,14 +993,16 @@
   </div>
 
   <!-- Scripts with cache-busting version parameter -->
-  <script src="./js/api.js?v=3.3.0"></script>
-  <script src="./js/auth.js?v=3.3.0"></script>
-  <script src="./js/avatars.js?v=3.3.0"></script>
-  <script src="./js/bento.js?v=3.3.0"></script>
-  <script src="./js/fin_workspace.js?v=3.3.0"></script>
-  <script src="./js/welly_workspace.js?v=3.3.0"></script>
-  <script src="./js/dots_bot.js?v=3.3.0"></script>
-  <script src="./js/app.js?v=3.3.0"></script>
+  <script src="./js/api.js?v=4.0.0"></script>
+  <script src="./js/auth.js?v=4.0.0"></script>
+  <script src="./js/avatars.js?v=4.0.0"></script>
+  <script src="./js/bento.js?v=4.0.0"></script>
+  <script src="./js/fin_workspace.js?v=4.0.0"></script>
+  <script src="./js/welly_workspace.js?v=4.0.0"></script>
+  <script src="./js/dots_bot.js?v=4.0.0"></script>
+  <script src="./js/agent_registry.js?v=4.0.0"></script>
+  <script src="./js/chat_first.js?v=4.0.0"></script>
+  <script src="./js/app.js?v=4.0.0"></script>
 
   <!-- Modal close event handler -->
   <script>
@@ -871,7 +1021,7 @@
     if ('caches' in window) {
       caches.keys().then((names) => {
         for (const name of names) {
-          if (name !== 'orb-dots-bot-v3.3.0') {
+          if (name !== 'orb-chat-first-v4.0.0') {
             caches.delete(name);
           }
         }
@@ -880,7 +1030,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=3.3.0')
+        navigator.serviceWorker.register('./sw.js?v=4.0.0')
           .then((registration) => {
             registration.update();
           })

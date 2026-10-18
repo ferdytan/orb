@@ -33,6 +33,10 @@ const OrbApp = {
       window.DotsBotManager.init();
     }
 
+    if (window.ChatFirstManager) {
+      window.ChatFirstManager.init();
+    }
+
     // 2. Setup Navigation, Router, Auth & Clock
     if (window.Auth) {
       window.Auth.init();
@@ -93,47 +97,46 @@ const OrbApp = {
 
     const rawHash = window.location.hash.replace(/^#/, '').trim();
     if (!rawHash) {
-      this.switchTab("dots", false);
+      this.switchTab("chat_first", false);
+      window.ChatFirstManager?.switchAgent("fin");
       return;
     }
 
-    const parts = rawHash.split("/");
-    const primaryTab = parts[0] || "dots";
+    const parts = rawHash.split("?")[0].split("/");
+    const primaryTab = parts[0] || "agents";
     const subRoute = parts[1] || null;
 
-    if (primaryTab === "dots") {
-      this.switchTab("dots", false);
-      if (subRoute && window.DotsBotManager) {
-        window.DotsBotManager.switchAgent(subRoute);
-      }
+    if (primaryTab === "agents" || primaryTab === "chat" || primaryTab === "chat_first") {
+      this.switchTab("chat_first", false);
+      const agentId = (subRoute === "welly") ? "welly" : "fin";
+      window.ChatFirstManager?.switchAgent(agentId);
     } else if (primaryTab === "fin") {
-      this.switchTab("fin", false);
-      if (subRoute && window.FinWorkspace) {
-        window.FinWorkspace.switchSubtab(subRoute);
-      } else if (window.FinWorkspace) {
-        window.FinWorkspace.switchSubtab("overview");
+      this.switchTab("chat_first", false);
+      window.ChatFirstManager?.switchAgent("fin");
+      if (subRoute === "add" || subRoute === "add_log") {
+        window.ChatFirstManager?.openAddLogPanel();
+      } else if (subRoute === "dashboard" || subRoute === "overview") {
+        window.ChatFirstManager?.openFinDashboardPanel();
       }
     } else if (primaryTab === "welly") {
-      this.switchTab("welly", false);
-      if (subRoute && window.WellyWorkspace) {
-        window.WellyWorkspace.switchSubtab(subRoute);
-      } else if (window.WellyWorkspace) {
-        window.WellyWorkspace.switchSubtab("snapshot");
+      this.switchTab("chat_first", false);
+      window.ChatFirstManager?.switchAgent("welly");
+      if (subRoute === "portfolio" || subRoute === "snapshot") {
+        window.ChatFirstManager?.openWellyPortfolioPanel();
+      } else if (subRoute === "plans") {
+        window.ChatFirstManager?.openWellyPlansPanel();
       }
-    } else if (primaryTab === "tugas") {
-      this.switchTab("fin", false);
-      window.FinWorkspace?.switchSubtab("reminders");
-    } else if (primaryTab === "goal") {
-      this.switchTab("fin", false);
-      window.FinWorkspace?.switchSubtab("goals");
-    } else if (primaryTab === "agents") {
-      this.switchTab("dots", false);
-    } else if (primaryTab === "office") {
-      this.switchTab("office", false);
     } else if (primaryTab === "settings") {
       this.switchTab("settings", false);
+    } else if (primaryTab === "office") {
+      this.switchTab("office", false);
+    } else if (primaryTab === "dots") {
+      this.switchTab("chat_first", false);
+      const agentId = (subRoute === "welly") ? "welly" : "fin";
+      window.ChatFirstManager?.switchAgent(agentId);
     } else {
-      this.switchTab("dots", false);
+      this.switchTab("chat_first", false);
+      window.ChatFirstManager?.switchAgent("fin");
     }
   },
 
@@ -156,14 +159,14 @@ const OrbApp = {
       window.location.hash = "#settings";
     });
 
-    // Top Brand title click -> Office Home
+    // Top Brand title click -> Agents Home
     document.getElementById("headerBrandBtn")?.addEventListener("click", () => {
-      window.location.hash = "#dots";
+      window.location.hash = "#agents/fin";
     });
 
     // OpenDots brand home click
     document.getElementById("btnDotsBrandHome")?.addEventListener("click", () => {
-      window.location.hash = "#dots";
+      window.location.hash = "#agents/fin";
     });
   },
 
@@ -174,14 +177,16 @@ const OrbApp = {
       window.location.hash = `#${tabName}`;
     }
 
-    // Toggle dots-mode on body and header visibility
+    // Toggle chat-first mode on body and header visibility
+    const isChatFirst = (tabName === "chat_first" || tabName === "agents" || tabName === "chat");
     const isDots = (tabName === "dots");
+    document.body.classList.toggle("orb-chat-first-mode", isChatFirst);
     document.body.classList.toggle("dots-mode", isDots);
 
     const topHeader = document.getElementById("appTopHeader");
     const bottomNav = document.getElementById("appBottomNavBar");
-    if (topHeader) topHeader.style.display = isDots ? "none" : "";
-    if (bottomNav) bottomNav.style.display = isDots ? "none" : "";
+    if (topHeader) topHeader.style.display = (isChatFirst || isDots) ? "none" : "";
+    if (bottomNav) bottomNav.style.display = (isChatFirst || isDots) ? "none" : "";
 
     // Update bottom nav button active states
     document.querySelectorAll(".nav-tab-btn").forEach(btn => {
@@ -194,6 +199,9 @@ const OrbApp = {
 
     // Update page view containers
     const pageMap = {
+      chat_first: "viewChatFirstApp",
+      agents: "viewChatFirstApp",
+      chat: "viewChatFirstApp",
       dots: "viewDotsBot",
       office: "viewOfficeHome",
       fin: "viewFinWorkspace",
@@ -206,11 +214,11 @@ const OrbApp = {
       view.style.display = "none";
     });
 
-    const targetId = pageMap[tabName] || "viewOfficeHome";
+    const targetId = pageMap[tabName] || "viewChatFirstApp";
     const targetView = document.getElementById(targetId);
     if (targetView) {
       targetView.classList.add("active");
-      targetView.style.display = "block";
+      targetView.style.display = "flex";
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
