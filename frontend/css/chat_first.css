@@ -20,6 +20,7 @@
   --orb-text-dim: #94A3B8;
   --orb-fin-color: #10B981;
   --orb-welly-color: #3B82F6;
+  --orb-lois-color: #8B5CF6;
   --orb-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
   --orb-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.06);
   --orb-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -29,20 +30,20 @@
 }
 
 [data-theme="dark"] {
-  --orb-bg-app: #0F172A;
-  --orb-bg-sidebar: #1E293B;
-  --orb-bg-chat: #0F172A;
-  --orb-bg-card: #1E293B;
-  --orb-bg-panel: #1E293B;
-  --orb-bg-user-bubble: #3B82F6;
+  --orb-bg-app: #0A0A0C;
+  --orb-bg-sidebar: #121215;
+  --orb-bg-chat: #0A0A0C;
+  --orb-bg-card: #16161A;
+  --orb-bg-panel: #121215;
+  --orb-bg-user-bubble: #27272F;
   --orb-text-user-bubble: #FFFFFF;
-  --orb-bg-agent-bubble: #1E293B;
-  --orb-text-agent-bubble: #F1F5F9;
-  --orb-border: #334155;
-  --orb-border-focus: #60A5FA;
-  --orb-text-main: #F1F5F9;
-  --orb-text-muted: #94A3B8;
-  --orb-text-dim: #64748B;
+  --orb-bg-agent-bubble: #17171C;
+  --orb-text-agent-bubble: #EDEDED;
+  --orb-border: #232328;
+  --orb-border-focus: #10B981;
+  --orb-text-main: #EDEDED;
+  --orb-text-muted: #8E8EA0;
+  --orb-text-dim: #555560;
 }
 
 /* Base Body Override */
@@ -1092,3 +1093,327 @@ body.orb-chat-first-mode[data-theme="dark"] .orb-brand-wordmark-img {
     padding: 8px 12px 12px;
   }
 }
+
+/* ==========================================================================
+   9. MOBILE AGENT HUB / DIRECTORY VIEW (Initial Screen & Switching)
+   ========================================================================== */
+.orb-agent-hub {
+  position: absolute;
+  inset: 0;
+  background: var(--orb-bg-app);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.orb-hub-header {
+  padding: 16px 20px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--orb-border);
+  background: var(--orb-bg-sidebar);
+}
+
+.orb-hub-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.orb-hub-brand-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.orb-hub-brand-title {
+  font-size: 1.18rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--orb-text-main);
+  line-height: 1.2;
+}
+
+.orb-hub-brand-sub {
+  font-size: 0.76rem;
+  color: var(--orb-text-muted);
+}
+
+.orb-hub-stories-section {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--orb-border);
+  background: var(--orb-bg-sidebar);
+}
+
+.orb-hub-section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--orb-text-dim);
+  margin-bottom: 12px;
+}
+
+.orb-hub-stories-row {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.orb-hub-stories-row::-webkit-scrollbar {
+  display: none;
+}
+
+.orb-hub-story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  outline: none;
+}
+
+.orb-hub-story-avatar-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  padding: 2.5px;
+  background: linear-gradient(135deg, #10B981, #3B82F6, #8B5CF6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.18s ease;
+}
+
+.orb-hub-story-item:hover .orb-hub-story-avatar-wrap,
+.orb-hub-story-item:active .orb-hub-story-avatar-wrap {
+  transform: scale(1.06);
+}
+
+.orb-hub-story-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--orb-bg-card);
+}
+
+.orb-hub-story-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--orb-text-main);
+}
+
+.orb-hub-list-section {
+  padding: 18px 20px 30px;
+  flex: 1;
+}
+
+.orb-hub-agent-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px;
+  border-radius: 16px;
+  background: var(--orb-bg-card);
+  border: 1px solid var(--orb-border);
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.orb-hub-agent-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--orb-border-focus);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+.orb-hub-agent-card:active {
+  transform: scale(0.99);
+}
+
+.orb-hub-card-avatar-wrap {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+}
+
+.orb-hub-card-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  object-fit: cover;
+  background: var(--orb-bg-app);
+  border: 1px solid var(--orb-border);
+}
+
+.orb-hub-card-badge-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--orb-bg-card);
+}
+
+.orb-hub-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.orb-hub-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.orb-hub-card-name {
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: var(--orb-text-main);
+}
+
+.orb-hub-card-role {
+  font-size: 0.74rem;
+  color: var(--orb-text-dim);
+}
+
+.orb-hub-card-desc {
+  font-size: 0.82rem;
+  color: var(--orb-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orb-hub-card-arrow {
+  color: var(--orb-text-dim);
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Back Button in Agent Header */
+.orb-back-to-hub-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--orb-bg-app);
+  border: 1px solid var(--orb-border);
+  color: var(--orb-text-main);
+  cursor: pointer;
+  font-size: 1.25rem;
+  margin-right: 8px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.orb-back-to-hub-btn:hover {
+  background: var(--orb-bg-card);
+  border-color: var(--orb-border-focus);
+}
+
+/* PIN Verification Modal */
+.orb-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.orb-modal-box {
+  background: var(--orb-bg-card);
+  border: 1px solid var(--orb-border);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.orb-modal-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--orb-text-main);
+  margin-bottom: 6px;
+}
+
+.orb-modal-sub {
+  font-size: 0.84rem;
+  color: var(--orb-text-muted);
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+
+.orb-pin-input {
+  font-size: 1.6rem;
+  letter-spacing: 0.35em;
+  text-align: center;
+  font-weight: 800;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid var(--orb-border);
+  background: var(--orb-bg-app);
+  color: var(--orb-text-main);
+  width: 100%;
+  outline: none;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.orb-pin-input:focus {
+  border-color: var(--orb-border-focus);
+}
+
+/* Invoices & Status Badges */
+.orb-invoice-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.orb-invoice-badge.unpaid {
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.orb-invoice-badge.paid {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.orb-collab-cta-card {
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px dashed rgba(139, 92, 246, 0.4);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 10px;
+}
+

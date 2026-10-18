@@ -38,14 +38,15 @@ class FinService:
 
     @classmethod
     def create_account(cls, name: str, account_type: str = "cash", initial_balance: int = 0,
-                       currency: str = "IDR", icon: str = "👛", color: str = "#10B981") -> Dict[str, Any]:
+                       currency: str = "IDR", icon: str = "👛", color: str = "#10B981",
+                       bank_name: Optional[str] = None, account_number: Optional[str] = None) -> Dict[str, Any]:
         conn = get_connection()
         cursor = conn.cursor()
         now = datetime.now().isoformat()
         cursor.execute("""
-            INSERT INTO fin_accounts (name, account_type, balance, initial_balance, currency, icon, color, is_active, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
-        """, (name, account_type, int(initial_balance), int(initial_balance), currency, icon, color, now, now))
+            INSERT INTO fin_accounts (name, account_type, balance, initial_balance, currency, icon, color, is_active, bank_name, account_number, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
+        """, (name, account_type, int(initial_balance), int(initial_balance), currency, icon, color, bank_name, account_number, now, now))
         acc_id = cursor.lastrowid
         conn.commit()
         cursor.execute("SELECT * FROM fin_accounts WHERE id = ?", (acc_id,))
@@ -909,3 +910,218 @@ class FinService:
                 t["tags"] or ""
             ])
         return output.getvalue()
+
+    # =========================================================================
+    # TRANSFERS
+    # =========================================================================
+
+    @classmethod
+    def list_transfers(cls, limit: int = 50) -> List[Dict[str, Any]]:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT tr.id,
+                   tr.from_account_id AS source_account_id,
+                   tr.to_account_id AS destination_account_id,
+                   tr.amount,
+                   tr.admin_fee AS fee,
+                   tr.notes,
+                   tr.date,
+                   tr.created_at,
+                   sa.name as source_account_name,
+                   sa.bank_name as source_bank_name,
+                   da.name as destination_account_name,
+                   da.bank_name as destination_bank_name
+            FROM fin_transfers tr
+            JOIN fin_accounts sa ON tr.from_account_id = sa.id
+            JOIN fin_accounts da ON tr.to_account_id = da.id
+            ORDER BY tr.date DESC, tr.id DESC
+            LIMIT ?
+        """, (limit,))
+        rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+        return rows
+
+    @classmethod
+    def create_transfer(cls, source_account_id: int, destination_account_id: int,
+                        amount: int, fee: int = 0, notes: str = "", date_str: Optional[str] = None) -> Dict[str, Any]:
+        amount = int(amount)
+        fee = int(fee or 0)
+        if amount <= 0:
+            raise ValueError("Nominal transfer harus lebih besar dari 0.")
+        if source_account_id == destination_account_id:
+            raise ValueError("Rekening sumber dan tujuan tidak boleh sama.")
+        
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        # Verify source account has enough balance
+        cursor.execute("SELECT balance, name FROM fin_accounts WHERE id = ?", (source_account_id,))
+        src = cursor.fetchone()
+        if not src:
+            conn.close()
+            raise ValueError("Rekening sumber tidak ditemukan.")
+        if src["balance"] < (amount + fee):
+            conn.close()
+            raise ValueError(f"Saldo {src['name']} tidak mencukupi (Saldo: Rp {src['balance']:,}, Butuh: Rp {(amount+fee):,}).")
+
+        # Verify destination exists
+        cursor.execute("SELECT id, name FROM fin_accounts WHERE id = ?", (destination_account_id,))
+        dest = cursor.fetchone()
+        if not dest:
+            conn.close()
+            raise ValueError("Rekening tujuan tidak ditemukan.")
+
+        now = datetime.now().isoformat()
+        if not date_str:
+            date_str = cls.get_current_date()
+
+        # Insert into fin_transfers
+        cursor.execute("""
+            INSERT INTO fin_transfers (from_account_id, to_account_id, amount, admin_fee, notes, date, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (source_account_id, destination_account_id, amount, fee, notes, date_str, now))
+        transfer_id = cursor.lastrowid
+
+        # Update source account (deduct amount + fee)
+        total_deduct = amount + fee
+        cursor.execute("UPDATE fin_accounts SET balance = balance - ?, updated_at = ? WHERE id = ?",
+                       (total_deduct, now, source_account_id))
+        
+        # Update destination account (add amount)
+        cursor.execute("UPDATE fin_accounts SET balance = balance + ?, updated_at = ? WHERE id = ?",
+                       (amount, now, destination_account_id))
+
+        # Also record in fin_transactions as a transfer for audit history
+        cursor.execute("""
+            INSERT INTO fin_transactions (type, account_id, destination_account_id, amount, description, date, is_cleared, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, 1, ?)
+        """, ("transfer", source_account_id, destination_account_id, amount, f"Transfer: {notes or 'Antar-rekening'}", date_str, now))
+
+        # If fee > 0, record fee as expense
+        if fee > 0:
+            cursor.execute("""
+                INSERT INTO fin_transactions (type, account_id, amount, description, date, is_cleared, created_at)
+                VALUES (?, ?, ?, ?, ?, 1, ?)
+            """, ("expense", source_account_id, fee, f"Biaya transfer ke {dest['name']}", date_str, now))
+
+        conn.commit()
+        FinSnapshotService.mark_snapshots_stale()
+
+        cursor.execute("""
+            SELECT tr.id,
+                   tr.from_account_id AS source_account_id,
+                   tr.to_account_id AS destination_account_id,
+                   tr.amount,
+                   tr.admin_fee AS fee,
+                   tr.notes,
+                   tr.date,
+                   tr.created_at,
+                   sa.name as source_account_name,
+                   sa.bank_name as source_bank_name,
+                   da.name as destination_account_name,
+                   da.bank_name as destination_bank_name
+            FROM fin_transfers tr
+            JOIN fin_accounts sa ON tr.from_account_id = sa.id
+            JOIN fin_accounts da ON tr.to_account_id = da.id
+            WHERE tr.id = ?
+        """, (transfer_id,))
+        created = dict(cursor.fetchone())
+        conn.close()
+        return created
+
+    # =========================================================================
+    # DANA CADANGAN / RESERVES
+    # =========================================================================
+
+    @classmethod
+    def list_reserves(cls) -> List[Dict[str, Any]]:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT r.*, a.name as account_name, a.bank_name
+            FROM fin_reserves r
+            LEFT JOIN fin_accounts a ON r.account_id = a.id
+            ORDER BY r.is_completed ASC, r.id DESC
+        """)
+        rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+        return rows
+
+    @classmethod
+    def create_reserve(cls, name: str, target_amount: int, allocated_amount: int = 0,
+                       account_id: Optional[int] = None, category: Optional[str] = "Dana Darurat",
+                       notes: str = "", target_date: Optional[str] = None) -> Dict[str, Any]:
+        now = datetime.now().isoformat()
+        target_amount = int(target_amount)
+        allocated_amount = int(allocated_amount or 0)
+        is_completed = 1 if allocated_amount >= target_amount and target_amount > 0 else 0
+
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO fin_reserves (name, target_amount, allocated_amount, account_id, category, notes, target_date, is_completed, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, target_amount, allocated_amount, account_id, category, notes, target_date, is_completed, now, now))
+        reserve_id = cursor.lastrowid
+        conn.commit()
+
+        cursor.execute("""
+            SELECT r.*, a.name as account_name, a.bank_name
+            FROM fin_reserves r
+            LEFT JOIN fin_accounts a ON r.account_id = a.id
+            WHERE r.id = ?
+        """, (reserve_id,))
+        res = dict(cursor.fetchone())
+        conn.close()
+        return res
+
+    @classmethod
+    def update_reserve(cls, reserve_id: int, allocated_amount: Optional[int] = None,
+                       target_amount: Optional[int] = None, is_completed: Optional[bool] = None,
+                       notes: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM fin_reserves WHERE id = ?", (reserve_id,))
+        existing = cursor.fetchone()
+        if not existing:
+            conn.close()
+            return None
+
+        existing = dict(existing)
+        now = datetime.now().isoformat()
+
+        new_alloc = int(allocated_amount) if allocated_amount is not None else existing["allocated_amount"]
+        new_target = int(target_amount) if target_amount is not None else existing["target_amount"]
+        if is_completed is not None:
+            comp = 1 if is_completed else 0
+        else:
+            comp = 1 if new_alloc >= new_target and new_target > 0 else 0
+        new_notes = notes if notes is not None else existing["notes"]
+
+        cursor.execute("""
+            UPDATE fin_reserves
+            SET allocated_amount = ?, target_amount = ?, is_completed = ?, notes = ?, updated_at = ?
+            WHERE id = ?
+        """, (new_alloc, new_target, comp, new_notes, now, reserve_id))
+        conn.commit()
+
+        cursor.execute("""
+            SELECT r.*, a.name as account_name, a.bank_name
+            FROM fin_reserves r
+            LEFT JOIN fin_accounts a ON r.account_id = a.id
+            WHERE r.id = ?
+        """, (reserve_id,))
+        res = dict(cursor.fetchone())
+        conn.close()
+        return res
+
+    @classmethod
+    def delete_reserve(cls, reserve_id: int) -> bool:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM fin_reserves WHERE id = ?", (reserve_id,))
+        deleted = cursor.rowcount > 0
+        conn.commit()
+        conn.close()
+        return deleted

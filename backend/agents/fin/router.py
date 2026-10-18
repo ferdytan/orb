@@ -10,7 +10,9 @@ from backend.agents.fin.models import (
     ReminderCreate, ReminderResponse,
     GoalCreate, GoalDeposit, GoalResponse,
     ExecutiveBriefResponse, FinancialSummaryResponse,
-    AskFinRequest, AskFinResponse
+    AskFinRequest, AskFinResponse,
+    TransferCreate, TransferResponse,
+    ReserveCreate, ReserveUpdate, ReserveResponse
 )
 from backend.agents.fin.service import FinService
 from backend.agents.fin.reporting import FinSnapshotService
@@ -68,7 +70,9 @@ def create_account(body: AccountCreate):
         initial_balance=body.initial_balance,
         currency=body.currency,
         icon=body.icon or "👛",
-        color=body.color or "#10B981"
+        color=body.color or "#10B981",
+        bank_name=body.bank_name,
+        account_number=body.account_number
     )
 
 
@@ -218,3 +222,72 @@ def export_csv(period: Optional[str] = Query(None, pattern=r"^\d{4}-\d{2}$")):
         media_type="text/csv",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )
+
+
+# ==========================================
+# Transfers Antar-Rekening
+# ==========================================
+
+@router.get("/transfers", response_model=List[TransferResponse])
+def get_transfers(limit: int = Query(50, ge=1, le=200)):
+    return FinService.list_transfers(limit=limit)
+
+
+@router.post("/transfers", response_model=TransferResponse)
+def create_transfer(body: TransferCreate):
+    try:
+        return FinService.create_transfer(
+            source_account_id=body.source_account_id,
+            destination_account_id=body.destination_account_id,
+            amount=body.amount,
+            fee=body.fee or 0,
+            notes=body.notes or "",
+            date_str=body.date
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# ==========================================
+# Dana Cadangan / Reserves
+# ==========================================
+
+@router.get("/reserves", response_model=List[ReserveResponse])
+def get_reserves():
+    return FinService.list_reserves()
+
+
+@router.post("/reserves", response_model=ReserveResponse)
+def create_reserve(body: ReserveCreate):
+    return FinService.create_reserve(
+        name=body.name,
+        target_amount=body.target_amount,
+        allocated_amount=body.allocated_amount or 0,
+        account_id=body.account_id,
+        category=body.category or "Dana Darurat",
+        notes=body.notes or "",
+        target_date=body.target_date
+    )
+
+
+@router.put("/reserves/{reserve_id}", response_model=ReserveResponse)
+def update_reserve(reserve_id: int, body: ReserveUpdate):
+    res = FinService.update_reserve(
+        reserve_id=reserve_id,
+        allocated_amount=body.allocated_amount,
+        target_amount=body.target_amount,
+        is_completed=body.is_completed,
+        notes=body.notes
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Cadangan tidak ditemukan")
+    return res
+
+
+@router.delete("/reserves/{reserve_id}")
+def delete_reserve(reserve_id: int):
+    success = FinService.delete_reserve(reserve_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Cadangan tidak ditemukan")
+    return {"status": "success", "message": "Dana cadangan dihapus"}
+

@@ -54,3 +54,58 @@ class AskWellyRequest(BaseModel):
 class AskWellyResponse(BaseModel):
     text: str
     suggestions: List[str] = []
+
+
+class InvestmentCategoryCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=50)
+    icon: Optional[str] = "📈"
+    color: Optional[str] = "#3B82F6"
+    sort_order: Optional[int] = 0
+
+
+class InvestmentCategoryResponse(BaseModel):
+    id: int
+    name: str
+    icon: Optional[str] = "📈"
+    color: Optional[str] = "#3B82F6"
+    sort_order: Optional[int] = 0
+
+
+class InvestmentAccountCreate(BaseModel):
+    category_id: Optional[int] = None
+    category_name: str
+    platform_name: str
+    account_identifier: str
+    credential_secret: Optional[str] = ""
+    notes: Optional[str] = ""
+    current_balance: Optional[int] = 0
+
+
+class InvestmentAccountUpdate(BaseModel):
+    category_id: Optional[int] = None
+    category_name: Optional[str] = None
+    platform_name: Optional[str] = None
+    account_identifier: Optional[str] = None
+    credential_secret: Optional[str] = None
+    notes: Optional[str] = None
+    current_balance: Optional[int] = None
+    is_active: Optional[int] = None
+
+
+class InvestmentAccountResponse(BaseModel):
+    id: int
+    category_id: Optional[int] = None
+    category_name: str
+    platform_name: str
+    account_identifier: str
+    credential_secret: Optional[str] = "••••••••"
+    notes: Optional[str] = ""
+    current_balance: int = 0
+    is_active: int = 1
+    created_at: str
+    updated_at: str
+
+
+class VerifyPinRequest(BaseModel):
+    pin: str
+

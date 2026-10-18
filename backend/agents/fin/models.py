@@ -9,7 +9,9 @@ from pydantic import BaseModel, Field
 # ==========================================
 class AccountCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
-    account_type: str = Field(default="cash", description="cash, bank, ewallet, investment")
+    account_type: str = Field(default="cash", description="cash, bank, ewallet, tabungan, investment")
+    bank_name: Optional[str] = ""
+    account_number: Optional[str] = ""
     initial_balance: int = Field(default=0, ge=0, description="Saldo awal integer Rupiah")
     currency: str = Field(default="IDR")
     icon: Optional[str] = "👛"
@@ -19,6 +21,8 @@ class AccountCreate(BaseModel):
 class AccountUpdate(BaseModel):
     name: Optional[str] = None
     account_type: Optional[str] = None
+    bank_name: Optional[str] = None
+    account_number: Optional[str] = None
     icon: Optional[str] = None
     color: Optional[str] = None
     is_active: Optional[int] = None
@@ -28,6 +32,8 @@ class AccountResponse(BaseModel):
     id: int
     name: str
     account_type: str
+    bank_name: Optional[str] = ""
+    account_number: Optional[str] = ""
     balance: int
     currency: str
     icon: str
@@ -244,3 +250,63 @@ class AskFinResponse(BaseModel):
     answer: str
     intent: str
     suggestions: List[str] = []
+
+
+# ==========================================
+# Transfer Schemas (Antar-Rekening)
+# ==========================================
+class TransferCreate(BaseModel):
+    from_account_id: int
+    to_account_id: int
+    amount: int = Field(..., gt=0)
+    admin_fee: Optional[int] = 0
+    date: str
+    notes: Optional[str] = ""
+
+
+class TransferResponse(BaseModel):
+    id: int
+    from_account_id: int
+    from_account_name: str
+    to_account_id: int
+    to_account_name: str
+    amount: int
+    admin_fee: int
+    date: str
+    notes: Optional[str] = ""
+    created_at: str
+
+
+# ==========================================
+# Reserve Schemas (Dana Cadangan & Alokasi Khusus)
+# ==========================================
+class ReserveCreate(BaseModel):
+    name: str = Field(..., min_length=1)
+    target_amount: int = Field(..., ge=0)
+    allocated_amount: Optional[int] = Field(0, ge=0)
+    account_id: Optional[int] = None
+    category: Optional[str] = "Dana Cadangan"
+    notes: Optional[str] = ""
+
+
+class ReserveUpdate(BaseModel):
+    name: Optional[str] = None
+    target_amount: Optional[int] = None
+    allocated_amount: Optional[int] = None
+    account_id: Optional[int] = None
+    category: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class ReserveResponse(BaseModel):
+    id: int
+    name: str
+    target_amount: int
+    allocated_amount: int
+    account_id: Optional[int] = None
+    account_name: Optional[str] = None
+    category: str
+    notes: Optional[str] = ""
+    created_at: str
+    updated_at: str
+

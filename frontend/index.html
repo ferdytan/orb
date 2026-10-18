@@ -37,11 +37,11 @@
   <link rel="preload" href="./assets/avatar_welly_360.png" as="image" type="image/png">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css?v=4.3.0">
-  <link rel="stylesheet" href="./css/avatars.css?v=4.3.0">
-  <link rel="stylesheet" href="./css/ai_office.css?v=4.3.0">
-  <link rel="stylesheet" href="./css/dots_bot.css?v=4.3.0">
-  <link rel="stylesheet" href="./css/chat_first.css?v=4.3.0">
+  <link rel="stylesheet" href="./css/styles.css?v=4.4.0">
+  <link rel="stylesheet" href="./css/avatars.css?v=4.4.0">
+  <link rel="stylesheet" href="./css/ai_office.css?v=4.4.0">
+  <link rel="stylesheet" href="./css/dots_bot.css?v=4.4.0">
+  <link rel="stylesheet" href="./css/chat_first.css?v=4.4.0">
 
   <!-- Critical View Isolation CSS -->
   <style>
@@ -171,7 +171,7 @@
             <!-- Welly Row -->
             <div class="orb-agent-sidebar-row" data-agent="welly" data-agent-name="Welly">
               <div class="orb-sidebar-avatar-wrap">
-                <img src="./assets/avatar_welly_360.png" alt="Welly" />
+                <img src="./assets/avatars/avatar_orb_02.png" alt="Welly" />
               </div>
               <div class="orb-sidebar-info-col">
                 <div class="orb-sidebar-row-head">
@@ -179,6 +179,20 @@
                   <span class="orb-sidebar-time-text">Aktif</span>
                 </div>
                 <div class="orb-sidebar-msg-preview" id="orbSidebarPreview_welly">Perencanaan keuangan & investasi</div>
+              </div>
+            </div>
+
+            <!-- Lois Row -->
+            <div class="orb-agent-sidebar-row" data-agent="lois" data-agent-name="Lois">
+              <div class="orb-sidebar-avatar-wrap">
+                <img src="./assets/avatars/avatar_orb_03.png" alt="Lois" />
+              </div>
+              <div class="orb-sidebar-info-col">
+                <div class="orb-sidebar-row-head">
+                  <span class="orb-sidebar-agent-name">Lois</span>
+                  <span class="orb-sidebar-time-text">Aktif</span>
+                </div>
+                <div class="orb-sidebar-msg-preview" id="orbSidebarPreview_lois">Pembuat invoice & sales order</div>
               </div>
             </div>
           </div>
@@ -196,11 +210,108 @@
           </div>
         </aside>
 
+        <!-- Mobile & Standalone Agent Hub / Directory View (User chooses agent first) -->
+        <div class="orb-agent-hub" id="orbAgentHubView" style="display: none;">
+          <!-- Hub Header -->
+          <header class="orb-hub-header">
+            <div class="orb-hub-brand-row">
+              <img src="./assets/logo_orb.png" alt="Orb" class="orb-hub-brand-logo" />
+              <div>
+                <div class="orb-hub-brand-title">Orb</div>
+                <div class="orb-hub-brand-sub">Personal AI Agents</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="orb-btn-menu-drawer" id="btnHubSettings" title="Pengaturan">⚙️</button>
+            </div>
+          </header>
+
+          <!-- Stories-style circular agents row -->
+          <div class="orb-hub-stories-section">
+            <div class="orb-hub-section-title">ORB CREW</div>
+            <div class="orb-hub-stories-row" id="orbHubStoriesRow">
+              <button class="orb-hub-story-item" data-agent="fin">
+                <div class="orb-hub-story-avatar-wrap">
+                  <img src="./assets/avatars/avatar_orb_01.png" alt="Fin" class="orb-hub-story-avatar" />
+                </div>
+                <span class="orb-hub-story-name">Fin</span>
+              </button>
+              <button class="orb-hub-story-item" data-agent="welly">
+                <div class="orb-hub-story-avatar-wrap">
+                  <img src="./assets/avatars/avatar_orb_02.png" alt="Welly" class="orb-hub-story-avatar" />
+                </div>
+                <span class="orb-hub-story-name">Welly</span>
+              </button>
+              <button class="orb-hub-story-item" data-agent="lois">
+                <div class="orb-hub-story-avatar-wrap">
+                  <img src="./assets/avatars/avatar_orb_03.png" alt="Lois" class="orb-hub-story-avatar" />
+                </div>
+                <span class="orb-hub-story-name">Lois</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Vertical Agent Directory List -->
+          <div class="orb-hub-list-section">
+            <div class="orb-hub-section-title">PILIH ORB UNTUK MEMULAI</div>
+            <div id="orbHubAgentList">
+              <!-- Fin Card -->
+              <div class="orb-hub-agent-card" data-agent="fin">
+                <div class="orb-hub-card-avatar-wrap">
+                  <img src="./assets/avatars/avatar_orb_01.png" alt="Fin" class="orb-hub-card-avatar" />
+                  <span class="orb-hub-card-badge-dot" style="background: #10B981;"></span>
+                </div>
+                <div class="orb-hub-card-body">
+                  <div class="orb-hub-card-top">
+                    <span class="orb-hub-card-name">Fin</span>
+                    <span class="orb-hub-card-role">Keuangan & Bank</span>
+                  </div>
+                  <div class="orb-hub-card-desc" id="orbHubPreview_fin">Pencatatan saldo rekening bank, transfer & cadangan dana</div>
+                </div>
+                <div class="orb-hub-card-arrow">→</div>
+              </div>
+
+              <!-- Welly Card -->
+              <div class="orb-hub-agent-card" data-agent="welly">
+                <div class="orb-hub-card-avatar-wrap">
+                  <img src="./assets/avatars/avatar_orb_02.png" alt="Welly" class="orb-hub-card-avatar" />
+                  <span class="orb-hub-card-badge-dot" style="background: #3B82F6;"></span>
+                </div>
+                <div class="orb-hub-card-body">
+                  <div class="orb-hub-card-top">
+                    <span class="orb-hub-card-name">Welly</span>
+                    <span class="orb-hub-card-role">Investasi & Aset</span>
+                  </div>
+                  <div class="orb-hub-card-desc" id="orbHubPreview_welly">Akun broker (Ajaib, Exness), portofolio & rencana masa depan</div>
+                </div>
+                <div class="orb-hub-card-arrow">→</div>
+              </div>
+
+              <!-- Lois Card -->
+              <div class="orb-hub-agent-card" data-agent="lois">
+                <div class="orb-hub-card-avatar-wrap">
+                  <img src="./assets/avatars/avatar_orb_03.png" alt="Lois" class="orb-hub-card-avatar" />
+                  <span class="orb-hub-card-badge-dot" style="background: #8B5CF6;"></span>
+                </div>
+                <div class="orb-hub-card-body">
+                  <div class="orb-hub-card-top">
+                    <span class="orb-hub-card-name">Lois</span>
+                    <span class="orb-hub-card-role">Invoice & Sales</span>
+                  </div>
+                  <div class="orb-hub-card-desc" id="orbHubPreview_lois">Buat invoice, kirim email pelanggan & sinkronisasi dana ke Fin</div>
+                </div>
+                <div class="orb-hub-card-arrow">→</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Center Conversation Workspace -->
-        <section class="orb-conversation-workspace">
+        <section class="orb-conversation-workspace" id="orbConversationWorkspace">
           <!-- Mobile Header Bar -->
           <header class="orb-mobile-header">
             <div class="orb-mobile-left" style="display: flex; align-items: center; gap: 8px;">
+              <button class="orb-back-to-hub-btn" id="btnOrbMobileBackToHub" title="Kembali ke Hub">←</button>
               <button class="orb-btn-menu-drawer" id="btnOrbOpenDrawer" title="Buka Menu Agent">☰</button>
               <img src="./assets/logo_orb.png" alt="Orb" class="orb-brand-wordmark-img" style="height: 18px; width: auto; max-width: 55px; object-fit: contain;" />
               <span id="orbMobileHeaderTitle" style="font-size: 0.9rem; font-weight: 700; color: var(--orb-text-main);">• Fin</span>
@@ -214,22 +325,28 @@
           <div class="orb-stories-switcher-wrap" id="orbStoriesSwitcher">
             <button class="orb-story-item active" data-agent="fin">
               <div class="orb-story-ring">
-                <img src="./assets/avatar_fin_360.png" alt="Fin" class="orb-story-avatar" />
+                <img src="./assets/avatars/avatar_orb_01.png" alt="Fin" class="orb-story-avatar" />
               </div>
               <span class="orb-story-name">Fin</span>
             </button>
             <button class="orb-story-item" data-agent="welly">
               <div class="orb-story-ring">
-                <img src="./assets/avatar_welly_360.png" alt="Welly" class="orb-story-avatar" />
+                <img src="./assets/avatars/avatar_orb_02.png" alt="Welly" class="orb-story-avatar" />
               </div>
               <span class="orb-story-name">Welly</span>
+            </button>
+            <button class="orb-story-item" data-agent="lois">
+              <div class="orb-story-ring">
+                <img src="./assets/avatars/avatar_orb_03.png" alt="Lois" class="orb-story-avatar" />
+              </div>
+              <span class="orb-story-name">Lois</span>
             </button>
           </div>
 
           <!-- Desktop Agent Topbar -->
           <header class="orb-chat-topbar">
             <div class="orb-agent-header-info">
-              <img src="./assets/avatar_fin_360.png" alt="Fin" class="orb-agent-header-avatar" id="orbTopAgentAvatar" />
+              <img src="./assets/avatars/avatar_orb_01.png" alt="Fin" class="orb-agent-header-avatar" id="orbTopAgentAvatar" />
               <div class="orb-agent-header-text">
                 <h1 id="orbTopAgentName">Fin</h1>
                 <p id="orbTopAgentRole">Pencatatan keuangan & budgeting</p>
@@ -1010,16 +1127,16 @@
   </div>
 
   <!-- Scripts with cache-busting version parameter -->
-  <script src="./js/api.js?v=4.3.0"></script>
-  <script src="./js/auth.js?v=4.3.0"></script>
-  <script src="./js/avatars.js?v=4.3.0"></script>
-  <script src="./js/bento.js?v=4.3.0"></script>
-  <script src="./js/fin_workspace.js?v=4.3.0"></script>
-  <script src="./js/welly_workspace.js?v=4.3.0"></script>
-  <script src="./js/dots_bot.js?v=4.3.0"></script>
-  <script src="./js/agent_registry.js?v=4.3.0"></script>
-  <script src="./js/chat_first.js?v=4.3.0"></script>
-  <script src="./js/app.js?v=4.3.0"></script>
+  <script src="./js/api.js?v=4.4.0"></script>
+  <script src="./js/auth.js?v=4.4.0"></script>
+  <script src="./js/avatars.js?v=4.4.0"></script>
+  <script src="./js/bento.js?v=4.4.0"></script>
+  <script src="./js/fin_workspace.js?v=4.4.0"></script>
+  <script src="./js/welly_workspace.js?v=4.4.0"></script>
+  <script src="./js/dots_bot.js?v=4.4.0"></script>
+  <script src="./js/agent_registry.js?v=4.4.0"></script>
+  <script src="./js/chat_first.js?v=4.4.0"></script>
+  <script src="./js/app.js?v=4.4.0"></script>
 
   <!-- Modal close event handler -->
   <script>
@@ -1038,7 +1155,7 @@
     if ('caches' in window) {
       caches.keys().then((names) => {
         for (const name of names) {
-          if (name !== 'orb-chat-first-v4.3.0') {
+          if (name !== 'orb-chat-first-v4.4.0') {
             caches.delete(name);
           }
         }
@@ -1047,7 +1164,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=4.3.0')
+        navigator.serviceWorker.register('./sw.js?v=4.4.0')
           .then((registration) => {
             registration.update();
           })

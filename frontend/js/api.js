@@ -33,16 +33,32 @@ const DEFAULT_AGENTS = [
     tag_color: "#3B82F6",
     description_icon: "📈",
     description_text: "Perencanaan Kekayaan & Alokasi Tujuan",
-    avatar_image: "./assets/avatar_welly_360.png",
+    avatar_image: "./assets/avatars/avatar_orb_02.png",
     personality: "Plush perencana kekayaan berjas rapi dan kacamata emas. Membantu memetakan alokasi investasi, mengevaluasi kapasitas kontribusi, dan mengawal pencapaian target finansial jangka panjang.",
     color_theme: "#DBEAFE",
     sort_order: 2
+  },
+  {
+    id: "lois",
+    name: "Lois",
+    role: "Invoice & Sales Specialist",
+    domain: "sales",
+    status: "active",
+    tag_text: "active",
+    tag_color: "#8B5CF6",
+    description_icon: "📄",
+    description_text: "Pembuatan Invoice & Sales Order",
+    avatar_image: "./assets/avatars/avatar_orb_03.png",
+    personality: "Asisten invoice & penagihan yang sigap dan rapi. Membantu membuat invoice, mengelola kontak pelanggan, dan mencatat dana masuk ke Fin.",
+    color_theme: "#EDE9FE",
+    sort_order: 3
   }
 ];
 
 window.DEFAULT_AGENTS = DEFAULT_AGENTS;
-window.ORB_FIN_AVATAR = "./assets/avatar_fin_360.png";
-window.ORB_WELLY_AVATAR = "./assets/avatar_welly_360.png";
+window.ORB_FIN_AVATAR = "./assets/avatars/avatar_orb_01.png";
+window.ORB_WELLY_AVATAR = "./assets/avatars/avatar_orb_02.png";
+window.ORB_LOIS_AVATAR = "./assets/avatars/avatar_orb_03.png";
 
 // Helper to consistently resolve asset URLs across root subdomain deployments
 window.resolveOrbAsset = function(path) {
@@ -637,6 +653,301 @@ const API = {
       if (res.ok) return await res.json();
     } catch (_) {}
     return [];
+  },
+
+  // -------------------------------------------------------------
+  // FIN MULTI-ACCOUNT, TRANSFERS & DANA CADANGAN
+  // -------------------------------------------------------------
+  async getFinTransfers(limit = 50) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/fin/transfers?limit=${limit}`), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async createFinTransfer(transferData) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/fin/transfers'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(transferData)
+      });
+      if (res.ok) return await res.json();
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Gagal melakukan transfer antar-rekening");
+    } catch (e) {
+      throw e;
+    }
+  },
+
+  async getFinReserves() {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/fin/reserves'), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async createFinReserve(reserveData) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/fin/reserves'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(reserveData)
+      });
+      if (res.ok) return await res.json();
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Gagal membuat dana cadangan");
+    } catch (e) {
+      throw e;
+    }
+  },
+
+  async updateFinReserve(reserveId, updateData) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/fin/reserves/${reserveId}`), {
+        method: "PUT",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(updateData)
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async deleteFinReserve(reserveId) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/fin/reserves/${reserveId}`), {
+        method: "DELETE",
+        headers: this.getHeaders()
+      });
+      return res.ok;
+    } catch (_) {}
+    return false;
+  },
+
+  // -------------------------------------------------------------
+  // WELLY INVESTMENT CATEGORIES, BROKER ACCOUNTS & PIN VERIFY
+  // -------------------------------------------------------------
+  async getInvestmentCategories() {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/welly/categories'), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async createInvestmentCategory(catData) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/welly/categories'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(catData)
+      });
+      if (res.ok) return await res.json();
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Gagal menambah kategori investasi");
+    } catch (e) {
+      throw e;
+    }
+  },
+
+  async deleteInvestmentCategory(catId) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/welly/categories/${catId}`), {
+        method: "DELETE",
+        headers: this.getHeaders()
+      });
+      return res.ok;
+    } catch (_) {}
+    return false;
+  },
+
+  async getInvestmentAccounts(pin = null) {
+    const qs = pin ? `?pin=${encodeURIComponent(pin)}` : "";
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/welly/accounts${qs}`), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async createInvestmentAccount(accountData) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/welly/accounts'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(accountData)
+      });
+      if (res.ok) return await res.json();
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Gagal menyimpan akun investasi");
+    } catch (e) {
+      throw e;
+    }
+  },
+
+  async deleteInvestmentAccount(accId) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/welly/accounts/${accId}`), {
+        method: "DELETE",
+        headers: this.getHeaders()
+      });
+      return res.ok;
+    } catch (_) {}
+    return false;
+  },
+
+  async verifyWellyPin(pin) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/welly/verify-pin'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ pin })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.unlocked === true;
+      }
+    } catch (_) {}
+    return false;
+  },
+
+  // -------------------------------------------------------------
+  // LOIS AGENT (INVOICING, CUSTOMERS, EMAIL & FIN LINK)
+  // -------------------------------------------------------------
+  async getInvoices(status = null) {
+    const qs = status ? `?status=${encodeURIComponent(status)}` : "";
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/lois/invoices${qs}`), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async getInvoice(invoiceId) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/lois/invoices/${invoiceId}`), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async createInvoice(invoiceData) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/lois/invoices'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(invoiceData)
+      });
+      if (res.ok) return await res.json();
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Gagal membuat invoice");
+    } catch (e) {
+      throw e;
+    }
+  },
+
+  async markInvoicePaid(invoiceId) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/lois/invoices/${invoiceId}/pay`), {
+        method: "POST",
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async sendInvoiceEmail(invoiceId, customEmail = null) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/lois/invoices/${invoiceId}/send-email`), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ custom_email: customEmail })
+      });
+      if (res.ok) return await res.json();
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Gagal mengirim email invoice");
+    } catch (e) {
+      throw e;
+    }
+  },
+
+  async deleteInvoice(invoiceId) {
+    try {
+      const res = await fetch(this.buildUrl(`/api/agents/lois/invoices/${invoiceId}`), {
+        method: "DELETE",
+        headers: this.getHeaders()
+      });
+      return res.ok;
+    } catch (_) {}
+    return false;
+  },
+
+  async getCustomers() {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/lois/customers'), {
+        headers: this.getHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return [];
+  },
+
+  async createCustomer(customerData) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/lois/customers'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(customerData)
+      });
+      if (res.ok) return await res.json();
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Gagal menambah customer");
+    } catch (e) {
+      throw e;
+    }
+  },
+
+  async importCustomers(customersList) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/lois/customers/import'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ customers: customersList })
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  },
+
+  async askLois(message) {
+    try {
+      const res = await fetch(this.buildUrl('/api/agents/lois/ask'), {
+        method: "POST",
+        headers: this.getHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ message })
+      });
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return {
+      text: "Halo! Saya Lois, asisten invoice & sales order Anda. Saya siap membantu menerbitkan invoice, cek status piutang, dan menghubungkan dana masuk ke Fin.",
+      suggestions: ["Daftar invoice belum bayar", "Buat invoice baru", "Lihat daftar pelanggan"]
+    };
   }
 };
 

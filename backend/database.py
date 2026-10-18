@@ -317,6 +317,121 @@ def init_db():
     )
     """)
 
+    # Ensure bank_name and account_number columns on fin_accounts table exist
+    cursor.execute("PRAGMA table_info(fin_accounts)")
+    account_cols = [col[1] for col in cursor.fetchall()]
+    if "bank_name" not in account_cols:
+        cursor.execute("ALTER TABLE fin_accounts ADD COLUMN bank_name TEXT DEFAULT ''")
+    if "account_number" not in account_cols:
+        cursor.execute("ALTER TABLE fin_accounts ADD COLUMN account_number TEXT DEFAULT ''")
+
+    # Fin Transfers Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fin_transfers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_account_id INTEGER NOT NULL,
+        to_account_id INTEGER NOT NULL,
+        amount INTEGER NOT NULL,
+        admin_fee INTEGER NOT NULL DEFAULT 0,
+        date TEXT NOT NULL,
+        notes TEXT DEFAULT '',
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (from_account_id) REFERENCES fin_accounts(id),
+        FOREIGN KEY (to_account_id) REFERENCES fin_accounts(id)
+    )
+    """)
+
+    # Fin Reserved Allocations Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fin_reserves (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        target_amount INTEGER NOT NULL,
+        allocated_amount INTEGER NOT NULL DEFAULT 0,
+        account_id INTEGER,
+        category TEXT NOT NULL DEFAULT 'Dana Cadangan',
+        notes TEXT DEFAULT '',
+        target_date TEXT DEFAULT '',
+        is_completed INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (account_id) REFERENCES fin_accounts(id)
+    )
+    """)
+
+    cursor.execute("PRAGMA table_info(fin_reserves)")
+    reserve_cols = [col[1] for col in cursor.fetchall()]
+    if "is_completed" not in reserve_cols:
+        cursor.execute("ALTER TABLE fin_reserves ADD COLUMN is_completed INTEGER DEFAULT 0")
+    if "target_date" not in reserve_cols:
+        cursor.execute("ALTER TABLE fin_reserves ADD COLUMN target_date TEXT DEFAULT ''")
+
+    # Welly Investment Categories Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS welly_investment_categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        icon TEXT DEFAULT '📈',
+        color TEXT DEFAULT '#3B82F6',
+        sort_order INTEGER DEFAULT 0
+    )
+    """)
+
+    # Welly Investment Accounts / Brokers / Platforms Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS welly_investment_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category_id INTEGER,
+        category_name TEXT NOT NULL,
+        platform_name TEXT NOT NULL,
+        account_identifier TEXT NOT NULL,
+        credential_secret TEXT DEFAULT '',
+        notes TEXT DEFAULT '',
+        current_balance INTEGER NOT NULL DEFAULT 0,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (category_id) REFERENCES welly_investment_categories(id)
+    )
+    """)
+
+    # Lois Invoices Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS invoices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_number TEXT NOT NULL UNIQUE,
+        invoice_type TEXT NOT NULL DEFAULT 'invoice', -- 'invoice', 'sales_order', 'purchase_order'
+        customer_name TEXT NOT NULL,
+        customer_email TEXT DEFAULT '',
+        issue_date TEXT NOT NULL,
+        due_date TEXT NOT NULL,
+        items_json TEXT NOT NULL DEFAULT '[]',
+        subtotal INTEGER NOT NULL DEFAULT 0,
+        tax_amount INTEGER NOT NULL DEFAULT 0,
+        total_amount INTEGER NOT NULL DEFAULT 0,
+        status TEXT NOT NULL DEFAULT 'unpaid', -- 'unpaid', 'paid', 'cancelled'
+        notes TEXT DEFAULT '',
+        template_id TEXT NOT NULL DEFAULT 'modern',
+        email_sent INTEGER NOT NULL DEFAULT 0,
+        email_sent_at TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+    )
+    """)
+
+    # Lois Customers / Contacts Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS customers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT DEFAULT '',
+        phone TEXT DEFAULT '',
+        company TEXT DEFAULT '',
+        address TEXT DEFAULT '',
+        created_at TEXT NOT NULL
+    )
+    """)
+
     conn.commit()
     seed_data(conn)
     conn.close()
@@ -621,9 +736,9 @@ def seed_data(conn):
         """, badges)
 
     # -------------------------------------------------------------
-    # Fin & Welly Collaboration: Active agents are strictly Fin & Welly
+    # Fin, Welly & Lois: Active agents are Fin, Welly, and Lois
     # -------------------------------------------------------------
-    cursor.execute("UPDATE agents SET is_active = 0 WHERE id NOT IN ('fin', 'welly')")
+    cursor.execute("UPDATE agents SET is_active = 0 WHERE id NOT IN ('fin', 'welly', 'lois')")
     
     # 1. Fin Agent Setup
     cursor.execute("""
@@ -680,6 +795,45 @@ def seed_data(conn):
             personality = 'Plush perencana kekayaan berjas rapi dan kacamata emas. Membantu memetakan alokasi investasi, mengevaluasi kapasitas kontribusi, dan mengawal pencapaian target finansial jangka panjang.',
             sort_order = 2
         WHERE id = 'welly'
+        """)
+
+    # 3. Lois Agent Setup (Invoice & Sales Order Specialist)
+    cursor.execute("SELECT COUNT(*) FROM agents WHERE id = 'lois'")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("""
+        INSERT INTO agents (id, name, role, domain, status, tag_text, tag_color, description_icon, description_text, avatar_image, personality, color_theme, sort_order, is_active)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        """, (
+            "lois",
+            "Lois",
+            "Invoice, Sales & Purchase Order",
+            "sales",
+            "active",
+            "active",
+            "#EC4899",
+            "📄",
+            "Pembuat Invoice, Sales & Purchase Order",
+            "./assets/avatars/avatar_orb_03.png",
+            "Asisten cerdas dan teliti untuk pembuatan invoice, sales order, pengiriman email ke customer, dan rekonsiliasi pembayaran.",
+            "#FCE7F3",
+            3
+        ))
+    else:
+        cursor.execute("""
+        UPDATE agents 
+        SET is_active = 1,
+            name = 'Lois',
+            role = 'Invoice, Sales & Purchase Order',
+            domain = 'sales',
+            status = 'active',
+            tag_text = 'active',
+            tag_color = '#EC4899',
+            description_icon = '📄',
+            description_text = 'Pembuat Invoice, Sales & Purchase Order',
+            avatar_image = './assets/avatars/avatar_orb_03.png',
+            personality = 'Asisten cerdas dan teliti untuk pembuatan invoice, sales order, pengiriman email ke customer, dan rekonsiliasi pembayaran.',
+            sort_order = 3
+        WHERE id = 'lois'
         """)
 
     # 3. Seed Default User with Standard PIN & Password 1607
@@ -749,5 +903,77 @@ def seed_data(conn):
         INSERT INTO fin_accounts (name, account_type, balance, initial_balance, currency, icon, color, is_active, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, default_accounts)
+
+    # Ensure bank_name is filled on bank accounts if blank
+    cursor.execute("UPDATE fin_accounts SET bank_name = 'Bank BCA', account_number = '8820192831' WHERE (bank_name IS NULL OR bank_name = '') AND (name LIKE '%Bank%' OR account_type = 'bank')")
+    cursor.execute("UPDATE fin_accounts SET bank_name = 'GoPay / OVO' WHERE (bank_name IS NULL OR bank_name = '') AND (name LIKE '%Wallet%' OR account_type = 'ewallet')")
+
+    # 7b. Seed Default Fin Reserves if empty
+    cursor.execute("SELECT COUNT(*) FROM fin_reserves")
+    if cursor.fetchone()[0] == 0:
+        now = datetime.now().isoformat()
+        default_reserves = [
+            ("Dana Darurat (6 Bulan)", 30000000, 15000000, 1, "Dana Darurat", "Cadangan likuid untuk kebutuhan mendesak", "2026-12-31", 0, now, now),
+            ("Pajak Tahunan", 5000000, 2500000, 1, "Pajak & Kewajiban", "Alokasi estimasi pajak SPT tahunan", "2027-03-31", 0, now, now),
+        ]
+        cursor.executemany("""
+        INSERT INTO fin_reserves (name, target_amount, allocated_amount, account_id, category, notes, target_date, is_completed, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, default_reserves)
+
+    # 8. Seed Default Welly Investment Categories
+    cursor.execute("SELECT COUNT(*) FROM welly_investment_categories")
+    if cursor.fetchone()[0] == 0:
+        default_inv_cats = [
+            ("Saham", "📈", "#3B82F6", 1),
+            ("ETF", "📊", "#10B981", 2),
+            ("Forex", "💱", "#F59E0B", 3),
+            ("Reksa Dana", "💼", "#8B5CF6", 4),
+            ("Kripto", "🪙", "#EC4899", 5),
+            ("Obligasi / SBN", "🏛️", "#06B6D4", 6)
+        ]
+        cursor.executemany("""
+        INSERT INTO welly_investment_categories (name, icon, color, sort_order)
+        VALUES (?, ?, ?, ?)
+        """, default_inv_cats)
+
+    # 9. Seed Default Welly Investment Accounts
+    cursor.execute("SELECT COUNT(*) FROM welly_investment_accounts")
+    if cursor.fetchone()[0] == 0:
+        now = datetime.now().isoformat()
+        default_inv_accs = [
+            (2, "ETF", "Ajaib Investasi", "ferdy@krftworks.my.id", "1607", "Akun ETF S&P500 & IHSG", 15000000, 1, now, now),
+            (3, "Forex", "Broker Exness", "Acc #8829102", "ExnessPass2026!", "Trading EURUSD & XAUUSD Gold", 25000000, 1, now, now)
+        ]
+        cursor.executemany("""
+        INSERT INTO welly_investment_accounts (category_id, category_name, platform_name, account_identifier, credential_secret, notes, current_balance, is_active, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, default_inv_accs)
+
+    # 10. Seed Default Customers for Lois
+    cursor.execute("SELECT COUNT(*) FROM customers")
+    if cursor.fetchone()[0] == 0:
+        now = datetime.now().isoformat()
+        default_customers = [
+            ("PT Maju Bersama", "finance@majubersama.co.id", "08123456789", "PT Maju Bersama", "Jakarta Selatan", now),
+            ("Studio Kreasindo", "contact@kreasindo.com", "08198765432", "Studio Kreasindo", "Bandung", now)
+        ]
+        cursor.executemany("""
+        INSERT INTO customers (name, email, phone, company, address, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, default_customers)
+
+    # 11. Seed Default Invoice for Lois
+    cursor.execute("SELECT COUNT(*) FROM invoices")
+    if cursor.fetchone()[0] == 0:
+        now = datetime.now().isoformat()
+        sample_items = json.dumps([
+            {"description": "Jasa UI/UX Design & PWA Architecture", "qty": 1, "unit_price": 7500000, "total": 7500000},
+            {"description": "Setup Domain & SSL Hosting Cloud", "qty": 1, "unit_price": 500000, "total": 500000}
+        ])
+        cursor.execute("""
+        INSERT INTO invoices (invoice_number, invoice_type, customer_name, customer_email, issue_date, due_date, items_json, subtotal, tax_amount, total_amount, status, notes, template_id, email_sent, email_sent_at, created_at, updated_at)
+        VALUES ('INV-202610-001', 'invoice', 'PT Maju Bersama', 'finance@majubersama.co.id', '2026-10-15', '2026-10-30', ?, 8000000, 0, 8000000, 'unpaid', 'Pembayaran via transfer BCA', 'modern', 1, '2026-10-15T10:00:00', ?, ?)
+        """, (sample_items, now, now))
         
     conn.commit()
